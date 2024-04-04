@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 const Login = () => {
     return (
-        <div className='w-[80%] transition ease-in-out delay-100 md:w-[60%] flex flex-col gap-5 p-5 justify-center items-center rounded-md bg-white'>
+        <div className='w-[80%] transition ease-in-out delay-100 mt-[30px] mb-[30px] md:w-[60%] flex flex-col gap-5 p-5 justify-center items-center rounded-md bg-white'>
             <img src={logo} className='mt-[30px]' alt="" />
 
             <h2 className="text-center text-[22px] md:text-[28px] mb-[10px] font-bold leading-9 tracking-tight text-gray-900">Login</h2>
