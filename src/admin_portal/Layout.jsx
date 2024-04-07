@@ -1,11 +1,26 @@
 import React from 'react'
 import SideNav from './components/SideNav'
 import StickyTitle from "./components/StickyTitle"
-import { Outlet } from 'react-router-dom'
+import { Outlet, Navigate } from 'react-router-dom'
+import { useAuth } from '../AuthContext'
+
+const Loader = () => {
+    return (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-200 opacity-75 z-50">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+    );
+};
 
 const Layout = () => {
+    const { currentUser, loading } = useAuth();
+
+    if (loading) {
+        return <Loader />;
+    }
+
     return (
-        <>
+        currentUser ? (<>
             <div className="fixed left-0 right-0 top-0 bottom-0 flex">
                 <SideNav />
                 <div className="w-full overflow-x-auto bg-[#FAFAFA]">
@@ -17,7 +32,9 @@ const Layout = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </>) : (
+            <Navigate to="/" />
+        )
     )
 }
 

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import logo from "../../assets/logo.png";
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../AuthContext';
 
 const Navbar = () => {
+    const { currentUser } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleMenu = () => {
@@ -31,12 +33,22 @@ const Navbar = () => {
                             <li>
                                 <Link> <p className="block py-2 px-2 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 text-black">Testimonials</p></Link>
                             </li>
-                            <li>
-                                <Link to="/auth"><button className='block py-2 px-6 md:mt-0 mt-1 md:mr-1 rounded-[20px] bg-[#003049] md:border-0 text-white'>Log In</button></Link>
-                            </li>
-                            <li>
-                                <Link to="/auth/signup"><button className='block py-2 px-6 md:mt-0 mt-1 rounded-[20px] bg-[#D62828] md:border-0 text-white'>Sign Up</button></Link>
-                            </li>
+                            {currentUser ? (
+                                <>
+                                    <li>
+                                        <Link to="/admin_portal"><button className='block py-2 px-6 md:mt-0 mt-1 rounded-[20px] bg-[#D62828] md:border-0 text-white'>Admin Portal</button></Link>
+                                    </li>
+                                </>
+                            ) : (
+                                <>
+                                    <li>
+                                        <Link to="/auth"><button className='block py-2 px-6 md:mt-0 mt-1 md:mr-1 rounded-[20px] bg-[#003049] md:border-0 text-white'>Log In</button></Link>
+                                    </li>
+                                    <li>
+                                        <Link to="/auth/signup"><button className='block py-2 px-6 md:mt-0 mt-1 rounded-[20px] bg-[#D62828] md:border-0 text-white'>Sign Up</button></Link>
+                                    </li>
+                                </>
+                            )}
                         </ul>
                     </div>
                 </div>

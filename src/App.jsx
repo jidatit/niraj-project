@@ -10,6 +10,7 @@ import WebLayout from "./web/Layout"
 import BlogDetailspage from './web/pages/BlogDetailspage'
 import AdminLayout from "./admin_portal/Layout"
 import BlogPage from './admin_portal/pages/BlogPage'
+import { useAuth } from './AuthContext'
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
 }
 
 function Logout() {
+  const { logout } = useAuth()
   const navigate = useNavigate();
   return (
     <>
@@ -48,7 +50,7 @@ function Logout() {
           <p className='font-bold text-white text-3xl text-center'>Are you sure you want to logout?</p>
           <div className='w-[540px] h-[70px] flex flex-row gap-6 justify-center'>
             <button onClick={() => { navigate('/admin_portal') }} className='bg-[#BB000E] rounded-md w-[229px] h-[56px] font-bold text-white'>Cancel</button>
-            <button className='bg-[#059C4B] rounded-md w-[229px] h-[56px] font-bold text-white'>Confirm</button>
+            <button onClick={logout} className='bg-[#059C4B] rounded-md w-[229px] h-[56px] font-bold text-white'>Confirm</button>
           </div>
         </div>
       </div>

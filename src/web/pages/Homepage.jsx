@@ -1,51 +1,42 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import bg from "../../assets/homepage/bg1.png"
 import handimg from "../../assets/homepage/hand.png"
 import personimg from "../../assets/homepage/person.png"
 import bannerimg from "../../assets/homepage/banner.png"
 import Faq from '../components/cards/Faq'
 import ResourceCenter from '../components/cards/ResourceCenter'
-import c1 from "../../assets/homepage/c1.png"
-import c2 from "../../assets/homepage/c2.png"
-import c3 from "../../assets/homepage/c3.png"
-import c4 from "../../assets/homepage/c4.png"
+// import c1 from "../../assets/homepage/c1.png"
+// import c2 from "../../assets/homepage/c2.png"
+// import c3 from "../../assets/homepage/c3.png"
+// import c4 from "../../assets/homepage/c4.png"
 import Testimonials from '../components/cards/Testimonials'
 import slidericon from "../../assets/homepage/slidericon.png"
+import { Link } from 'react-router-dom'
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../db';
 
 const Homepage = () => {
-
+  const [blogs, setBlogs] = useState([]);
   const faqs = new Array(8).fill(null);
 
   const faqComponents = faqs.map((_, index) => (
     <Faq key={index} question={`Question ${index + 1}`} answer={`Answer ${index + 1}`} />
   ));
 
-  const rc_data = [
-    {
-      img: c1,
-      topic_name: "Topic Name",
-      heading: "Curabitur ullamcorper ultricies nisi",
-      desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu."
-    },
-    {
-      img: c2,
-      topic_name: "Topic Name",
-      heading: "Curabitur ullamcorper ultricies nisi",
-      desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu."
-    },
-    {
-      img: c3,
-      topic_name: "Topic Name",
-      heading: "Curabitur ullamcorper ultricies nisi",
-      desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu."
-    },
-    {
-      img: c4,
-      topic_name: "Topic Name",
-      heading: "Curabitur ullamcorper ultricies nisi",
-      desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu."
-    },
-  ]
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const blogsCollection = collection(db, 'blogs');
+        const snapshot = await getDocs(blogsCollection);
+        const blogsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setBlogs(blogsData);
+      } catch (error) {
+        console.error('Error fetching blogs:', error);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
 
   return (
     <>
@@ -65,8 +56,8 @@ const Homepage = () => {
             Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
           </p>
           <div className='w-full flex flex-col md:flex-row justify-center md:justify-start items-center gap-5'>
-            <button className='bg-[#003049] rounded-[32px] py-1 font-semibold px-6 text-white text-[18px] md:text-[28px]'>Get Free Quote</button>
-            <button className='bg-[#D62828] rounded-[32px] text-[18px] py-1 font-semibold px-6 text-white md:text-[28px]'>Register</button>
+            <Link to="/auth"><button className='bg-[#003049] rounded-[32px] py-1 font-semibold px-6 text-white text-[18px] md:text-[28px]'>Get Free Quote</button></Link>
+            <Link to="/auth/signup"><button className='bg-[#D62828] rounded-[32px] text-[18px] py-1 font-semibold px-6 text-white md:text-[28px]'>Register</button></Link>
           </div>
         </div>
 
@@ -84,7 +75,7 @@ const Homepage = () => {
           <p className='text-start md:text-[28px] text-[22px]'>
             Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
           </p>
-          <button className='bg-[#003049] rounded-[32px] py-1 font-semibold px-6 text-white text-[18px] md:text-[28px]'>Get Free Quote</button>
+          <Link to="/auth"><button className='bg-[#003049] rounded-[32px] py-1 font-semibold px-6 text-white text-[18px] md:text-[28px]'>Get Free Quote</button></Link>
         </div>
       </div>
 
@@ -97,8 +88,8 @@ const Homepage = () => {
       >
         <h3 className='text-center w-[70%] text-white md:text-[40px] font-semibold text-[23px]'>In search of reliable insurance experts? You're in the right place with us.</h3>
         <div className='w-[60%] flex md:flex-row flex-col justify-center items-center gap-5'>
-          <button className='bg-[#003049] rounded-[32px] py-1 font-semibold px-6 text-white text-[18px] md:text-[28px]'>Get Free Quote</button>
-          <button className='bg-[#D62828] rounded-[32px] text-[18px] py-1 font-semibold px-6 text-white md:text-[28px]'>Register</button>
+          <Link to="/auth"><button className='bg-[#003049] rounded-[32px] py-1 font-semibold px-6 text-white text-[18px] md:text-[28px]'>Get Free Quote</button></Link>
+          <Link to="/auth/signup"><button className='bg-[#D62828] rounded-[32px] text-[18px] py-1 font-semibold px-6 text-white md:text-[28px]'>Register</button></Link>
         </div>
       </div>
 
@@ -116,9 +107,9 @@ const Homepage = () => {
           <h2 className='font-bold md:text-[40px] md:mt-0 mt-[-90px] text-[25px] text-[#003049]'>Resource Center</h2>
         </div>
         <div className='w-[80%] mb-[40px] grid md:grid-cols-2 justify-center items-center gap-5 grid-cols-1'>
-          {rc_data?.map((item, index) => (
-            <div key={index} style={{ marginTop: `${index % 2 === 0 ? '-80px' : '0px'}` }}>
-              <ResourceCenter key={index} item={item} />
+          {blogs && blogs.length >= 4 && blogs.slice(0, 4).map((item, index) => (
+            <div key={index}>
+              <Link to={`/resource-center/blog/${item.id}`}><ResourceCenter key={index} item={item} /></Link>
             </div>
           ))}
         </div>
