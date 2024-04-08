@@ -130,6 +130,11 @@ const BlogPage = () => {
                 accessorKey: 'preview_text',
                 header: 'Preview Text',
                 size: 100,
+                Cell: ({ cell }) => (
+                    <Box >
+                      {cell.getValue().length > 150 ? cell.getValue().slice(0, 150) + '...' : cell.getValue()}
+                    </Box>
+                  )
             },
             {
                 header: 'Actions',
@@ -154,7 +159,7 @@ const BlogPage = () => {
             <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
                 <ToastContainer />
                 <div className="w-[90%] flex flex-col gap-5 justify-center items-start">
-                    <button className="md:w-[30%] font-semibold md:font-bold rounded-[33px] bg-[#003049] text-white text-[15px] md:text-[24px] py-2 md:px-3 px-2 md:py-4" onClick={handleOpen}>Create a New Blog +</button>
+                    <button className="md:w-[30%] font-semibold md:font-bold rounded-[33px] bg-[#003049] text-white text-[15px] md:text-[22px] py-2 md:px-3 px-2 md:py-4" onClick={handleOpen}>Create a New Blog +</button>
                     <h1 className="text-black font-bold text-[25px] mt-5 mb-5">Previously Added Blog</h1>
                 </div>
 
@@ -169,7 +174,7 @@ const BlogPage = () => {
                         justifyContent: 'center',
                     }}
                 >
-                    <div className="md:w-[50%] w-[90%] gap-4 bg-white flex flex-col justify-center items-center rounded-md shadow-lg">
+                    <div className="md:w-[50%] w-[90%] gap-4 bg-white flex flex-col  rounded-md shadow-lg overflow-y-auto max-h-[80vh] items-center py-[30px]">
                         <h3 className='font-bold md:text-[24px] text-[15px] text-center'>Create a New Blog</h3>
                         <TextField required label="Enter Blog Title" type="text" onChange={handleChange} name="title" value={formData.title} className="w-[70%]" />
                         <TextField required label="Enter Blog Topic" type="text" onChange={handleChange} name="topic" value={formData.topic} className="w-[70%]" />

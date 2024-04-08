@@ -15,7 +15,7 @@ const Navbar = () => {
         <>
             <nav className="bg-white border-gray-200">
                 <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-                    <Link to="/"><img src={logo} className="w-[221px] h-[139px]" alt="Flowbite Logo" /></Link>
+                    <Link to="/"><img src={logo} className=" max-h-[70px] transform-scale-[1.3]" alt="Flowbite Logo" /></Link>
                     <button onClick={toggleMenu} type="button" className="inline-flex items-center p-2 w-10 h-10 mt-[-20px] justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-200" aria-controls="navbar-default" aria-expanded={isMenuOpen}>
                         <span className="sr-only">Open main menu</span>
                         <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
