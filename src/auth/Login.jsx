@@ -41,7 +41,6 @@ const Login = () => {
                 <Link to="/auth/signup" className="block"><button className="bg-[#D62828] w-full text-[20px] font-bold text-white px-4 py-2 rounded-md">Sign up</button></Link>
             </div>
 
-            <p className="text-gray-600 md:text-[15px] mb-[30px] text-[12px]">Sign up using</p>
 
         </div>
     )
