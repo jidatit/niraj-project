@@ -4,7 +4,7 @@ import userpic from "../../../assets/homepage/user.png"
 const Testimonials = () => {
     return (
         <>
-            <div className="max-w-lg mx-auto bg-[#F0FAFF] border-[#9DDEFF] border-[1px] rounded-xl overflow-hidden shadow-lg">
+            <div className=" max-w-[16rem] sm:max-w-[18rem] md:max-w-[20rem] lg:max-w-[24rem] xl:max-w-lg mx-auto bg-[#F0FAFF] border-[#9DDEFF] border-[1px] rounded-xl overflow-hidden shadow-lg">
                 <div className="flex items-center p-4">
                     <img className="w-12 h-12 rounded-full mr-4" src={userpic} alt="User Image" />
                     <div>

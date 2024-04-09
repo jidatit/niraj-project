@@ -10,6 +10,7 @@ import slidericon from "../../assets/homepage/slidericon.png"
 import { Link } from 'react-router-dom'
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../db';
+import TestimonialSlider from '../components/Slider'
 
 const Homepage = () => {
   const [blogs, setBlogs] = useState([]);
@@ -116,10 +117,10 @@ const Homepage = () => {
           <h2 className='font-bold md:text-[40px] text-[25px] text-[#003049]'>Testimonials</h2>
         </div>
 
-        <div className='w-[90%] md:w-[80%] flex flex-col md:flex-row justify-center mb-4 md:mb-[40px] items-center gap-5'>
-          <Testimonials />
-          <Testimonials />
+        <div className='w-full flex flex-col md:flex-row justify-center mb-4 md:mb-[40px] items-center gap-5'>
+          <TestimonialSlider/>
         </div>
+
       </div>
 
     </>
