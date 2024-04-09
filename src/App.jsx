@@ -11,6 +11,7 @@ import BlogDetailspage from './web/pages/BlogDetailspage'
 import AdminLayout from "./admin_portal/Layout"
 import BlogPage from './admin_portal/pages/BlogPage'
 import { useAuth } from './AuthContext'
+import NotFound from './web/pages/NotFound'
 
 function App() {
   return (
@@ -33,6 +34,8 @@ function App() {
             <Route index element={<BlogPage />} />
             <Route path='logout' element={<Logout />} />
           </Route>
+
+          <Route path='*' element={<NotFound />} />
 
         </Routes>
       </Router>

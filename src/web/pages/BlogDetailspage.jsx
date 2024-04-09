@@ -47,6 +47,10 @@ const BlogDetailspage = () => {
                 </div>
 
                 <div className='w-[80%] flex flex-col gap-5 justify-start items-start'>
+                    <p>{blogData.preview_text}</p>
+                </div>
+
+                <div className='w-[80%] flex flex-col gap-5 justify-start items-start'>
                     {blogData.dynamicContent.map((content, index) => (
                         <div key={index}>
                             <h1 className='md:text-[30px] md:text-start text-[#003049] font-bold'>{content.heading}</h1>

@@ -3,7 +3,7 @@ import { TextField, Box } from '@mui/material';
 import Button from '../components/Button';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db, storage } from '../../../db';
 import { ref, uploadBytes, getDownloadURL } from '@firebase/storage';
 import Modal from '@mui/material/Modal';
@@ -115,11 +115,21 @@ const BlogPage = () => {
                 accessorKey: 'title',
                 header: 'Blog Title',
                 size: 100,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'topic',
                 header: 'Topic',
                 size: 100,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'author_name',
@@ -132,9 +142,9 @@ const BlogPage = () => {
                 size: 100,
                 Cell: ({ cell }) => (
                     <Box >
-                      {cell.getValue().length > 150 ? cell.getValue().slice(0, 150) + '...' : cell.getValue()}
+                        {cell.getValue().length > 150 ? cell.getValue().slice(0, 150) + '...' : cell.getValue()}
                     </Box>
-                  )
+                )
             },
             {
                 header: 'Actions',
@@ -153,6 +163,17 @@ const BlogPage = () => {
         ],
         [],
     );
+
+    const DeleteBlog = async (blog_id) => {
+        try {
+            await deleteDoc(doc(db, 'blogs', blog_id));
+            toast.success('Blog deleted successfully!');
+            setBlogs(prevBlogs => prevBlogs.filter(blog => blog.id !== blog_id));
+        } catch (error) {
+            console.error('Error deleting blog:', error);
+            toast.error('Error occurred while deleting blog');
+        }
+    }
 
     return (
         <>
@@ -245,8 +266,34 @@ const BlogPage = () => {
                 <div className="w-[90%] flex flex-col gap-5 justify-center items-start">
                     {blogs ? (<div className="table w-full">
                         <MaterialReactTable
+                            enableRowSelection
                             columns={columns}
                             data={blogs}
+                            renderTopToolbarCustomActions={({ table }) => {
+                                const handleDelete = () => {
+                                    const selectedRows = table.getSelectedRowModel().flatRows;
+                                    if (selectedRows.length === 1) {
+                                        const selectedRowId = selectedRows[0].original.id;
+                                        alert('Deleting Blog with ID: ' + selectedRowId);
+                                        DeleteBlog(selectedRowId)
+                                    } else {
+                                        alert('Please select a single row to delete.');
+                                    }
+                                }
+                                return (
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            color="error"
+                                            disabled={!table.getIsSomeRowsSelected()}
+                                            onClick={handleDelete}
+                                            className='bg-[#003049] text-white rounded-lg py-2 px-6'
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                )
+                            }}
+
                         />
                     </div>) : (null)}
                 </div>
