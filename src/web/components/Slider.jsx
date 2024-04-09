@@ -11,7 +11,7 @@ function SampleNextArrow(props) {
   const { className, style, onClick } = props;
   return (
     <div
-      className=" absolute top-[50%] right-[-15px] sm:right-[-25px] cursor-pointer px-1"
+      className=" absolute top-[50%] right-[-15px] sm:right-[-25px] cursor-pointer px-1 z-[20]"
       onClick={onClick}
     ><img src={right} className=" max-w-[24px] md:max-w-[40px] w-full"/></div>
   );
@@ -21,7 +21,7 @@ function SamplePrevArrow(props) {
   const { className, style, onClick } = props;
   return (
     <div
-      className=" absolute top-[50%] left-[-15px] sm:left-[-25px] cursor-pointer px-1"
+      className=" absolute top-[50%] left-[-15px] sm:left-[-25px] cursor-pointer px-1 z-[20]"
       onClick={onClick}
     ><img src={left} className=" max-w-[24px] md:max-w-[40px] w-full"/></div>
   );

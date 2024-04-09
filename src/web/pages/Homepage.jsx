@@ -36,7 +36,7 @@ const Homepage = () => {
   }, []);
 
   return (
-    <>
+    <div className=' overflow-x-hidden'>
 
       <div className='w-full relative pb-[70px] h-[80vh] md:h-[70vh] lg:h-[100vh] flex flex-col md:flex-row justify-end md:justify-center items-center gap-5'
         style={{
@@ -117,13 +117,13 @@ const Homepage = () => {
           <h2 className='font-bold md:text-[40px] text-[25px] text-[#003049]'>Testimonials</h2>
         </div>
 
-        <div className='w-full flex flex-col md:flex-row justify-center mb-4 md:mb-[40px] items-center gap-5'>
+        <div className='w-full flex flex-col md:flex-row justify-center mb-4 md:mb-[40px] items-center gap-5 overflow-x-hidden'>
           <TestimonialSlider/>
         </div>
 
       </div>
 
-    </>
+    </div>
   )
 }
 
