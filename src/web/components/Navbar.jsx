@@ -1,15 +1,31 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import logo from "../../assets/logo.png";
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
+import DropdownMenu from './dropdown_button/button';
 
 const Navbar = () => {
     const { currentUser } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef(null);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [menuRef]);
+
 
     return (
         <>
@@ -22,7 +38,7 @@ const Navbar = () => {
                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15" />
                         </svg>
                     </button>
-                    <div className={`w-full md:flex md:w-auto ${isMenuOpen ? "" : "hidden"}`} id="navbar-default">
+                    <div ref={menuRef} className={`w-full transition-all ease-in-out delay-200 md:flex md:w-auto ${isMenuOpen ? "" : "hidden"}`} id="navbar-default">
                         <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-white md:flex-row lg:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white">
                             <li>
                                 <Link to="/"> <p className="block py-2 px-2 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 text-black">Home</p></Link>
@@ -42,10 +58,10 @@ const Navbar = () => {
                             ) : (
                                 <>
                                     <li>
-                                        <Link to="/auth"><button className='block py-2 px-6 md:mt-0 mt-1 md:mr-1 rounded-[20px] bg-[#003049] md:border-0 text-white'>Log In</button></Link>
+                                        <DropdownMenu L={true} />
                                     </li>
                                     <li>
-                                        <Link to="/auth/signup"><button className='block py-2 px-6 md:mt-0 mt-1 rounded-[20px] bg-[#D62828] md:border-0 text-white'>Sign Up</button></Link>
+                                        <DropdownMenu S={true} />
                                     </li>
                                 </>
                             )}

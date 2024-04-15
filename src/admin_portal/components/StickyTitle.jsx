@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../AuthContext';
 
 function StickyTitle() {
+  const { currentUser } = useAuth()
   return (
     <>
       <div className="flex-grow text-gray-800">
@@ -15,10 +17,28 @@ function StickyTitle() {
           <div className="flex flex-shrink-0 items-center ml-auto">
             <button className="inline-flex items-center p-2 hover:bg-gray-100 focus:bg-gray-100 rounded-lg">
               <span className="sr-only">User Menu</span>
+
               <div className="hidden md:flex md:flex-col md:items-end md:leading-tight">
-                <span className="font-semibold">Grace Simmons</span>
-                <span className="text-sm text-gray-600">Lecturer</span>
+                {currentUser.data ? (
+                  <>
+                    <span className="font-semibold">{currentUser.data.name || "Grace Simmons"}</span>
+                    {currentUser.data?.occupation && (<span className="text-sm text-gray-600">
+                      {currentUser.data?.occupation ? currentUser.data.occupation : (
+                        <div className="bg-transparent rounded-lg w-[150px] shadow-md pt-1 pb-1 pl-2 animate-pulse">
+                          <div className="w-[90%] h-4 bg-gray-300 rounded mb-2"></div>
+                          <div className="w-[90%] h-2 bg-gray-300 rounded mb-2"></div>
+                        </div>
+                      )}
+                    </span>)}
+                  </>
+                ) : (
+                  <div className="bg-white rounded-lg w-[150px] shadow-md pt-1 pb-1 pl-2 animate-pulse">
+                    <div className="w-[90%] h-4 bg-gray-300 rounded mb-2"></div>
+                    <div className="w-[90%] h-2 bg-gray-300 rounded mb-2"></div>
+                  </div>
+                )}
               </div>
+
               <span className="h-12 w-12 ml-2 sm:ml-3 mr-2 bg-gray-100 rounded-full overflow-hidden">
                 <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="user profile photo" className="h-full w-full object-cover" />
               </span>
@@ -36,12 +56,12 @@ function StickyTitle() {
                 </svg>
               </button>
               <Link to="/admin_portal/logout">
-              <button className="relative p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 rounded-full">
-                <span className="sr-only">Log out</span>
-                <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </button>
+                <button className="relative p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 rounded-full">
+                  <span className="sr-only">Log out</span>
+                  <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
               </Link>
             </div>
           </div>

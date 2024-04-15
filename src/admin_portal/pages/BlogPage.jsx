@@ -180,7 +180,7 @@ const BlogPage = () => {
             <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
                 <ToastContainer />
                 <div className="w-[90%] flex flex-col gap-5 justify-center items-start">
-                    <button className="md:w-[30%] font-semibold md:font-bold rounded-[33px] bg-[#003049] text-white text-[15px] md:text-[22px] py-2 md:px-3 px-2 md:py-4" onClick={handleOpen}>Create a New Blog +</button>
+                    <button className="md:w-[30%] font-semibold md:font-bold rounded-[33px] bg-[#003049] text-white text-[15px] lg:text-[22px] py-2 md:px-3 px-2 md:py-4" onClick={handleOpen}>Create a New Blog +</button>
                     <h1 className="text-black font-bold text-[25px] mt-5 mb-5">Previously Added Blog</h1>
                 </div>
 

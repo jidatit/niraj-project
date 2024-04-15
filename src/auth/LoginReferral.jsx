@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../db';
 
-const Login = () => {
+const LoginReferral = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -34,11 +34,11 @@ const Login = () => {
             <button className="bg-[#003049] w-full md:w-[60%] text-[20px] font-bold text-white px-4 py-2 rounded-md" onClick={handleLogin}>Login</button>
 
             <div className="w-full md:w-[60%] flex flex-col justify-center items-end">
-            <Link to="/auth/signup_client"><p className="md:text-[15px] text-[12px] hover:underline">Not a member?</p></Link>
+            <Link to="/auth/signup_referral"><p className="md:text-[15px] text-[12px] hover:underline">Not a member?</p></Link>
             </div>
 
             <div className="w-full md:w-[60%]">
-                <Link to="/auth/signup_client" className="block"><button className="bg-[#D62828] w-full text-[20px] font-bold text-white px-4 py-2 rounded-md">Sign up</button></Link>
+                <Link to="/auth/signup_referral" className="block"><button className="bg-[#D62828] w-full text-[20px] font-bold text-white px-4 py-2 rounded-md">Sign up</button></Link>
             </div>
 
 
@@ -46,4 +46,4 @@ const Login = () => {
     )
 }
 
-export default Login;
+export default LoginReferral;

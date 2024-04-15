@@ -12,22 +12,18 @@ const SideNav = () => {
     { name: "Logout", link: "/admin_portal/logout", icon: FiLogOut },
   ];
 
-  // State to manage the open/closed state of the side navigation
   const [open, setOpen] = useState(true);
 
-  // Get the current location using the useLocation hook
   const location = useLocation();
 
-  // Function to update the `open` state based on screen width
   const updateScreenSize = () => {
-    if (window.innerWidth <= 768) { // Adjust the breakpoint as needed
+    if (window.innerWidth <= 768) {
       setOpen(false);
     } else {
       setOpen(true);
     }
   };
 
-  // Call the `updateScreenSize` function when the component mounts and on window resize
   useEffect(() => {
     updateScreenSize();
     window.addEventListener("resize", updateScreenSize);

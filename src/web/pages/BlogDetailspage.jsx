@@ -36,13 +36,14 @@ const BlogDetailspage = () => {
         <>
             <div className='w-full flex flex-col mb-[30px] justify-center items-center gap-5'>
                 <div className='w-[80%] flex flex-col mt-[20px] mb-[20px] justify-center items-center'>
-                    <img className="w-full" src={blogData.MainImageUrl} alt="Blog Main Image" />
+                    <img className="w-full max-h-[618px]" src={blogData.MainImageUrl} alt="Blog Main Image" />
                 </div>
-                <div className='w-[80%] flex md:flex-row gap-5 flex-col justify-start items-center'>
+                
+                <div className='w-[80%] flex flex-col sm:flex-row gap-5 justify-start sm:items-center items-start'>
                     <img className="rounded-full w-[70px] h-[70px]" src={blogData.authorImageUrl} alt="Author Image" />
                     <div className='flex flex-col justify-center items-start'>
                         <h1 className='md:text-[26px] font-bold'>{blogData.title}</h1>
-                        <p className='md:text-[20px]'>{blogData.author_name} - 22 minutes ago</p>
+                        <p className='text-[14px] md:text-[20px]'>{blogData.author_name} - 22 minutes ago</p>
                     </div>
                 </div>
 

@@ -12,6 +12,8 @@ import AdminLayout from "./admin_portal/Layout"
 import BlogPage from './admin_portal/pages/BlogPage'
 import { useAuth } from './AuthContext'
 import NotFound from './web/pages/NotFound'
+import SignupReferral from './auth/SignupReferral'
+import LoginReferral from './auth/LoginReferral'
 
 function App() {
   return (
@@ -21,7 +23,9 @@ function App() {
 
           <Route path='/auth' element={<Layout />}>
             <Route index element={<Login />} />
-            <Route path='signup' element={<Signup />} />
+            <Route path='login_referral' element={<LoginReferral />} />
+            <Route path='signup_client' element={<Signup />} />
+            <Route path='signup_referral' element={<SignupReferral />} />
           </Route>
 
           <Route path='/' element={<WebLayout />}>
