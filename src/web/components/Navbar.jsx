@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import logo from "../../assets/logo.png";
+import logo from "../../assets/newlogo.png";
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
 import DropdownMenu from './dropdown_button/button';

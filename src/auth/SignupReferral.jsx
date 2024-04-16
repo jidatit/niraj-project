@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import logo from "../assets/logo.png"
+import logo from "../assets/newlogo.png"
 import { Link } from 'react-router-dom'
 import CreatableSelect from 'react-select/creatable';
 import { auth, db } from '../../db';

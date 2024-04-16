@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import logo from "../assets/logo.png"
+import logo from "../assets/newlogo.png"
 import { Link } from 'react-router-dom'
 import { auth, db } from '../../db';
 import { createUserWithEmailAndPassword } from 'firebase/auth';

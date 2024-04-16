@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import LOGO from "../../assets/homepage/Logo.png"
+import LOGO from "../../assets/newlogo.png"
 import { FiLogOut } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
 
@@ -38,7 +38,7 @@ const SideNav = () => {
       >
         <div className="py-3 flex justify-center items-center">
           {open && (
-            <img className="cursor-pointer unselectable" onClick={() => setOpen(!open)} src={LOGO} alt="" />
+            <img className="cursor-pointer unselectable w-[200px]" onClick={() => setOpen(!open)} src={LOGO} alt="" />
           )}
           <img
             className="cursor-pointer"
