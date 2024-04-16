@@ -29,13 +29,7 @@ function SamplePrevArrow(props) {
 
 function TestimonialSlider() {
 
-  // const handleSlideChange = (currentSlide, slidesCount) => {
-  //   setShowPrevButton(currentSlide !== 0);
-  //   setShowNextButton(currentSlide !== slidesCount - 1);
-  // };
-
   var settings = {
-    // dots: true,
     infinite: true,
     autoplay: false,
     speed: 2000,
@@ -69,7 +63,6 @@ function TestimonialSlider() {
         }
       }
     ],
-    // beforeChange: (current, next) => handleSlideChange(next, settings.slidesToShow)
   };
 
   return (
