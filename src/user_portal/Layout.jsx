@@ -20,7 +20,7 @@ const Layout = () => {
     }
 
     return (
-        currentUser && signupType === "admin" ? (<>
+        currentUser && signupType !== "admin" ? (<>
             <div className="fixed left-0 right-0 top-0 bottom-0 flex">
                 <SideNav />
                 <div className="w-full overflow-x-auto bg-[#FAFAFA]">

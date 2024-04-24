@@ -10,9 +10,7 @@ const LoginReferral = () => {
 
     const handleLogin = async () => {
         try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            localStorage.setItem('currentUser', JSON.stringify(user));
+            await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
             console.error('Error signing in:', error.message);
         }
@@ -34,7 +32,7 @@ const LoginReferral = () => {
             <button className="bg-[#003049] w-full md:w-[60%] text-[20px] font-bold text-white px-4 py-2 rounded-md" onClick={handleLogin}>Login</button>
 
             <div className="w-full md:w-[60%] flex flex-col justify-center items-end">
-            <Link to="/auth/signup_referral"><p className="md:text-[15px] text-[12px] hover:underline">Not a member?</p></Link>
+                <Link to="/auth/signup_referral"><p className="md:text-[15px] text-[12px] hover:underline">Not a member?</p></Link>
             </div>
 
             <div className="w-full md:w-[60%]">

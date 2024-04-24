@@ -4,10 +4,28 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
 import DropdownMenu from './dropdown_button/button';
 
+const LoaderButton = () => {
+    return (
+        <button className="animate-pulse bg-gray-300 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 text-gray-400 font-semibold py-2 px-4 rounded-md">
+            Loading...
+        </button>
+    )
+}
+
 const Navbar = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, signupType } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [loaderB, setLoaderB] = useState(true);
+
     const menuRef = useRef(null);
+
+    useEffect(() => {
+        setLoaderB(true);
+        const timer = setTimeout(() => {
+            setLoaderB(false);
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, [])
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -49,20 +67,34 @@ const Navbar = () => {
                             <li>
                                 <Link> <p className="block py-2 px-2 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 text-black">Testimonials</p></Link>
                             </li>
-                            {currentUser ? (
-                                <>
-                                    <li>
-                                        <Link to="/admin_portal"><button className='block py-2 px-6 md:mt-0 mt-1 rounded-[20px] bg-[#D62828] md:border-0 text-white'>Admin Portal</button></Link>
-                                    </li>
-                                </>
+                            {loaderB ? (
+                                <LoaderButton />
                             ) : (
                                 <>
-                                    <li>
-                                        <DropdownMenu L={true} />
-                                    </li>
-                                    <li>
-                                        <DropdownMenu S={true} />
-                                    </li>
+                                    {currentUser && signupType === "admin" ? (
+                                        <li>
+                                            <Link to="/admin_portal">
+                                                <button className='block py-2 px-6 md:mt-0 mt-1 rounded-[20px] bg-[#D62828] md:border-0 text-white'>Admin Portal</button>
+                                            </Link>
+                                        </li>
+                                    ) : currentUser && signupType !== "admin" ? (
+                                        <>
+                                            <li>
+                                                <Link to="/user_portal">
+                                                    <button className='block py-2 px-6 md:mt-0 mt-1 rounded-[20px] bg-[#2ca960] md:border-0 text-white'>User Portal</button>
+                                                </Link>
+                                            </li>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <li>
+                                                <DropdownMenu L={true} />
+                                            </li>
+                                            <li>
+                                                <DropdownMenu S={true} />
+                                            </li>
+                                        </>
+                                    )}
                                 </>
                             )}
                         </ul>
