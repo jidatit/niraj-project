@@ -5,6 +5,8 @@ import caricon from "../../assets/dash/car.png"
 import liaicon from "../../assets/dash/lia.png"
 import floodicon from "../../assets/dash/flood.png"
 import HomeForm from './RequestFormTypes/HomeForm';
+import AutoForm from './RequestFormTypes/AutoForm';
+import LiabilityForm from './RequestFormTypes/LiabilityForm';
 
 const RequestPage = () => {
     const [selectedValue, setSelectedValue] = useState({
@@ -33,6 +35,8 @@ const RequestPage = () => {
                     </div>
 
                     {selectedValue && selectedValue.value === "Home" && (<HomeForm />)}
+                    {selectedValue && selectedValue.value === "Auto" && (<AutoForm />)}
+                    {selectedValue && selectedValue.value === "Liability" && (<LiabilityForm />)}
 
                 </div>
             </div>

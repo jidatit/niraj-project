@@ -55,8 +55,8 @@ const HomeForm = () => {
                 </div>
 
                 {formData.persons.map((person, index) => (
-                    <div key={index} className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-start items-center'>
-                        <div className='flex w-full lg:w-[40%] flex-col justify-center items-start gap-2'>
+                    <div key={index} className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
                             <InputLabel htmlFor={`name-${index}`}>Name to be Insured</InputLabel>
                             <TextField
                                 className='w-full'
@@ -67,7 +67,7 @@ const HomeForm = () => {
                                 onChange={(e) => handlePersonChange(index, 'name', e.target.value)}
                             />
                         </div>
-                        <div className='flex w-full lg:w-[40%] flex-col justify-center items-start gap-2'>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
                             <InputLabel htmlFor={`date-${index}`}>Date of Birth</InputLabel>
                             <TextField
                                 className='w-full'
@@ -86,13 +86,14 @@ const HomeForm = () => {
                         <img src={plusicon} alt="" /> <span className='text-[12px] md:text-[16px]'>Add Another Person</span>
                     </button>
                 </div>
-                <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-start items-center'>
-                    <div className='flex w-full lg:w-[40%] flex-col justify-center items-start gap-2'>
+
+                <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+                    <div className='flex w-full flex-col justify-center items-start gap-2'>
                         <InputLabel htmlFor="address">Address to be insured</InputLabel>
                         <TextField value={formData.address}
                             onChange={(e) => handleChange(e)} name="address" className='w-full' id="address" label="Type your Address here......" variant="outlined" />
                     </div>
-                    <div className='flex w-full lg:w-[40%] flex-row pt-5 gap-2 justify-start items-center'>
+                    <div className='flex w-full flex-row pt-5 gap-2 justify-start items-center'>
                         <input value={formData.mailing} checked={formData.mailing} name="mailing"
                             onChange={(e) => handleChange(e)} className='w-[20px] h-[20px]' type="checkbox" id="mailing" />
                         <InputLabel htmlFor="mailing">Same as Mailing Address</InputLabel>
@@ -100,8 +101,8 @@ const HomeForm = () => {
                 </div>
 
 
-                <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-start items-center'>
-                    <div className='flex w-full lg:w-[40%] flex-col justify-center items-start gap-2'>
+                <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+                    <div className='flex w-full flex-col justify-center items-start gap-2'>
                         <InputLabel htmlFor="binary-select1">Is this home built before 2005?</InputLabel>
                         <FormControl className='w-full' variant="outlined">
                             <InputLabel id="binary-select1">Yes / No</InputLabel>
@@ -118,7 +119,7 @@ const HomeForm = () => {
                             </Select>
                         </FormControl>
                     </div>
-                    <div className='flex w-full lg:w-[40%] flex-col gap-2 justify-center items-start'>
+                    <div className='flex w-full flex-col gap-2 justify-center items-start'>
                         <InputLabel htmlFor="binary-select2">New Purchase?</InputLabel>
                         <FormControl className='w-full' variant="outlined">
                             <InputLabel id="binary-select2">Yes / No</InputLabel>
@@ -138,9 +139,9 @@ const HomeForm = () => {
                 </div>
 
 
-                <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-start items-center'>
+                <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
                     {formData.ishomebuild === "yes" && (
-                        <div className='flex w-full lg:w-[40%] flex-col justify-center items-start gap-2'>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
                             <button
                                 onClick={() => setfileModal(true)}
                                 className="bg-white border-[1px] border-black text-black font-extralight w-full py-2 px-4 rounded"
@@ -149,7 +150,7 @@ const HomeForm = () => {
                             </button>
                         </div>
                     )}
-                    {formData.newPurchase === "yes" && (<div className='flex w-full lg:w-[40%] flex-col justify-center items-start gap-2'>
+                    {formData.newPurchase === "yes" && (<div className='flex w-full flex-col justify-center items-start gap-2'>
                         <TextField
                             className='w-full'
                             id="newPurchaseDate"
@@ -160,7 +161,7 @@ const HomeForm = () => {
                         />
                     </div>)}
                     {formData.newPurchase === "no" && (
-                        <div className='flex w-full lg:w-[40%] flex-col gap-2 justify-center items-start'>
+                        <div className='flex w-full flex-col gap-2 justify-center items-start'>
                             <InputLabel htmlFor="binary-select3">Insurance Currently in place?</InputLabel>
                             <FormControl className='w-full' variant="outlined">
                                 <InputLabel id="binary-select3">Yes / No</InputLabel>
@@ -180,8 +181,8 @@ const HomeForm = () => {
                 </div>
 
                 {formData.newPurchase === "no" && formData.currentInsurance === "yes" && (
-                    <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-start items-center'>
-                        <div className='flex w-full lg:w-[40%] flex-col justify-center items-start gap-2'>
+                    <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
                             <TextField
                                 className='w-full'
                                 id="expiryDate"

@@ -1,0 +1,422 @@
+import React, { useState } from 'react'
+import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import plusicon from "../../../assets/dash/plus.png"
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+
+const AutoForm = () => {
+
+    const [fileModal, setfileModal] = useState(false);
+
+    const [formData, setFormData] = useState({
+        drivers: [{ name: '', dob: '', LN: '' }],
+        garaging_address: '',
+        mailing: false,
+        vehicles: [{ vin: false, vin_number: '', v_make: '', v_model: '', v_year: '', current_insurance: '', expiration_date: '', v_garaging_address: '', v_garaging_address_input: '' }],
+        bodily_injury_limit: '',
+        property_damage: '',
+        UM: '',
+        comprehensive_deductible: '',
+        collision_deductible: '',
+    });
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleAddDriver = () => {
+        setFormData((prevData) => ({
+            ...prevData,
+            drivers: [...prevData.drivers, { name: '', dob: '', LN: '' }]
+        }));
+    };
+    const handleAddVehicle = () => {
+        setFormData((prevData) => ({
+            ...prevData,
+            vehicles: [...prevData.vehicles, { vin: false, vin_number: '', v_make: '', v_model: '', v_year: '', current_insurance: '', expiration_date: '', v_garaging_address: '', v_garaging_address_input: '' }]
+        }));
+    };
+
+    const handleDriverChange = (index, field, value) => {
+        const updateddrivers = [...formData.drivers];
+        updateddrivers[index][field] = value;
+        setFormData((prevData) => ({
+            ...prevData,
+            drivers: updateddrivers
+        }));
+    };
+
+    const handleVehicleChange = (index, field, value) => {
+        const updatedvehicles = [...formData.vehicles];
+        updatedvehicles[index][field] = value;
+        setFormData((prevData) => ({
+            ...prevData,
+            vehicles: updatedvehicles
+        }));
+    };
+
+    return (
+        <>
+            <div className='w-full flex flex-col justify-center items-center gap-5'>
+                <div className='w-full flex flex-col justify-center items-start'>
+                    <h1 className='font-bold lg:text-[25px]'>Fill out Form for Auto Quote</h1>
+                </div>
+
+                {formData.drivers.map((driver, index) => (
+                    <div key={index} className='w-full grid grid-cols-1 md:grid-cols-2 justify-center items-center gap-5'>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`name-${index}`}>Name to be Insured</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`name-${index}`}
+                                label="Type your name here......"
+                                variant="outlined"
+                                value={driver.name}
+                                onChange={(e) => handleDriverChange(index, 'name', e.target.value)}
+                            />
+                        </div>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`date-${index}`}>Date of Birth</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`date-${index}`}
+                                type='date'
+                                value={driver.dob}
+                                onChange={(e) => handleDriverChange(index, 'dob', e.target.value)}
+                            />
+                        </div>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`LN-${index}`}>Drivers License</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`LN-${index}`}
+                                type='text'
+                                value={driver.LN}
+                                onChange={(e) => handleDriverChange(index, 'LN', e.target.value)}
+                            />
+                        </div>
+                    </div>
+                ))}
+
+                <div className='w-full flex flex-col justify-center items-center'>
+                    <button onClick={handleAddDriver} className='bg-[#F77F00] w-full text-white py-3 font-semibold rounded-md outline-none px-3 md:[80%] lg:w-[40%] flex flex-row justify-center items-center gap-2'>
+                        <img src={plusicon} alt="" /> <span className='text-[12px] md:text-[16px]'>Add Another Driver</span>
+                    </button>
+                </div>
+
+                <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-start items-center'>
+                    <div className='flex w-full lg:w-[50%] flex-col justify-center items-start gap-2'>
+                        <InputLabel htmlFor="garaging_address">Garaging Address</InputLabel>
+                        <TextField value={formData.garaging_address}
+                            onChange={(e) => handleChange(e)} name="garaging_address" className='w-full' id="garaging_address" label="Type your Address here......" variant="outlined" />
+                    </div>
+                    <div className='flex w-full lg:w-[50%] flex-row pt-5 gap-2 justify-start items-center'>
+                        <input value={formData.mailing} checked={formData.mailing} name="mailing"
+                            onChange={(e) => handleChange(e)} className='w-[20px] h-[20px]' type="checkbox" id="mailing" />
+                        <InputLabel htmlFor="mailing">Same as Mailing Address</InputLabel>
+                    </div>
+                </div>
+
+                {formData.vehicles.map((vehicle, index) => (
+                    <>
+                        <div key={index} className='w-full grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-20 justify-center lg:justify-start items-center'>
+
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`binary-select1-${index}`}>VIN available?</InputLabel>
+                                <FormControl className='w-full' variant="outlined">
+                                    <InputLabel id={`binary-select1-${index}`}>Yes / No</InputLabel>
+                                    <Select
+                                        labelId={`binary-select-label-${index}`}
+                                        id={`binary-select1-${index}`}
+                                        value={vehicle.vin}
+                                        onChange={(e) => handleVehicleChange(index, 'vin', e.target.value)}
+                                        label="Yes / No"
+                                        name={`vin-${index}`}
+                                    >
+                                        <MenuItem value="yes">Yes</MenuItem>
+                                        <MenuItem value="no">No</MenuItem>
+                                    </Select>
+                                </FormControl>
+
+                                {vehicle.vin === 'no' && (
+                                    <>
+                                        <InputLabel htmlFor={`vin_number-${index}`}>VIN Number</InputLabel>
+                                        <TextField
+                                            className='w-full'
+                                            id={`vin_number-${index}`}
+                                            type='text'
+                                            value={vehicle.vin_number}
+                                            onChange={(e) => handleVehicleChange(index, 'vin_number', e.target.value)}
+                                        />
+                                    </>
+                                )}
+
+                                {vehicle.vin === "yes" && (
+                                    <>
+                                        <TextField
+                                            className='w-full'
+                                            id={`v_make-${index}`}
+                                            type='text'
+                                            placeholder='Type your Make here......'
+                                            value={vehicle.v_make}
+                                            onChange={(e) => handleVehicleChange(index, 'v_make', e.target.value)}
+                                        />
+                                        <TextField
+                                            className='w-full'
+                                            id={`v_model-${index}`}
+                                            placeholder='Type your Model here......'
+                                            type='text'
+                                            value={vehicle.v_model}
+                                            onChange={(e) => handleVehicleChange(index, 'v_model', e.target.value)}
+                                        />
+                                        <TextField
+                                            className='w-full'
+                                            id={`v_year-${index}`}
+                                            placeholder='Type your Year here......'
+                                            type='text'
+                                            value={vehicle.v_year}
+                                            onChange={(e) => handleVehicleChange(index, 'v_year', e.target.value)}
+                                        />
+                                    </>
+                                )}
+
+                            </div>
+
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`binary-select1-${index}`}>Insurance currently in place?</InputLabel>
+                                <FormControl className='w-full' variant="outlined">
+                                    <InputLabel id={`binary-select1-${index}`}>Yes / No</InputLabel>
+                                    <Select
+                                        labelId={`binary-select-label-${index}`}
+                                        id={`binary-select1-${index}`}
+                                        value={vehicle.current_insurance}
+                                        onChange={(e) => handleVehicleChange(index, 'current_insurance', e.target.value)}
+                                        label="Yes / No"
+                                        name={`current_insurance-${index}`}
+                                    >
+                                        <MenuItem value="yes">Yes</MenuItem>
+                                        <MenuItem value="no">No</MenuItem>
+                                    </Select>
+                                </FormControl>
+
+
+                                {vehicle.current_insurance === "yes" && (
+                                    <>
+                                        <TextField
+                                            className='w-full'
+                                            id={`expiration_date-${index}`}
+                                            type='date'
+                                            value={vehicle.expiration_date}
+                                            onChange={(e) => handleVehicleChange(index, 'expiration_date', e.target.value)}
+                                        />
+                                    </>
+                                )}
+                            </div>
+
+                        </div>
+
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`v_garaging_address-${index}`}>Garaging Address</InputLabel>
+                            <FormControl className='w-full' variant="outlined">
+                                <InputLabel id={`v_garaging_address-${index}`}>Same as Main Address? (Yes / No)</InputLabel>
+                                <Select
+                                    labelId={`v_garaging_address-label-${index}`}
+                                    id={`v_garaging_address-${index}`}
+                                    value={vehicle.v_garaging_address}
+                                    onChange={(e) => handleVehicleChange(index, 'v_garaging_address', e.target.value)}
+                                    label="Yes / No"
+                                    name={`v_garaging_address-${index}`}
+                                >
+                                    <MenuItem value="yes">Yes</MenuItem>
+                                    <MenuItem value="no">No</MenuItem>
+                                </Select>
+                            </FormControl>
+
+                            {vehicle.v_garaging_address === 'no' && (
+                                <TextField
+                                    className='w-full'
+                                    id={`v_garaging_address_input-${index}`}
+                                    type='text'
+                                    label='Type your vehicle address here...'
+                                    value={vehicle.v_garaging_address_input}
+                                    onChange={(e) => handleVehicleChange(index, 'v_garaging_address_input', e.target.value)}
+                                />
+                            )}
+
+                            {vehicle.v_garaging_address === 'yes' && (
+                                <TextField
+                                    className='w-full'
+                                    id={`v_garaging_address_input-${index}`}
+                                    type='text'
+                                    value={formData.garaging_address}
+                                    disabled
+                                />
+                            )}
+                        </div>
+                    </>
+                ))}
+
+
+                <div className='w-full flex flex-col justify-center items-center'>
+                    <button onClick={handleAddVehicle} className='bg-[#F77F00] w-full text-white py-3 font-semibold rounded-md outline-none px-3 md:[80%] lg:w-[40%] flex flex-row justify-center items-center gap-2'>
+                        <img src={plusicon} alt="" /> <span className='text-[12px] md:text-[16px]'>Add Another Vehicle</span>
+                    </button>
+                </div>
+
+
+                <div className='w-full flex flex-col gap-10 mt-[20px] mb-[20px] justify-center items-center'>
+                    <h2 className='font-bold text-center md:text-[24px] text-black'>Coverage Section <span className='font-light'>(Optional)</span></h2>
+                    <div className='w-full gap-y-5 grid grid-cols-1 lg:grid-cols-2 gap-2 justify-center items-center'>
+                        <FormControl className='w-full' variant="outlined">
+                            <InputLabel id="demo-simple-select-label">Bodily Injury Limit</InputLabel>
+                            <Select
+                                id="bodily_injury_limit"
+                                value={formData.bodily_injury_limit}
+                                onChange={(e) => handleChange(e)}
+                                label="Bodily Injury Limit"
+                                name="bodily_injury_limit"
+                            >
+                                <MenuItem value="10/20">10 / 20</MenuItem>
+                                <MenuItem value="25/50">25 / 50</MenuItem>
+                                <MenuItem value="100/300">100 / 300</MenuItem>
+                                <MenuItem value="250/500">250 / 500</MenuItem>
+                                <MenuItem value="Other">Other</MenuItem>
+
+                            </Select>
+                        </FormControl>
+
+                        <FormControl className='w-full' variant="outlined">
+                            <InputLabel id="demo-simple-select-label">Property Damage</InputLabel>
+                            <Select
+                                id="property_damage"
+                                value={formData.property_damage}
+                                onChange={(e) => handleChange(e)}
+                                label="Property Damage"
+                                name="property_damage"
+                            >
+                                <MenuItem value="10">10</MenuItem>
+                                <MenuItem value="20">20</MenuItem>
+                                <MenuItem value="50">50</MenuItem>
+                                <MenuItem value="100">100</MenuItem>
+                                <MenuItem value="Other">Other</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl className='w-full' variant="outlined">
+                            <InputLabel id="demo-simple-select-label">Uninsured Motorists/ UM</InputLabel>
+                            <Select
+                                id="UM"
+                                value={formData.UM}
+                                onChange={(e) => handleChange(e)}
+                                label="Uninsured Motorists/ UM"
+                                name="UM"
+                            >
+                                <MenuItem value="None">None</MenuItem>
+                                <MenuItem value="10/20">10 / 20</MenuItem>
+                                <MenuItem value="25/50">25 / 50</MenuItem>
+                                <MenuItem value="100/300">100 / 300</MenuItem>
+                                <MenuItem value="250/500">250 / 500</MenuItem>
+                                <MenuItem value="Other">Other</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl className='w-full' variant="outlined">
+                            <InputLabel id="demo-simple-select-label">Comprehensive Deductible</InputLabel>
+                            <Select
+                                id="comprehensive_deductible"
+                                value={formData.comprehensive_deductible}
+                                onChange={(e) => handleChange(e)}
+                                label="Comprehensive Deductible"
+                                name="comprehensive_deductible"
+                            >
+                                <MenuItem value="100">100</MenuItem>
+                                <MenuItem value="200">200</MenuItem>
+                                <MenuItem value="500">500</MenuItem>
+                                <MenuItem value="1000">1000</MenuItem>
+                                <MenuItem value="2000">2000</MenuItem>
+                                <MenuItem value="Other">Other</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl className='w-full' variant="outlined">
+                            <InputLabel id="demo-simple-select-label">Collision Deductible</InputLabel>
+                            <Select
+                                id="collision_deductible"
+                                value={formData.collision_deductible}
+                                onChange={(e) => handleChange(e)}
+                                label="Collision Deductible"
+                                name="collision_deductible"
+                            >
+                                <MenuItem value="100">100</MenuItem>
+                                <MenuItem value="200">200</MenuItem>
+                                <MenuItem value="500">500</MenuItem>
+                                <MenuItem value="1000">1000</MenuItem>
+                                <MenuItem value="2000">2000</MenuItem>
+                                <MenuItem value="Other">Other</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                    </div>
+                </div>
+
+
+                <div className='w-full flex flex-col gap-10 mt-[20px] mb-[20px] justify-center items-center'>
+                    <h2 className='font-bold text-center md:text-[24px] text-black'>Upload Current Declarations Page <span className='font-light'>(Optional)</span></h2>
+                    <div className='flex w-full flex-col justify-center items-center gap-2'>
+                        <button
+                            onClick={() => setfileModal(true)}
+                            className="bg-white md:w-[45%] border-[1px] border-black text-black font-extralight w-full py-2 px-4 rounded"
+                        >
+                            + Upload Inspections
+                        </button>
+                    </div>
+                </div>
+
+
+                <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-end items-center'>
+                    <button onClick={() => { console.log(formData) }} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-[22px] text-white'>
+                        <span>Submit</span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </button>
+                </div>
+
+                <Modal
+                    open={fileModal}
+                    onClose={() => setfileModal(false)}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                >
+                    <Box className="w-[90%] md:w-[30%]" sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
+                        <label for="uploadFile1"
+                            className="bg-white text-gray-500 font-semibold text-base rounded max-w-md h-52 flex flex-col items-center justify-center cursor-pointer border-2 border-gray-300 border-dashed mx-auto font-[sans-serif]">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-11 mb-2 fill-gray-500" viewBox="0 0 32 32">
+                                <path
+                                    d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"
+                                    data-original="#000000" />
+                                <path
+                                    d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"
+                                    data-original="#000000" />
+                            </svg>
+                            Upload file
+
+                            <input type="file" id='uploadFile1' className="hidden" />
+                            <p className="text-xs text-center px-2 font-medium text-gray-400 mt-2">PNG, JPG SVG, WEBP, and GIF are Allowed.</p>
+                        </label>
+                    </Box>
+                </Modal>
+
+            </div>
+        </>
+    )
+}
+
+export default AutoForm
