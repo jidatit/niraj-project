@@ -20,6 +20,7 @@ const SignupReferral = () => {
         confirmPassword: '',
         signupType: 'Referral'
     });
+    const [isFocus, setIsFocus] = useState(false)
 
     const occupations = [
         { value: 'Real Estate Agent', label: 'Real Estate Agent' },
@@ -93,7 +94,9 @@ const SignupReferral = () => {
                     }),
                 }} value={userData.occupation}
                     onChange={handleOccupationChange}
-                    isClearable={true} className='w-full md:w-[60%]' placeholder="Occupation"
+                    isClearable={true} className='w-full md:w-[60%]' placeholder={!isFocus?"Occupation":"Add New Occupation"}
+                    onFocus={()=>setIsFocus(true)}
+                    onBlur={()=>setIsFocus(false)}
                     options={occupations} required />
 
                 <input type="password" name="password" placeholder="Password" className="w-full md:w-[60%] border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500" value={userData.password} onChange={handleInputChange} required />
