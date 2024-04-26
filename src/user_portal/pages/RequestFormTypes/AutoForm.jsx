@@ -7,10 +7,79 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
+import { db, storage } from "../../../../db"
+import { addDoc, collection } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from '@firebase/storage';
+import { useDropzone } from 'react-dropzone';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import tickicon from "../../../assets/dash/tick.png"
 
 const AutoForm = () => {
 
+    const [buttonstate, setbuttonstate] = useState("Publish")
     const [fileModal, setfileModal] = useState(false);
+    const [files, setFiles] = useState([]);
+
+    const onDrop = (acceptedFiles) => {
+        setFiles(acceptedFiles);
+        setFormData((prevData) => ({
+            ...prevData,
+            files: acceptedFiles
+        }));
+    };
+
+    const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+    const addFormToDb = async () => {
+        try {
+            setbuttonstate("Publishing...")
+            if (files.length === 0) {
+                await addDoc(collection(db, 'auto_quotes'), formData);
+                toast.success("Application submitted with success.");
+                return;
+            }
+
+            const timestamp = Date.now();
+            const uniqueId = Math.random().toString(36).substring(2);
+
+            const promises = files.map(async (file) => {
+                const storageRef = ref(storage, `auto_quotes/${timestamp}_${uniqueId}_${file.name}`);
+                await uploadBytes(storageRef, file);
+                return getDownloadURL(storageRef);
+            });
+
+            const fileUrls = await Promise.all(promises);
+
+            const formDataWithUrls = {
+                ...formData,
+                files: fileUrls.map(url => ({ file: url }))
+            };
+
+            await addDoc(collection(db, 'auto_quotes'), formDataWithUrls);
+
+            setFormData({
+                drivers: [{ name: '', dob: '', LN: '' }],
+                garaging_address: '',
+                mailing: false,
+                vehicles: [{ vin: false, vin_number: '', v_make: '', v_model: '', v_year: '', current_insurance: '', expiration_date: '', v_garaging_address: '', v_garaging_address_input: '' }],
+                bodily_injury_limit: '',
+                property_damage: '',
+                UM: '',
+                comprehensive_deductible: '',
+                collision_deductible: '',
+                files: []
+            });
+            setFiles([]);
+
+            toast.success("Application submitted with success.");
+            setbuttonstate("Publish")
+        } catch (error) {
+            console.error("Error submitting application:", error);
+            toast.error("Error submitting application.");
+            setbuttonstate("Publish")
+        }
+    };
 
     const [formData, setFormData] = useState({
         drivers: [{ name: '', dob: '', LN: '' }],
@@ -22,6 +91,7 @@ const AutoForm = () => {
         UM: '',
         comprehensive_deductible: '',
         collision_deductible: '',
+        files: []
     });
 
     const handleChange = (event) => {
@@ -66,6 +136,7 @@ const AutoForm = () => {
     return (
         <>
             <div className='w-full flex flex-col justify-center items-center gap-5'>
+                <ToastContainer />
                 <div className='w-full flex flex-col justify-center items-start'>
                     <h1 className='font-bold lg:text-[25px]'>Fill out Form for Auto Quote</h1>
                 </div>
@@ -214,6 +285,7 @@ const AutoForm = () => {
                                             className='w-full'
                                             id={`expiration_date-${index}`}
                                             type='date'
+                                            label="Expiration Date"
                                             value={vehicle.expiration_date}
                                             onChange={(e) => handleVehicleChange(index, 'expiration_date', e.target.value)}
                                         />
@@ -382,8 +454,8 @@ const AutoForm = () => {
 
 
                 <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-end items-center'>
-                    <button onClick={() => { console.log(formData) }} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-[22px] text-white'>
-                        <span>Submit</span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <button onClick={addFormToDb} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-[22px] text-white'>
+                        <span>{buttonstate}</span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
                     </button>
@@ -396,22 +468,56 @@ const AutoForm = () => {
                     aria-describedby="modal-modal-description"
                 >
                     <Box className="w-[90%] md:w-[30%]" sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
-                        <label for="uploadFile1"
-                            className="bg-white text-gray-500 font-semibold text-base rounded max-w-md h-52 flex flex-col items-center justify-center cursor-pointer border-2 border-gray-300 border-dashed mx-auto font-[sans-serif]">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-11 mb-2 fill-gray-500" viewBox="0 0 32 32">
-                                <path
-                                    d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"
-                                    data-original="#000000" />
-                                <path
-                                    d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"
-                                    data-original="#000000" />
-                            </svg>
-                            Upload file
-
-                            <input type="file" id='uploadFile1' className="hidden" />
-                            <p className="text-xs text-center px-2 font-medium text-gray-400 mt-2">PNG, JPG SVG, WEBP, and GIF are Allowed.</p>
-                        </label>
+                        <div>
+                            <div {...getRootProps()} style={{ cursor: 'pointer' }}>
+                                <input {...getInputProps()} />
+                                <label htmlFor="uploadFile1" className="bg-white text-gray-500 font-semibold text-base rounded max-w-md h-52 flex flex-col items-center justify-center cursor-pointer border-2 border-gray-300 border-dashed mx-auto font-[sans-serif]">
+                                    {files.length === 0 ? (
+                                        <>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-11 mb-2 fill-gray-500" viewBox="0 0 32 32">
+                                                <path
+                                                    d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"
+                                                    data-original="#000000" />
+                                                <path
+                                                    d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"
+                                                    data-original="#000000" />
+                                            </svg>
+                                            Upload file
+                                            <p className="text-xs text-center px-2 font-medium text-gray-400 mt-2">PNG, JPG SVG, WEBP, and GIF are Allowed.</p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className='w-full flex flex-col justify-center items-center gap-2'>
+                                                <img className='w-[30%] animate-pulse' src={tickicon} alt="" />
+                                                <p className='font-semibold text-center text-[12px]'>Files selected successfully...</p>
+                                                <p className='font-light text-center text-[11px]'>Click outside to close modal...</p>
+                                            </div>
+                                        </>
+                                    )}
+                                </label>
+                            </div>
+                            {files.length > 0 && (
+                                <div className='mt-2 mb-2'>
+                                    <h2 className='mt-1 mb-1 italic font-semibold'>Selected Files:</h2>
+                                    <ul className='w-full grid md:grid-cols-2 gap-1 justify-center items-center grid-cols-1'>
+                                        {files.map((file, index) => (
+                                            <li key={index} className="flex items-center">
+                                                {file.type.includes("image") ? (
+                                                    <img src={URL.createObjectURL(file)} alt={`File ${index + 1}`} className="w-8 h-8 mr-2 rounded" />
+                                                ) : (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 mr-2 fill-current text-gray-500" viewBox="0 0 24 24">
+                                                        <path fillRule="evenodd" d="M19 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM5 2c-.55 0-1 .45-1 1v12c0 .55.45 1 1 1h14c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1H5z" />
+                                                    </svg>
+                                                )}
+                                                <span>{file.name}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
                     </Box>
+
                 </Modal>
 
             </div>

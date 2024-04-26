@@ -7,6 +7,7 @@ import floodicon from "../../assets/dash/flood.png"
 import HomeForm from './RequestFormTypes/HomeForm';
 import AutoForm from './RequestFormTypes/AutoForm';
 import LiabilityForm from './RequestFormTypes/LiabilityForm';
+import FloodForm from './RequestFormTypes/FloodForm';
 
 const RequestPage = () => {
     const [selectedValue, setSelectedValue] = useState({
@@ -37,6 +38,7 @@ const RequestPage = () => {
                     {selectedValue && selectedValue.value === "Home" && (<HomeForm />)}
                     {selectedValue && selectedValue.value === "Auto" && (<AutoForm />)}
                     {selectedValue && selectedValue.value === "Liability" && (<LiabilityForm />)}
+                    {selectedValue && selectedValue.value === "Flood" && (<FloodForm />)}
 
                 </div>
             </div>

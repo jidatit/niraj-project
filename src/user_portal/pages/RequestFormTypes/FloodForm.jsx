@@ -15,19 +15,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import tickicon from "../../../assets/dash/tick.png"
 
-const HomeForm = () => {
-
-    const [formData, setFormData] = useState({
-        address: '',
-        mailing: false,
-        ishomebuild: "",
-        newPurchase: "",
-        closingDate: "",
-        currentInsurance: "",
-        expiryDate: "",
-        persons: [{ name: '', dob: '' }],
-        files: []
-    });
+const FloodForm = () => {
 
     const [buttonstate, setbuttonstate] = useState("Publish")
     const [fileModal, setfileModal] = useState(false);
@@ -47,7 +35,7 @@ const HomeForm = () => {
         try {
             setbuttonstate("Publishing...")
             if (files.length === 0) {
-                await addDoc(collection(db, 'home_quotes'), formData);
+                await addDoc(collection(db, 'flood_quotes'), formData);
                 toast.success("Application submitted with success.");
                 return;
             }
@@ -56,7 +44,7 @@ const HomeForm = () => {
             const uniqueId = Math.random().toString(36).substring(2);
 
             const promises = files.map(async (file) => {
-                const storageRef = ref(storage, `home_quotes/${timestamp}_${uniqueId}_${file.name}`);
+                const storageRef = ref(storage, `flood_quotes/${timestamp}_${uniqueId}_${file.name}`);
                 await uploadBytes(storageRef, file);
                 return getDownloadURL(storageRef);
             });
@@ -68,18 +56,17 @@ const HomeForm = () => {
                 files: fileUrls.map(url => ({ file: url }))
             };
 
-            await addDoc(collection(db, 'home_quotes'), formDataWithUrls);
+            await addDoc(collection(db, 'flood_quotes'), formDataWithUrls);
 
             setFormData({
-                address: '',
+                persons: [{ name: '', dob: '' }],
+                address: "",
                 mailing: false,
-                ishomebuild: "",
+                cert_elevation: "",
                 newPurchase: "",
                 closingDate: "",
-                currentInsurance: "",
+                haveCurrentPolicy: "",
                 expiryDate: "",
-                persons: [{ name: '', dob: '' }],
-                files: []
             });
             setFiles([]);
 
@@ -91,6 +78,17 @@ const HomeForm = () => {
             setbuttonstate("Publish")
         }
     };
+
+    const [formData, setFormData] = useState({
+        persons: [{ name: '', dob: '' }],
+        address: "",
+        mailing: false,
+        cert_elevation: "",
+        newPurchase: "",
+        closingDate: "",
+        haveCurrentPolicy: "",
+        expiryDate: "",
+    });
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -121,7 +119,7 @@ const HomeForm = () => {
             <div className='w-full flex flex-col justify-center items-center gap-5'>
                 <ToastContainer />
                 <div className='w-full flex flex-col justify-center items-start'>
-                    <h1 className='font-bold lg:text-[25px]'>Fill out Form for Home Quote</h1>
+                    <h1 className='font-bold lg:text-[25px]'>Fill out Form for Flood Quote</h1>
                 </div>
 
                 {formData.persons.map((person, index) => (
@@ -173,16 +171,16 @@ const HomeForm = () => {
 
                 <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
                     <div className='flex w-full flex-col justify-center items-start gap-2'>
-                        <InputLabel htmlFor="binary-select1">Is this home built before 2005?</InputLabel>
+                        <InputLabel htmlFor="binary-select1">Do you have an elevation certificate?</InputLabel>
                         <FormControl className='w-full' variant="outlined">
                             <InputLabel id="binary-select1">Yes / No</InputLabel>
                             <Select
                                 labelId="binary-select-label"
                                 id="binary-select1"
-                                value={formData.ishomebuild}
+                                value={formData.cert_elevation}
                                 onChange={(e) => handleChange(e)}
                                 label="Yes / No"
-                                name="ishomebuild"
+                                name="cert_elevation"
                             >
                                 <MenuItem value="yes">Yes</MenuItem>
                                 <MenuItem value="no">No</MenuItem>
@@ -190,7 +188,7 @@ const HomeForm = () => {
                         </FormControl>
                     </div>
                     <div className='flex w-full flex-col gap-2 justify-center items-start'>
-                        <InputLabel htmlFor="binary-select2">New Purchase?</InputLabel>
+                        <InputLabel htmlFor="binary-select2">Is this a new purchase?</InputLabel>
                         <FormControl className='w-full' variant="outlined">
                             <InputLabel id="binary-select2">Yes / No</InputLabel>
                             <Select
@@ -210,7 +208,7 @@ const HomeForm = () => {
 
 
                 <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
-                    {formData.ishomebuild === "yes" && (
+                    {formData.cert_elevation === "yes" && (
                         <div className='flex w-full flex-col justify-center items-start gap-2'>
                             <button
                                 onClick={() => setfileModal(true)}
@@ -233,16 +231,16 @@ const HomeForm = () => {
                     </div>)}
                     {formData.newPurchase === "no" && (
                         <div className='flex w-full flex-col gap-2 justify-center items-start'>
-                            <InputLabel htmlFor="binary-select3">Insurance Currently in place?</InputLabel>
+                            <InputLabel htmlFor="binary-select3">Do you currently have a policy?</InputLabel>
                             <FormControl className='w-full' variant="outlined">
                                 <InputLabel id="binary-select3">Yes / No</InputLabel>
                                 <Select
                                     labelId="binary-select-label"
                                     id="binary-select3"
-                                    value={formData.currentInsurance}
+                                    value={formData.haveCurrentPolicy}
                                     onChange={(e) => handleChange(e)}
                                     label="Yes / No"
-                                    name="currentInsurance"
+                                    name="haveCurrentPolicy"
                                 >
                                     <MenuItem value="yes">Yes</MenuItem>
                                     <MenuItem value="no">No</MenuItem>
@@ -251,7 +249,7 @@ const HomeForm = () => {
                         </div>)}
                 </div>
 
-                {formData.newPurchase === "no" && formData.currentInsurance === "yes" && (
+                {formData.newPurchase === "no" && formData.haveCurrentPolicy === "yes" && (
                     <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
                         <div className='flex w-full flex-col justify-center items-start gap-2'>
                             <TextField
@@ -338,4 +336,4 @@ const HomeForm = () => {
     )
 }
 
-export default HomeForm
+export default FloodForm

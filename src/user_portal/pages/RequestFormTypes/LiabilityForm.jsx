@@ -8,6 +8,10 @@ import Select from '@mui/material/Select';
 import infoicon from "../../../assets/dash/info.png"
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import { db } from "../../../../db"
+import { addDoc, collection } from 'firebase/firestore';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LiabilityForm = () => {
 
@@ -19,14 +23,52 @@ const LiabilityForm = () => {
         coverageAmount: '',
         persons: [{ name: '', dob: '' }],
         addresses: [{ address: '' }],
-        autos:[{cars:'',boats:'',motorcycles:'',golf_carts:''}]
+        autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' }
     });
+
+    const [buttonstate, setbuttonstate] = useState("Publish")
+
+    const addFormToDb = async () => {
+        try {
+            setbuttonstate("Publishing...")
+            await addDoc(collection(db, 'liability_quotes'), formData);
+
+            setFormData({
+                policyType: '',
+                address_num: '',
+                owner_occupied_num: '',
+                rented_address_num: '',
+                coverageAmount: '',
+                persons: [{ name: '', dob: '' }],
+                addresses: [{ address: '' }],
+                autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' }
+            });
+
+            toast.success("Application submitted with success.");
+            setbuttonstate("Publish")
+        } catch (error) {
+            console.error("Error submitting application:", error);
+            toast.error("Error submitting application.");
+            setbuttonstate("Publish")
+        }
+    };
 
     const handleChange = (event) => {
         const { name, value } = event.target;
         setFormData((prevData) => ({
             ...prevData,
             [name]: value,
+        }));
+    };
+
+    const handleChangeAutos = (event, vehicleType) => {
+        const { value } = event.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            autos: {
+                ...prevData.autos,
+                [vehicleType]: value,
+            },
         }));
     };
 
@@ -77,6 +119,7 @@ const LiabilityForm = () => {
     return (
         <>
             <div className='w-full flex flex-col justify-center items-center gap-5'>
+                <ToastContainer />
                 <div className='w-full flex flex-col justify-center items-start'>
                     <h1 className='font-bold lg:text-[25px]'>Fill out Form for Liability Quote</h1>
                 </div>
@@ -247,7 +290,8 @@ const LiabilityForm = () => {
                                         <label htmlFor="cars">Cars:</label>
                                     </div>
                                     <div className="w-1/2">
-                                        <TextField type="number" id="cars" name="cars" variant="outlined" size="small" fullWidth />
+                                        <TextField type="number" value={formData.autos.cars}
+                                            onChange={(e) => handleChangeAutos(e, 'cars')} id="cars" name="cars" variant="outlined" size="small" fullWidth />
                                     </div>
                                 </div>
                                 <div className='h-[1px] w-full mb-[20px] mt-[20px] bg-black'></div>
@@ -256,7 +300,7 @@ const LiabilityForm = () => {
                                         <label htmlFor="motorcycles">Motorcycles:</label>
                                     </div>
                                     <div className="w-1/2">
-                                        <TextField type="number" id="motorcycles" name="motorcycles" variant="outlined" size="small" fullWidth />
+                                        <TextField value={formData.autos.motorcycles} onChange={(e) => handleChangeAutos(e, 'motorcycles')} type="number" id="motorcycles" name="motorcycles" variant="outlined" size="small" fullWidth />
                                     </div>
                                 </div>
                                 <div className='h-[1px] w-full mb-[20px] mt-[20px] bg-black'></div>
@@ -265,7 +309,7 @@ const LiabilityForm = () => {
                                         <label htmlFor="Boats">Boats:</label>
                                     </div>
                                     <div className="w-1/2">
-                                        <TextField type="number" id="Boats" name="Boats" variant="outlined" size="small" fullWidth />
+                                        <TextField value={formData.autos.boats} onChange={(e) => handleChangeAutos(e, 'boats')} type="number" id="boats" name="boats" variant="outlined" size="small" fullWidth />
                                     </div>
                                 </div>
                                 <div className='h-[1px] w-full mb-[20px] mt-[20px] bg-black'></div>
@@ -274,7 +318,7 @@ const LiabilityForm = () => {
                                         <label htmlFor="Golf Carts">Golf Carts:</label>
                                     </div>
                                     <div className="w-1/2">
-                                        <TextField type="number" id="Golf Carts" name="Golf Carts" variant="outlined" size="small" fullWidth />
+                                        <TextField value={formData.autos.golf_carts} onChange={(e) => handleChangeAutos(e, 'golf_carts')} type="number" id="golf_carts" name="golf_carts" variant="outlined" size="small" fullWidth />
                                     </div>
                                 </div>
                             </div>
@@ -283,15 +327,15 @@ const LiabilityForm = () => {
                     </>
                 )}
 
-                <div className='w-full flex flex-col justify-center items-center'>
+                {formData.policyType === "liability" && (<div className='w-full flex flex-col justify-center items-center'>
                     <button onClick={handleAddAddress} className='bg-[#F77F00] w-full text-white py-3 font-semibold rounded-md outline-none px-3 md:[80%] lg:w-[40%] flex flex-row justify-center items-center gap-2'>
                         <img src={plusicon} alt="" /> <span className='text-[12px] md:text-[16px]'>Add Another Address</span>
                     </button>
-                </div>
+                </div>)}
 
                 <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-end items-center'>
-                    <button onClick={() => { console.log(formData) }} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-[22px] text-white'>
-                        <span>Submit</span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <button onClick={addFormToDb} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-[22px] text-white'>
+                        <span>{buttonstate}</span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
                     </button>
