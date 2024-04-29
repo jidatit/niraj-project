@@ -8,7 +8,8 @@ const SideNav = () => {
 
   const menus = [
     { name: "Back to website", link: "/", icon: FaUser },
-    { name: "Blogs", link: "/admin_portal", icon: FaUser },
+    { name: "Quotes", link: "/admin_portal", icon: FaUser },
+    { name: "Blogs", link: "/admin_portal/blogs", icon: FaUser },
     { name: "Logout", link: "/admin_portal/logout", icon: FiLogOut },
   ];
 

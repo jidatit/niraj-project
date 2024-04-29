@@ -12,18 +12,21 @@ import { db } from "../../../../db"
 import { addDoc, collection } from 'firebase/firestore';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '../../../AuthContext';
 
 const LiabilityForm = () => {
-
+    const { currentUser } = useAuth();
     const [formData, setFormData] = useState({
-        policyType: '',
+        policyType: "Liability",
+        application_policy: '',
         address_num: '',
         owner_occupied_num: '',
         rented_address_num: '',
         coverageAmount: '',
         persons: [{ name: '', dob: '' }],
         addresses: [{ address: '' }],
-        autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' }
+        autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' },
+        user: currentUser.data
     });
 
     const [buttonstate, setbuttonstate] = useState("Publish")
@@ -34,14 +37,17 @@ const LiabilityForm = () => {
             await addDoc(collection(db, 'liability_quotes'), formData);
 
             setFormData({
-                policyType: '',
+                policyType: "Liability",
+                application_policy: '',
                 address_num: '',
                 owner_occupied_num: '',
                 rented_address_num: '',
                 coverageAmount: '',
                 persons: [{ name: '', dob: '' }],
                 addresses: [{ address: '' }],
-                autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' }
+                autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' },
+                user: currentUser.data,
+                status: "completed"
             });
 
             toast.success("Application submitted with success.");
@@ -161,11 +167,11 @@ const LiabilityForm = () => {
                         <FormControl className='w-full' variant="outlined">
                             <InputLabel id="demo-simple-select-label">Type of Policy</InputLabel>
                             <Select
-                                id="policyType"
-                                value={formData.policyType}
+                                id="application_policy"
+                                value={formData.application_policy}
                                 onChange={(e) => handleChange(e)}
-                                label="Policy Type"
-                                name="policyType"
+                                label="Application Policy Type"
+                                name="application_policy"
                             >
                                 <MenuItem value="liability">
                                     <HtmlTooltip
@@ -226,7 +232,7 @@ const LiabilityForm = () => {
                     </div>
                 </div>
 
-                {formData.policyType === "liability" && formData.addresses.map((address, index) => (
+                {formData.application_policy === "liability" && formData.addresses.map((address, index) => (
                     <div className='w-full mt-[20px] mb-[20px] justify-start items-center' key={index}>
                         <TextField
                             className='md:w-[49%] w-full'
@@ -239,7 +245,7 @@ const LiabilityForm = () => {
                     </div>
                 ))}
 
-                {formData.policyType === "umbrella" && (
+                {formData.application_policy === "umbrella" && (
                     <>
                         <div className='w-full grid flex-wrap grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
                             <TextField
@@ -327,7 +333,7 @@ const LiabilityForm = () => {
                     </>
                 )}
 
-                {formData.policyType === "liability" && (<div className='w-full flex flex-col justify-center items-center'>
+                {formData.application_policy === "liability" && (<div className='w-full flex flex-col justify-center items-center'>
                     <button onClick={handleAddAddress} className='bg-[#F77F00] w-full text-white py-3 font-semibold rounded-md outline-none px-3 md:[80%] lg:w-[40%] flex flex-row justify-center items-center gap-2'>
                         <img src={plusicon} alt="" /> <span className='text-[12px] md:text-[16px]'>Add Another Address</span>
                     </button>

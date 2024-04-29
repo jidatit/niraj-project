@@ -14,10 +14,12 @@ import { useDropzone } from 'react-dropzone';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import tickicon from "../../../assets/dash/tick.png"
+import { useAuth } from '../../../AuthContext';
 
 const HomeForm = () => {
-
+    const { currentUser } = useAuth();
     const [formData, setFormData] = useState({
+        policyType: "Home",
         address: '',
         mailing: false,
         ishomebuild: "",
@@ -26,7 +28,8 @@ const HomeForm = () => {
         currentInsurance: "",
         expiryDate: "",
         persons: [{ name: '', dob: '' }],
-        files: []
+        files: [],
+        user: currentUser.data
     });
 
     const [buttonstate, setbuttonstate] = useState("Publish")
@@ -47,7 +50,8 @@ const HomeForm = () => {
         try {
             setbuttonstate("Publishing...")
             if (files.length === 0) {
-                await addDoc(collection(db, 'home_quotes'), formData);
+                let nofilesformData = { ...formData, status: "pending" }
+                await addDoc(collection(db, 'home_quotes'), nofilesformData);
                 toast.success("Application submitted with success.");
                 return;
             }
@@ -68,9 +72,11 @@ const HomeForm = () => {
                 files: fileUrls.map(url => ({ file: url }))
             };
 
-            await addDoc(collection(db, 'home_quotes'), formDataWithUrls);
+            let statusformData = { ...formDataWithUrls, status: "completed" }
+            await addDoc(collection(db, 'home_quotes'), statusformData);
 
             setFormData({
+                policyType: "Home",
                 address: '',
                 mailing: false,
                 ishomebuild: "",
@@ -79,7 +85,8 @@ const HomeForm = () => {
                 currentInsurance: "",
                 expiryDate: "",
                 persons: [{ name: '', dob: '' }],
-                files: []
+                files: [],
+                user: currentUser.data
             });
             setFiles([]);
 

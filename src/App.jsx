@@ -17,6 +17,7 @@ import SignupReferral from './auth/SignupReferral'
 import LoginReferral from './auth/LoginReferral'
 import RequestPage from "./user_portal/pages/RequestPage"
 import AdminLogin from './auth/AdminLogin'
+import QuotesPage from './admin_portal/pages/QuotesPage'
 
 function App() {
   return (
@@ -39,7 +40,8 @@ function App() {
           </Route>
 
           <Route path='/admin_portal' element={<AdminLayout />}>
-            <Route index element={<BlogPage />} />
+            <Route index element={<QuotesPage />} />
+            <Route path='blogs' element={<BlogPage />} />
             <Route path='logout' element={<Logout />} />
           </Route>
 

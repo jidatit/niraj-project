@@ -14,9 +14,10 @@ import { useDropzone } from 'react-dropzone';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import tickicon from "../../../assets/dash/tick.png"
+import { useAuth } from '../../../AuthContext';
 
 const AutoForm = () => {
-
+    const { currentUser } = useAuth();
     const [buttonstate, setbuttonstate] = useState("Publish")
     const [fileModal, setfileModal] = useState(false);
     const [files, setFiles] = useState([]);
@@ -35,7 +36,8 @@ const AutoForm = () => {
         try {
             setbuttonstate("Publishing...")
             if (files.length === 0) {
-                await addDoc(collection(db, 'auto_quotes'), formData);
+                let nofilesformData = {...formData,status:"pending"}
+                await addDoc(collection(db, 'auto_quotes'), nofilesformData);
                 toast.success("Application submitted with success.");
                 return;
             }
@@ -56,9 +58,11 @@ const AutoForm = () => {
                 files: fileUrls.map(url => ({ file: url }))
             };
 
-            await addDoc(collection(db, 'auto_quotes'), formDataWithUrls);
+            let statusformData = { ...formDataWithUrls, status: "completed" }
+            await addDoc(collection(db, 'auto_quotes'), statusformData);
 
             setFormData({
+                policyType: "Auto",
                 drivers: [{ name: '', dob: '', LN: '' }],
                 garaging_address: '',
                 mailing: false,
@@ -68,7 +72,8 @@ const AutoForm = () => {
                 UM: '',
                 comprehensive_deductible: '',
                 collision_deductible: '',
-                files: []
+                files: [],
+                user: currentUser.data
             });
             setFiles([]);
 
@@ -82,6 +87,7 @@ const AutoForm = () => {
     };
 
     const [formData, setFormData] = useState({
+        policyType: "Auto",
         drivers: [{ name: '', dob: '', LN: '' }],
         garaging_address: '',
         mailing: false,
@@ -91,7 +97,8 @@ const AutoForm = () => {
         UM: '',
         comprehensive_deductible: '',
         collision_deductible: '',
-        files: []
+        files: [],
+        user: currentUser.data
     });
 
     const handleChange = (event) => {

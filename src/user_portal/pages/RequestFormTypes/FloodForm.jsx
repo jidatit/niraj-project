@@ -14,9 +14,10 @@ import { useDropzone } from 'react-dropzone';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import tickicon from "../../../assets/dash/tick.png"
+import { useAuth } from '../../../AuthContext';
 
 const FloodForm = () => {
-
+    const { currentUser } = useAuth();
     const [buttonstate, setbuttonstate] = useState("Publish")
     const [fileModal, setfileModal] = useState(false);
     const [files, setFiles] = useState([]);
@@ -35,7 +36,8 @@ const FloodForm = () => {
         try {
             setbuttonstate("Publishing...")
             if (files.length === 0) {
-                await addDoc(collection(db, 'flood_quotes'), formData);
+                let nofilesformData = {...formData,status:"pending"}
+                await addDoc(collection(db, 'flood_quotes'), nofilesformData);
                 toast.success("Application submitted with success.");
                 return;
             }
@@ -56,9 +58,11 @@ const FloodForm = () => {
                 files: fileUrls.map(url => ({ file: url }))
             };
 
-            await addDoc(collection(db, 'flood_quotes'), formDataWithUrls);
+            let statusformData = { ...formDataWithUrls, status: "completed" }
+            await addDoc(collection(db, 'flood_quotes'), statusformData);
 
             setFormData({
+                policyType: "Flood",
                 persons: [{ name: '', dob: '' }],
                 address: "",
                 mailing: false,
@@ -67,6 +71,7 @@ const FloodForm = () => {
                 closingDate: "",
                 haveCurrentPolicy: "",
                 expiryDate: "",
+                user: currentUser.data
             });
             setFiles([]);
 
@@ -80,6 +85,7 @@ const FloodForm = () => {
     };
 
     const [formData, setFormData] = useState({
+        policyType: "Flood",
         persons: [{ name: '', dob: '' }],
         address: "",
         mailing: false,
@@ -88,6 +94,7 @@ const FloodForm = () => {
         closingDate: "",
         haveCurrentPolicy: "",
         expiryDate: "",
+        user: currentUser.data
     });
 
     const handleChange = (event) => {
