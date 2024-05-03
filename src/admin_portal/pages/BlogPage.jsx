@@ -12,7 +12,7 @@ import { MaterialReactTable } from 'material-react-table';
 
 const BlogPage = () => {
     const [blogs, setBlogs] = useState([]);
-    const [buttonText, setButtonText] = useState("Publish");
+    const [buttonText, setButtonText] = useState("Submit");
     const [selectedAuthorImageData, setSelectedAuthorImageData] = useState(null);
     const [selectedBlogImageData, setSelectedBlogImageData] = useState(null);
     const [open, setOpen] = useState(false);
@@ -84,7 +84,7 @@ const BlogPage = () => {
                 toast.warn("Fill Details")
                 return
             }
-            setButtonText("Publishing");
+            setButtonText("Submitting");
             let formDataCopy = { ...formData };
 
             if (selectedAuthorImageData) {
@@ -103,7 +103,7 @@ const BlogPage = () => {
 
             await addDoc(collection(db, 'blogs'), formDataCopy);
             toast.success('Blog added successfully!');
-            setButtonText("Publish");
+            setButtonText("Submit");
         } catch (error) {
             toast.error('Error occurred');
         }

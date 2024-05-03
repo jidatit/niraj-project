@@ -32,7 +32,7 @@ const HomeForm = () => {
         user: currentUser.data
     });
 
-    const [buttonstate, setbuttonstate] = useState("Publish")
+    const [buttonstate, setbuttonstate] = useState("Submit")
     const [fileModal, setfileModal] = useState(false);
     const [files, setFiles] = useState([]);
 
@@ -48,7 +48,7 @@ const HomeForm = () => {
 
     const addFormToDb = async () => {
         try {
-            setbuttonstate("Publishing...")
+            setbuttonstate("Submitting...")
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: "pending" }
                 await addDoc(collection(db, 'home_quotes'), nofilesformData);
@@ -91,11 +91,11 @@ const HomeForm = () => {
             setFiles([]);
 
             toast.success("Application submitted with success.");
-            setbuttonstate("Publish")
+            setbuttonstate("Submit")
         } catch (error) {
             console.error("Error submitting application:", error);
             toast.error("Error submitting application.");
-            setbuttonstate("Publish")
+            setbuttonstate("Submit")
         }
     };
 

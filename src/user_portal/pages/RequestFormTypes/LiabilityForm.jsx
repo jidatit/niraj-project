@@ -29,11 +29,11 @@ const LiabilityForm = () => {
         user: currentUser.data
     });
 
-    const [buttonstate, setbuttonstate] = useState("Publish")
+    const [buttonstate, setbuttonstate] = useState("Submit")
 
     const addFormToDb = async () => {
         try {
-            setbuttonstate("Publishing...")
+            setbuttonstate("Submitting...")
             await addDoc(collection(db, 'liability_quotes'), formData);
 
             setFormData({
@@ -51,11 +51,11 @@ const LiabilityForm = () => {
             });
 
             toast.success("Application submitted with success.");
-            setbuttonstate("Publish")
+            setbuttonstate("Submit")
         } catch (error) {
             console.error("Error submitting application:", error);
             toast.error("Error submitting application.");
-            setbuttonstate("Publish")
+            setbuttonstate("Submit")
         }
     };
 
