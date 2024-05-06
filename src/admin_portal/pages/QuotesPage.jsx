@@ -14,6 +14,7 @@ import HomePolicyPreview from "./QuotePoliciesPreviews/HomePolicyPreview"
 import AutoPolicyPreview from "./QuotePoliciesPreviews/AutoPolicyPreview"
 import LiabilityPolicyPreview from "./QuotePoliciesPreviews/LiabilityPolicyPreview"
 import FloodPolicyPreview from "./QuotePoliciesPreviews/FloodPolicyPreview"
+import { Link } from 'react-router-dom';
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
@@ -155,9 +156,18 @@ const QuotesPage = () => {
           <Box display="flex" alignItems="center" gap="18px">
             <button
               onClick={() => { handleViewPolicy(cell.row.original, cell.row.original.policyType) }}
-              className='bg-[#003049] rounded-[18px] px-[36px] py-[4px] text-white text-[14px]'>
+              className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
               View Form Details
             </button>
+
+            <Link to={`/admin_portal/editor?qsr_type=${cell.row.original.policyType}`}>
+              <button
+                disabled={cell.row.original.status === "pending" ? true : false}
+                className={`${cell.row.original.status === "pending" ? "bg-[#ADADAD]" : "bg-[#F77F00]"} font-bold rounded-[18px] px-[16px] py-[4px] text-white text-[10px]`}>
+                Send Quote
+              </button>
+            </Link>
+
           </Box>
         ),
       },
@@ -218,7 +228,7 @@ const QuotesPage = () => {
 
         </div>
 
-        {selectedButton === "requestedQuotes" && (<div className='w-[90%] flex flex-col justify-center items-center mt-[30px]'>
+        {selectedButton === "requestedQuotes" && (<div className='w-full flex flex-col justify-center items-center mt-[30px]'>
 
           {quotes && quotes.length > 0 ? (
             <div className="table w-full">

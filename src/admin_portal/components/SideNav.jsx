@@ -10,6 +10,7 @@ const SideNav = () => {
     { name: "Back to website", link: "/", icon: FaUser },
     { name: "Quotes", link: "/admin_portal", icon: FaUser },
     { name: "Blogs", link: "/admin_portal/blogs", icon: FaUser },
+    { name: "Preparers", link: "/admin_portal/preparers", icon: FaUser },
     { name: "Logout", link: "/admin_portal/logout", icon: FiLogOut },
   ];
 
