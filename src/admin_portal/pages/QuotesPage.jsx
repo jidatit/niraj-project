@@ -160,7 +160,7 @@ const QuotesPage = () => {
               View Form Details
             </button>
 
-            <Link to={`/admin_portal/editor?qsr_type=${cell.row.original.policyType}`}>
+            <Link to={`/admin_portal/editor?qsr_type=${cell.row.original.policyType}`} target="_blank">
               <button
                 disabled={cell.row.original.status === "pending" ? true : false}
                 className={`${cell.row.original.status === "pending" ? "bg-[#ADADAD]" : "bg-[#F77F00]"} font-bold rounded-[18px] px-[16px] py-[4px] text-white text-[10px]`}>

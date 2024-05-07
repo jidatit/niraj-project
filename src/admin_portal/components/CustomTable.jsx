@@ -1,10 +1,25 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { MaterialReactTable } from 'material-react-table';
+import SubOptButton from './SubOptButton';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Stack,
+    TextField,
+} from '@mui/material';
 
-const CustomTable = ({ QSR }) => {
+const CustomTable = ({ QSR, tableData }) => {
 
     const [tableCols1, setTableCols1] = useState(null);
     const [tableData1, setTableData1] = useState(null);
+    const [tableCols2, setTableCols2] = useState(null);
+    const [tableData2, setTableData2] = useState(null);
+    const [actionType, setactionType] = useState(null);
+    const [CreateModalOpen1, setCreateModalOpen1] = useState(false);
+    const [CreateModalOpen2, setCreateModalOpen2] = useState(false);
 
     const table_columns_lia = useMemo(
         () => [
@@ -44,7 +59,7 @@ const CustomTable = ({ QSR }) => {
     const data_lia = [
         {
             id: 1,
-            carrier: "Monarch",
+            carrier: "Liability Monarch",
             liability_coverage_amount: "700000",
             um_coverage: "14000",
             cyber_liability: "75000",
@@ -80,7 +95,7 @@ const CustomTable = ({ QSR }) => {
     const data_flood = [
         {
             id: 1,
-            carrier: "Monarch",
+            carrier: "Flood Monarch",
             dwelling: "700000",
             personal_property: "14000",
             premium: "75000",
@@ -139,7 +154,7 @@ const CustomTable = ({ QSR }) => {
     const data_auto = [
         {
             id: 1,
-            carrier: "Monarch",
+            carrier: "Auto Monarch",
             bodily_injury: "700000",
             property_damage: "14000",
             um: "75000",
@@ -208,7 +223,7 @@ const CustomTable = ({ QSR }) => {
     const data_home = [
         {
             id: 1,
-            carrier: "Monarch",
+            carrier: "Home Monarch",
             dwelling: "700000",
             other_structures: "14000",
             contents: "75000",
@@ -220,26 +235,6 @@ const CustomTable = ({ QSR }) => {
             premium: "75000",
         },
     ];
-
-    useEffect(() => {
-        if (QSR === "Liability" || QSR === "liability") {
-            setTableCols1(table_columns_lia)
-            setTableData1(data_lia)
-        } else if (QSR === "Flood" || QSR === "flood") {
-            setTableCols1(table_columns_flood)
-            setTableData1(data_flood)
-        } else if (QSR === "Auto" || QSR === "auto") {
-            setTableCols1(table_columns_auto)
-            setTableData1(data_auto)
-        } else if (QSR === "Home" || QSR === "home") {
-            setTableCols1(table_columns_home)
-            setTableData1(data_home)
-        }
-        else {
-            setTableCols1([])
-            setTableData1([])
-        }
-    }, [QSR])
 
     const table_columns_2 = useMemo(
         () => [
@@ -254,7 +249,6 @@ const CustomTable = ({ QSR }) => {
         ],
         [],
     );
-
     const data_2 = [
         {
             id: 1,
@@ -283,29 +277,233 @@ const CustomTable = ({ QSR }) => {
         },
     ];
 
+    useEffect(() => {
+        if (QSR === "Liability" || QSR === "liability") {
+            setTableCols1(table_columns_lia);
+            setTableData1(data_lia);
+            setTableCols2(table_columns_2);
+            setTableData2(data_2);
+            tableData(data_lia, 1);
+            tableData(data_2, 2);
+        } else if (QSR === "Flood" || QSR === "flood") {
+            setTableCols1(table_columns_flood);
+            setTableData1(data_flood);
+            setTableCols2(table_columns_2);
+            setTableData2(data_2);
+            tableData(data_flood, 1);
+            tableData(data_2, 2);
+        } else if (QSR === "Auto" || QSR === "auto") {
+            setTableCols1(table_columns_auto);
+            setTableData1(data_auto);
+            setTableCols2(table_columns_2);
+            setTableData2(data_2);
+            tableData(data_auto, 1);
+            tableData(data_2, 2);
+        } else if (QSR === "Home" || QSR === "home") {
+            setTableCols1(table_columns_home);
+            setTableData1(data_home);
+            setTableCols2(table_columns_2);
+            setTableData2(data_2);
+            tableData(data_home, 1);
+            tableData(data_2, 2);
+        } else {
+            setTableCols1([]);
+            setTableData1([]);
+            setTableCols2([]);
+            setTableData2([]);
+            tableData([], 1);
+            tableData([], 2);
+        }
+    }, [QSR]);
+
+    const handleSaveRowTable1 = async ({ exitEditingMode, row, values }) => {
+        tableData1[row.index] = values;
+        setTableData1([...tableData1]);
+        tableData(tableData1, 1)
+        exitEditingMode();
+    };
+    const handleSaveRowTable2 = async ({ exitEditingMode, row, values }) => {
+        tableData2[row.index] = values;
+        setTableData2([...tableData2]);
+        tableData(tableData2, 2)
+        exitEditingMode();
+    };
+
+    const handleActionChange = (actionType) => {
+        setactionType(actionType)
+        if (actionType.includes("Numbers")) {
+            setCreateModalOpen1(true)
+            setCreateModalOpen2(false)
+        } else if (actionType.includes("Words")) {
+            setCreateModalOpen2(true)
+            setCreateModalOpen1(false)
+        }
+    }
+
+    const handleNewNumberRow = (values) => {
+        tableData1.push(values);
+        setTableData1([...tableData1]);
+        tableData(tableData1, 1)
+    };
+
+    const handleNewWordRow = (values) => {
+        tableData2.push(values);
+        setTableData2([...tableData2]);
+        tableData(tableData2, 2)
+    };
+
     return (
         <>
             <div className="w-[90%] flex mt-[20px] flex-col justify-center items-start">
-                {tableCols1 && tableData1 && (<div className="table w-full">
+
+                <div className="mt-5 mb-5 w-full">
+                    <SubOptButton actionType={handleActionChange} />
+                </div>
+
+                {tableCols1 && tableData1 && (<div className="w-full">
                     <MaterialReactTable
                         columns={tableCols1}
                         data={tableData1}
                         enableBottomToolbar={false}
                         enableTopToolbar={false}
+                        enableEditing={true}
+                        onEditingRowSave={handleSaveRowTable1}
                     />
                 </div>)}
-                <div className="table w-full">
+                {tableCols2 && tableData2 && (<div className="w-full">
                     <MaterialReactTable
-                        columns={table_columns_2}
-                        data={data_2}
+                        columns={tableCols2}
+                        data={tableData2}
                         enableBottomToolbar={false}
                         enableTopToolbar={false}
                         enableTableHead={false}
+                        enableEditing={true}
+                        onEditingRowSave={handleSaveRowTable2}
                     />
-                </div>
+                </div>)}
             </div>
+
+
+            <AddNumberRowModal
+                columns={tableCols1}
+                open={CreateModalOpen1}
+                onClose={() => setCreateModalOpen1(false)}
+                onSubmit={handleNewNumberRow}
+            />
+
+            <AddWordRowModal
+                columns={tableCols2}
+                open={CreateModalOpen2}
+                onClose={() => setCreateModalOpen2(false)}
+                onSubmit={handleNewWordRow}
+            />
+
+
         </>
     )
 }
+
+
+export const AddNumberRowModal = ({ open, columns, onClose, onSubmit }) => {
+    const [values, setValues] = useState(() =>
+        columns && columns?.reduce((acc, column) => {
+            acc[column.accessorKey ?? ''] = '';
+            return acc;
+        }, {}),
+    );
+
+    const handleSubmit = () => {
+        onSubmit(values);
+        onClose();
+    };
+
+    return (
+        <Dialog open={open}>
+            <DialogTitle textAlign="center">Add New Number Row</DialogTitle>
+            <DialogContent>
+                <form onSubmit={(e) => e.preventDefault()}>
+                    <Stack
+                        sx={{
+                            width: '100%',
+                            minWidth: { xs: '300px', sm: '360px', md: '400px' },
+                            gap: '1.5rem',
+                        }}
+                    >
+                        {columns && columns?.map((column) => (
+                            <TextField
+                                key={column.accessorKey}
+                                label={column.header}
+                                name={column.accessorKey}
+                                onChange={(e) =>
+                                    setValues({ ...values, [e.target.name]: e.target.value })
+                                }
+                            />
+                        ))}
+                    </Stack>
+                </form>
+            </DialogContent>
+            <DialogActions sx={{ p: '1.25rem' }}>
+                <Button onClick={onClose}>Cancel</Button>
+                <Button color="secondary" onClick={handleSubmit} variant="contained">
+                    Add New Number Row
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+};
+
+export const AddWordRowModal = ({ open, columns, onClose, onSubmit }) => {
+    const [values, setValues] = useState(() =>
+        columns && columns?.reduce((acc, column) => {
+            acc[column.accessorKey ?? ''] = '';
+            return acc;
+        }, {}),
+    );
+
+    const handleSubmit = () => {
+        onSubmit(values);
+        onClose();
+    };
+
+    return (
+        <Dialog open={open}>
+            <DialogTitle textAlign="center">Add New Word Row</DialogTitle>
+            <DialogContent>
+                <form onSubmit={(e) => e.preventDefault()}>
+                    <Stack
+                        sx={{
+                            width: '100%',
+                            minWidth: { xs: '300px', sm: '360px', md: '400px' },
+                            gap: '1.5rem',
+                        }}
+                    >
+                        <TextField
+                            key={"carrier"}
+                            label={"Carrier"}
+                            name={"carrier"}
+                            onChange={(e) =>
+                                setValues({ ...values, [e.target.name]: e.target.value })
+                            }
+                        />
+                        <TextField
+                            key={"description"}
+                            label={"Description"}
+                            name={"description"}
+                            onChange={(e) =>
+                                setValues({ ...values, [e.target.name]: e.target.value })
+                            }
+                        />
+                    </Stack>
+                </form>
+            </DialogContent>
+            <DialogActions sx={{ p: '1.25rem' }}>
+                <Button onClick={onClose}>Cancel</Button>
+                <Button color="secondary" onClick={handleSubmit} variant="contained">
+                    Add New Word Row
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+};
 
 export default CustomTable
