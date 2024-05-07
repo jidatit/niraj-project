@@ -5,7 +5,7 @@ import Select from 'react-select'
 import CustomTable from '../components/CustomTable';
 import Button from "../components/Button"
 import { useLocation } from 'react-router-dom';
-import { collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from "../../../db"
 
 const EditorPage = () => {
@@ -13,16 +13,14 @@ const EditorPage = () => {
     const location = useLocation();
     const [QSR_Type, setQSR_Type] = useState('');
     const [Users, setUsers] = useState([]);
+    const [buttonText, setButtonText] = useState("Submit Quote");
     const [Preparers, setPreparers] = useState([]);
-    const [t1, sett1] = useState();
     const [formData, setFormData] = useState({
         user: {},
         preparer: {},
         tablesData: { table_1: {}, table_2: {} },
         qsr_type: ""
     });
-
-    console.log("formDataP", formData)
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -70,38 +68,44 @@ const EditorPage = () => {
         })
     }, [location.search]);
 
-    useEffect(() => {
-        setFormData({
-            ...formData,
-            tablesData: {
-                ...formData.tablesData,
-                table_1: t1
-            }
-        });
-    }, [t1])
-
     const getDatafromTable = (dataFromTable, tableNumber) => {
         if (tableNumber === 1) {
-            sett1(dataFromTable)
-        }
-        if (tableNumber === 1) {
-            setFormData({
-                ...formData,
+            setFormData(prevFormData => ({
+                ...prevFormData,
                 tablesData: {
-                    ...formData.tablesData,
+                    ...prevFormData.tablesData,
                     table_1: dataFromTable
                 }
-            });
+            }));
         } else if (tableNumber === 2) {
-            setFormData({
-                ...formData,
+            setFormData(prevFormData => ({
+                ...prevFormData,
                 tablesData: {
-                    ...formData.tablesData,
+                    ...prevFormData.tablesData,
                     table_2: dataFromTable
                 }
-            });
+            }));
         }
     };
+
+    const handlePrepQuote = async () => {
+        try {
+            if (Object.keys(formData.user).length === 0) {
+                toast.warn("Select a user!")
+                return
+            }
+            if (Object.keys(formData.preparer).length === 0) {
+                toast.warn("Select a preparer!")
+                return
+            }
+            setButtonText("Submitting Quote");
+            await addDoc(collection(db, 'prep_quotes'), formData);
+            toast.success('Quote prepared successfully!');
+            setButtonText("Submit Quote");
+        } catch (error) {
+            toast.error('Error preparing quote!');
+        }
+    }
 
     return (
         <>
@@ -131,7 +135,7 @@ const EditorPage = () => {
 
                 <div className="w-[90%] mt-[20px] flex flex-col justify-end items-end">
                     <div className="md:w-[30%] w-full pr-0 md:pr-2">
-                        <Button onClickProp={() => { console.log("click", formData) }} text={"Submit Quote"} />
+                        <Button onClickProp={handlePrepQuote} text={buttonText} />
                     </div>
                 </div>
 

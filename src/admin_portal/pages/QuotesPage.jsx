@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { Box } from '@mui/material';
 import 'react-toastify/dist/ReactToastify.css';
 import papericon from "../../assets/dash/quotes/paper.png"
@@ -23,7 +23,8 @@ const QuotesPage = () => {
     setSelectedButton(buttonName);
   };
 
-  const [quotes, setQuotes] = useState([]);
+  const [req_quotes, setReqQuotes] = useState([]);
+  const [del_quotes, setDelQuotes] = useState([]);
   const [selectedPolicyData, setSelectedPolicyData] = useState(null);
   const [selectedPolicyType, setSelectedPolicyType] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,7 +61,7 @@ const QuotesPage = () => {
   };
 
   useEffect(() => {
-    const getAllQuoteTypes = async () => {
+    const getAllReqQuoteTypes = async () => {
       try {
         const homeQuotesCollection = collection(db, 'home_quotes');
         const autoQuotesCollection = collection(db, 'auto_quotes');
@@ -78,16 +79,27 @@ const QuotesPage = () => {
         const floodQuotesData = fqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         const allQuotes = [...homeQuotesData, ...autoQuotesData, ...liabilityQuotesData, ...floodQuotesData];
-        setQuotes(allQuotes);
+        setReqQuotes(allQuotes);
       } catch (error) {
-        console.log(error.message);
+        toast.error("Error Fetching Requested Quotes!")
       }
     };
+    const getAllDeliveredQuotes = async () => {
+      try {
+        const DeliveredQuotesCollection = collection(db, 'prep_quotes');
+        const dqsnapshot = await getDocs(DeliveredQuotesCollection);
+        const DeliveredQuotesData = dqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setDelQuotes(DeliveredQuotesData)
+      } catch (error) {
+        toast.error("Error Fetching Delivered Quotes!")
+      }
+    }
 
-    getAllQuoteTypes();
+    getAllDeliveredQuotes();
+    getAllReqQuoteTypes();
   }, []);
 
-  const columns = useMemo(
+  const req_columns = useMemo(
     () => [
       {
         accessorKey: 'user.name',
@@ -175,6 +187,64 @@ const QuotesPage = () => {
     [],
   );
 
+  const del_columns = useMemo(
+    () => [
+      {
+        accessorKey: 'user.name',
+        header: 'Client',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'user.phoneNumber',
+        header: 'Client Contact no.',
+        size: 200,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'user.email',
+        header: 'Client Email',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'qsr_type',
+        header: 'Policy Type',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        header: 'Actions',
+        size: 200,
+        Cell: ({ cell }) => (
+          <Box display="flex" alignItems="center" gap="18px">
+            <button
+              className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
+              View Quote
+            </button>
+          </Box>
+        ),
+      },
+    ],
+    [],
+  );
+
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
@@ -228,15 +298,23 @@ const QuotesPage = () => {
 
         </div>
 
-        {selectedButton === "requestedQuotes" && (<div className='w-full flex flex-col justify-center items-center mt-[30px]'>
+        {selectedButton === "requestedQuotes" && (
+          <div className='w-full flex flex-col justify-center items-center mt-[30px]'>
+            {req_quotes && req_quotes.length > 0 ? (
+              <div className="table w-full">
+                <MaterialReactTable columns={req_columns} data={req_quotes} />
+              </div>
+            ) : (<p className='text-center mt-5'>Loading Quotes....</p>)}
+          </div>)}
 
-          {quotes && quotes.length > 0 ? (
-            <div className="table w-full">
-              <MaterialReactTable columns={columns} data={quotes} />
-            </div>
-          ) : (<p className='text-center mt-5'>Loading Quotes....</p>)}
-
-        </div>)}
+        {selectedButton === "deliveredQuotes" && (
+          <div className='w-full flex flex-col justify-center items-center mt-[30px]'>
+            {del_quotes && del_quotes.length > 0 ? (
+              <div className="table w-full">
+                <MaterialReactTable columns={del_columns} data={del_quotes} />
+              </div>
+            ) : (<p className='text-center mt-5'>Loading Quotes....</p>)}
+          </div>)}
 
         {selectedPolicyType === "Home" && (
           <HomePolicyPreview data={selectedPolicyData} open={isModalOpen}
