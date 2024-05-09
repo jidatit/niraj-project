@@ -36,7 +36,7 @@ const AutoForm = () => {
         try {
             setbuttonstate("Submitting...")
             if (files.length === 0) {
-                let nofilesformData = {...formData,status:"pending"}
+                let nofilesformData = { ...formData, status: "pending", status_step: "1" }
                 await addDoc(collection(db, 'auto_quotes'), nofilesformData);
                 toast.success("Application submitted with success.");
                 return;
@@ -58,7 +58,7 @@ const AutoForm = () => {
                 files: fileUrls.map(url => ({ file: url }))
             };
 
-            let statusformData = { ...formDataWithUrls, status: "completed" }
+            let statusformData = { ...formDataWithUrls, status: "completed", status_step: "1" }
             await addDoc(collection(db, 'auto_quotes'), statusformData);
 
             setFormData({
@@ -73,7 +73,7 @@ const AutoForm = () => {
                 comprehensive_deductible: '',
                 collision_deductible: '',
                 files: [],
-                user: currentUser.data
+                user: { ...currentUser.data, id: currentUser.uid }
             });
             setFiles([]);
 
@@ -98,7 +98,7 @@ const AutoForm = () => {
         comprehensive_deductible: '',
         collision_deductible: '',
         files: [],
-        user: currentUser.data
+        user: { ...currentUser.data, id: currentUser.uid }
     });
 
     const handleChange = (event) => {

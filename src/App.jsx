@@ -20,6 +20,8 @@ import AdminLogin from './auth/AdminLogin'
 import QuotesPage from './admin_portal/pages/QuotesPage'
 import PreparerPage from './admin_portal/pages/PreparerPage'
 import EditorPage from './admin_portal/pages/EditorPage'
+import ViewPolicyQuote from './user_portal/pages/ViewPolicyQuote'
+import PolicyQuoteProgess from './user_portal/pages/PolicyQuoteProgess'
 
 function App() {
   return (
@@ -51,6 +53,8 @@ function App() {
 
           <Route path='/user_portal' element={<UserLayout />}>
             <Route index element={<RequestPage />} />
+            <Route path='view_policy_quote' element={<ViewPolicyQuote />} />
+            <Route path='pq_progress' element={<PolicyQuoteProgess />} />
             <Route path='logout' element={<Logout />} />
           </Route>
 

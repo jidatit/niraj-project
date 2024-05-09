@@ -15,9 +15,22 @@ import AutoPolicyPreview from "./QuotePoliciesPreviews/AutoPolicyPreview"
 import LiabilityPolicyPreview from "./QuotePoliciesPreviews/LiabilityPolicyPreview"
 import FloodPolicyPreview from "./QuotePoliciesPreviews/FloodPolicyPreview"
 import { Link } from 'react-router-dom';
+import DeliveredQuotePreview from '../components/DeliveredQuotePreview';
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
+  const [openModal, setopenModal] = useState(false);
+  const [popupValue, setPopupvalue] = useState(null);
+
+  const handleModal = (data) => {
+    setopenModal(true)
+    setPopupvalue(data)
+  }
+
+  const handleModalClose = () => {
+    setopenModal(false)
+    setPopupvalue(null)
+  }
 
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
@@ -172,7 +185,7 @@ const QuotesPage = () => {
               View Form Details
             </button>
 
-            <Link to={`/admin_portal/editor?qsr_type=${cell.row.original.policyType}`} target="_blank">
+            <Link to={`/admin_portal/editor?qsr_type=${cell.row.original.policyType}&q_id=${cell.row.original.id}`} target="_blank">
               <button
                 disabled={cell.row.original.status === "pending" ? true : false}
                 className={`${cell.row.original.status === "pending" ? "bg-[#ADADAD]" : "bg-[#F77F00]"} font-bold rounded-[18px] px-[16px] py-[4px] text-white text-[10px]`}>
@@ -235,6 +248,7 @@ const QuotesPage = () => {
         Cell: ({ cell }) => (
           <Box display="flex" alignItems="center" gap="18px">
             <button
+              onClick={() => handleModal(cell.row.original)}
               className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
               View Quote
             </button>
@@ -304,7 +318,7 @@ const QuotesPage = () => {
               <div className="table w-full">
                 <MaterialReactTable columns={req_columns} data={req_quotes} />
               </div>
-            ) : (<p className='text-center mt-5'>Loading Quotes....</p>)}
+            ) : (<p className='text-center mt-5'>No Quotes Found....</p>)}
           </div>)}
 
         {selectedButton === "deliveredQuotes" && (
@@ -313,7 +327,10 @@ const QuotesPage = () => {
               <div className="table w-full">
                 <MaterialReactTable columns={del_columns} data={del_quotes} />
               </div>
-            ) : (<p className='text-center mt-5'>Loading Quotes....</p>)}
+            ) : (<p className='text-center mt-5'>No Quotes Found....</p>)}
+
+            <DeliveredQuotePreview data={popupValue} openModal={openModal} onClose={(handleModalClose)} />
+
           </div>)}
 
         {selectedPolicyType === "Home" && (

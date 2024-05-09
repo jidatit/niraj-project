@@ -26,7 +26,7 @@ const LiabilityForm = () => {
         persons: [{ name: '', dob: '' }],
         addresses: [{ address: '' }],
         autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' },
-        user: currentUser.data
+        user: { ...currentUser.data, id: currentUser.uid }
     });
 
     const [buttonstate, setbuttonstate] = useState("Submit")
@@ -46,8 +46,9 @@ const LiabilityForm = () => {
                 persons: [{ name: '', dob: '' }],
                 addresses: [{ address: '' }],
                 autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' },
-                user: currentUser.data,
-                status: "completed"
+                user: { ...currentUser.data, id: currentUser.uid },
+                status: "completed",
+                status_step: "1"
             });
 
             toast.success("Application submitted with success.");

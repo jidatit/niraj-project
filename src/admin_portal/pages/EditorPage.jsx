@@ -5,13 +5,15 @@ import Select from 'react-select'
 import CustomTable from '../components/CustomTable';
 import Button from "../components/Button"
 import { useLocation } from 'react-router-dom';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from "../../../db"
+import { getCurrentDate, getType } from '../../utils/helperSnippets';
 
 const EditorPage = () => {
 
     const location = useLocation();
     const [QSR_Type, setQSR_Type] = useState('');
+    const [Q_id, setQ_id] = useState('');
     const [Users, setUsers] = useState([]);
     const [buttonText, setButtonText] = useState("Submit Quote");
     const [Preparers, setPreparers] = useState([]);
@@ -19,7 +21,9 @@ const EditorPage = () => {
         user: {},
         preparer: {},
         tablesData: { table_1: {}, table_2: {} },
-        qsr_type: ""
+        qsr_type: "",
+        date: getCurrentDate(),
+        q_id: "",
     });
 
     useEffect(() => {
@@ -61,10 +65,13 @@ const EditorPage = () => {
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const qsrTypeParam = searchParams.get('qsr_type');
+        const q_params_id = searchParams.get('q_id');
+        setQ_id(q_params_id)
         setQSR_Type(qsrTypeParam);
         setFormData({
             ...formData,
-            qsr_type: qsrTypeParam
+            qsr_type: qsrTypeParam,
+            q_id: q_params_id
         })
     }, [location.search]);
 
@@ -100,10 +107,33 @@ const EditorPage = () => {
             }
             setButtonText("Submitting Quote");
             await addDoc(collection(db, 'prep_quotes'), formData);
+
+            await updateStatusStep(QSR_Type, Q_id)
+
             toast.success('Quote prepared successfully!');
             setButtonText("Submit Quote");
         } catch (error) {
             toast.error('Error preparing quote!');
+        }
+    }
+
+    const updateStatusStep = async (type, id) => {
+        try {
+            let docdata = {}
+            const collectionRef = getType(type)
+
+            const docRef = doc(db, collectionRef, id);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                docdata = { ...docSnap.data(), id: docSnap.id }
+            }
+
+            await updateDoc(docRef, {
+                status_step: "2"
+            });
+
+        } catch (error) {
+            toast.error("Error updating status!")
         }
     }
 
