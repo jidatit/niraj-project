@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { MaterialReactTable } from 'material-react-table';
 
-const CustomTablePreview = ({ qsr_type, table1_data, table2_data }) => {
+const CustomTablePreviewAdmin = ({ qsr_type, table1_data, table2_data }) => {
 
     const [tableCols1, setTableCols1] = useState(null);
 
@@ -226,4 +226,4 @@ const CustomTablePreview = ({ qsr_type, table1_data, table2_data }) => {
     )
 }
 
-export default CustomTablePreview
+export default CustomTablePreviewAdmin

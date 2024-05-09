@@ -1,9 +1,9 @@
 import React from 'react'
 import logo from "../../assets/dash/modal/logo.png"
 import { Modal, Slide } from '@mui/material';
-import CustomTablePreview from './CustomTablePreview';
+import CustomTablePreviewAdmin from './CustomTablePreviewAdmin';
 
-const DeliveredQuotePreview = ({ data, openModal, onClose }) => {
+const DeliveredQuotePreviewAdmin = ({ data, openModal, onClose }) => {
     return (
         <>
             <Modal
@@ -81,7 +81,7 @@ const DeliveredQuotePreview = ({ data, openModal, onClose }) => {
                         </div>)}
 
                         <div className='w-full flex flex-col justify-center items-center'>
-                            {data && data.qsr_type && (<CustomTablePreview qsr_type={data.qsr_type} table1_data={data.tablesData.table_1} table2_data={data.tablesData.table_2} />)}
+                            {data && data.qsr_type && (<CustomTablePreviewAdmin qsr_type={data.qsr_type} table1_data={data.tablesData.table_1} table2_data={data.tablesData.table_2} />)}
                         </div>
 
                     </div>
@@ -91,4 +91,4 @@ const DeliveredQuotePreview = ({ data, openModal, onClose }) => {
     )
 }
 
-export default DeliveredQuotePreview
+export default DeliveredQuotePreviewAdmin

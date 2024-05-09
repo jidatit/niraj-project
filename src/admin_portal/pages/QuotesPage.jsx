@@ -15,7 +15,7 @@ import AutoPolicyPreview from "./QuotePoliciesPreviews/AutoPolicyPreview"
 import LiabilityPolicyPreview from "./QuotePoliciesPreviews/LiabilityPolicyPreview"
 import FloodPolicyPreview from "./QuotePoliciesPreviews/FloodPolicyPreview"
 import { Link } from 'react-router-dom';
-import DeliveredQuotePreview from '../components/DeliveredQuotePreview';
+import DeliveredQuotePreviewAdmin from '../components/DeliveredQuotePreviewAdmin';
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
@@ -329,7 +329,7 @@ const QuotesPage = () => {
               </div>
             ) : (<p className='text-center mt-5'>No Quotes Found....</p>)}
 
-            <DeliveredQuotePreview data={popupValue} openModal={openModal} onClose={(handleModalClose)} />
+            <DeliveredQuotePreviewAdmin data={popupValue} openModal={openModal} onClose={(handleModalClose)} />
 
           </div>)}
 

@@ -48,7 +48,7 @@ const PolicyQuoteProgess = () => {
 
     const filteredProgressCardData = progressCardData && progressCardData?.slice(0, currentStep + 1);
 
-    const progressCards = filteredProgressCardData.map((card, index) => (
+    const progressCards = filteredProgressCardData && filteredProgressCardData?.map((card, index) => (
         <ProgressCard key={index} heading={card.heading} image={card.image} info={card.info} />
     ));
 

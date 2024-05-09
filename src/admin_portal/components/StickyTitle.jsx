@@ -32,9 +32,8 @@ function StickyTitle() {
                     </span>)}
                   </>
                 ) : (
-                  <div className="bg-white rounded-lg w-[150px] shadow-md pt-1 pb-1 pl-2 animate-pulse">
-                    <div className="w-[90%] h-4 bg-gray-300 rounded mb-2"></div>
-                    <div className="w-[90%] h-2 bg-gray-300 rounded mb-2"></div>
+                  <div className="bg-white flex flex-col justify-center items-center rounded-lg w-[150px] shadow-md pt-1 pb-1 animate-pulse">
+                    <div className="w-[90%] h-4 bg-gray-300 rounded"></div>
                   </div>
                 )}
               </div>
