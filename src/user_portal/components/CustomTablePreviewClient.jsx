@@ -7,9 +7,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import { db } from '../../../db';
 import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getType } from "../../utils/helperSnippets"
+import { useAuth } from "../../AuthContext"
 
 const CustomTablePreviewClient = ({ qid, qsr_type, table1_data, table2_data }) => {
-
+    const { currentUser } = useAuth()
     const [tableCols1, setTableCols1] = useState(null);
 
     const [openbindoptions, setopenbindoptions] = useState(false);
@@ -233,7 +234,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table1_data, table2_data }) =
 
     const handleBindQuote = async () => {
         try {
-            await addDoc(collection(db, 'bind_req_quotes'), { ...formData, qid });
+            await addDoc(collection(db, 'bind_req_quotes'), { ...formData, qid, qsr_type, user: { ...currentUser?.data } });
             await updateStatusStep(qsr_type, qid)
             toast.success("Quote bind request with success!")
         } catch (error) {
@@ -321,9 +322,9 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table1_data, table2_data }) =
 
                         <div className='w-[95%] overflow-y-auto max-h-[80vh] lg:w-[50%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md'>
 
-                            <div className='w-full flex flex-col justify-center items-center md:items-start'>
-                                <h1 className='lg:text-[32px] md:text-start text-center font-bold md:text-[24px] text-[18px]'>Fill out Form for Home Quote</h1>
-                            </div>
+                            {qsr_type && (<div className='w-full flex flex-col justify-center items-center md:items-start'>
+                                <h1 className='lg:text-[32px] md:text-start text-center font-bold md:text-[24px] text-[18px]'>Fill out Form for {qsr_type} Quote</h1>
+                            </div>)}
 
                             <div className='w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start'>
                                 <p className='lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]'>Confirm the effective date of the policy</p>

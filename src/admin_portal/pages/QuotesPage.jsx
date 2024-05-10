@@ -16,11 +16,23 @@ import LiabilityPolicyPreview from "./QuotePoliciesPreviews/LiabilityPolicyPrevi
 import FloodPolicyPreview from "./QuotePoliciesPreviews/FloodPolicyPreview"
 import { Link } from 'react-router-dom';
 import DeliveredQuotePreviewAdmin from '../components/DeliveredQuotePreviewAdmin';
+import BinderReqPreview from '../components/BinderReqPreview';
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
   const [openModal, setopenModal] = useState(false);
   const [popupValue, setPopupvalue] = useState(null);
+
+  const [BinderPopValue, setBinderPopValue] = useState(null);
+  const [slideModal, setSlideModal] = useState(false);
+  const slideModalClose = () => {
+    setSlideModal(false)
+    setBinderPopValue(null)
+  }
+  const slideModalOpen = (data) => {
+    setSlideModal(true)
+    setBinderPopValue(data)
+  }
 
   const handleModal = (data) => {
     setopenModal(true)
@@ -38,6 +50,7 @@ const QuotesPage = () => {
 
   const [req_quotes, setReqQuotes] = useState([]);
   const [del_quotes, setDelQuotes] = useState([]);
+  const [binder_req_quotes, setBinderReqQuotes] = useState([]);
   const [selectedPolicyData, setSelectedPolicyData] = useState(null);
   const [selectedPolicyType, setSelectedPolicyType] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -92,7 +105,13 @@ const QuotesPage = () => {
         const floodQuotesData = fqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         const allQuotes = [...homeQuotesData, ...autoQuotesData, ...liabilityQuotesData, ...floodQuotesData];
-        setReqQuotes(allQuotes);
+        let allReqQuotes = [];
+        allQuotes && allQuotes.forEach(quote => {
+          if (quote.status_step === "1") {
+            allReqQuotes.push(quote);
+          }
+        });
+        setReqQuotes(allReqQuotes);
       } catch (error) {
         toast.error("Error Fetching Requested Quotes!")
       }
@@ -107,7 +126,18 @@ const QuotesPage = () => {
         toast.error("Error Fetching Delivered Quotes!")
       }
     }
+    const getAllBinderRequestedQuotes = async () => {
+      try {
+        const BinderReqCollection = collection(db, 'bind_req_quotes');
+        const brsnapshot = await getDocs(BinderReqCollection);
+        const BinderReqQuotesData = brsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setBinderReqQuotes(BinderReqQuotesData)
+      } catch (error) {
+        toast.error("Error Fetching Binder Requested Quotes!")
+      }
+    }
 
+    getAllBinderRequestedQuotes();
     getAllDeliveredQuotes();
     getAllReqQuoteTypes();
   }, []);
@@ -259,6 +289,65 @@ const QuotesPage = () => {
     [],
   );
 
+  const binder_req_columns = useMemo(
+    () => [
+      {
+        accessorKey: 'user.name',
+        header: 'Client',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'user.phoneNumber',
+        header: 'Client Contact no.',
+        size: 200,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'user.email',
+        header: 'Client Email',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'qsr_type',
+        header: 'Policy Type',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        header: 'Actions',
+        size: 200,
+        Cell: ({ cell }) => (
+          <Box display="flex" alignItems="center" gap="18px">
+            <button
+              onClick={() => slideModalOpen(cell.row.original)}
+              className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
+              View Binder
+            </button>
+          </Box>
+        ),
+      },
+    ],
+    [],
+  );
+
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
@@ -330,6 +419,18 @@ const QuotesPage = () => {
             ) : (<p className='text-center mt-5'>No Quotes Found....</p>)}
 
             <DeliveredQuotePreviewAdmin data={popupValue} openModal={openModal} onClose={(handleModalClose)} />
+
+          </div>)}
+
+        {selectedButton === "binderRequested" && (
+          <div className='w-full flex flex-col justify-center items-center mt-[30px]'>
+            {binder_req_quotes && binder_req_quotes.length > 0 ? (
+              <div className="table w-full">
+                <MaterialReactTable columns={binder_req_columns} data={binder_req_quotes} />
+              </div>
+            ) : (<p className='text-center mt-5'>No Quotes Found....</p>)}
+
+            <BinderReqPreview data={BinderPopValue} isSlideModalOpen={slideModal} onClose={slideModalClose} />
 
           </div>)}
 
