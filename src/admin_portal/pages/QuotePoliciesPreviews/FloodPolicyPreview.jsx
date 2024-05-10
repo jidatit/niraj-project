@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Modal from '@mui/material/Modal';
 import { TextField, InputLabel } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const FloodPolicyPreview = ({ data, open, handleClose }) => {
 
@@ -99,26 +100,30 @@ const FloodPolicyPreview = ({ data, open, handleClose }) => {
                 {showImages ? 'Hide Uploaded Inspections' : 'View Uploaded Inspections'}
               </button>
               {showImages === true && files.map((file, index) => (
-                <>
-                  <label className="block font-medium mb-1">Files:</label>
+                <div key={index}>
                   <ul>
-                    <li key={index}>
+                    <a href={file.file} target='_blank' download>
+                      <button className='bg-blue-500 rounded-lg text-white font-semibold px-2 py-2 mt-[10px] mb-[10px]'>Download File</button>
+                    </a>
+                    <li key={file.name}>
                       {renderFilePreview(file)}
                     </li>
                   </ul>
-                </>
+                </div>
               ))}
 
             </div>
           )}
 
           <div className='w-full flex mt-[10px] flex-col justify-center items-center'>
-            <button
-              className="text-white w-full justify-center bg-[#F77F00] outline-none md:text-[15px] font-semibold rounded-lg text-[12px] px-5 py-4 text-center inline-flex items-center shadow-md"
-              type="button"
-            >
-              Send the Customer a Customized Quote According to their Requirements
-            </button>
+            <Link onClick={handleClose} className='w-full' to={`/admin_portal/editor?qsr_type=${data.policyType}&q_id=${data.id}&qu_id=${data.user.id}`} target="_blank">
+              <button
+                className="text-white w-full justify-center bg-[#F77F00] outline-none md:text-[15px] font-semibold rounded-lg text-[12px] px-5 py-4 text-center inline-flex items-center shadow-md"
+                type="button"
+              >
+                Send the Customer a Customized Quote According to their Requirements
+              </button>
+            </Link>
           </div>
 
         </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import Modal from '@mui/material/Modal';
 import { TextField, InputLabel } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
 
@@ -87,12 +88,14 @@ const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
           )}
 
           <div className='w-full flex mt-[10px] flex-col justify-center items-center'>
-            <button
-              className="text-white w-full justify-center bg-[#F77F00] outline-none md:text-[15px] font-semibold rounded-lg text-[12px] px-5 py-4 text-center inline-flex items-center shadow-md"
-              type="button"
-            >
-              Send the Customer a Customized Quote According to their Requirements
-            </button>
+            <Link onClick={handleClose} className='w-full' to={`/admin_portal/editor?qsr_type=${data.policyType}&q_id=${data.id}&qu_id=${data.user.id}`} target="_blank">
+              <button
+                className="text-white w-full justify-center bg-[#F77F00] outline-none md:text-[15px] font-semibold rounded-lg text-[12px] px-5 py-4 text-center inline-flex items-center shadow-md"
+                type="button"
+              >
+                Send the Customer a Customized Quote According to their Requirements
+              </button>
+            </Link>
           </div>
 
         </div>

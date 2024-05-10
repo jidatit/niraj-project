@@ -14,12 +14,24 @@ const EditorPage = () => {
     const location = useLocation();
     const [QSR_Type, setQSR_Type] = useState('');
     const [Q_id, setQ_id] = useState('');
+    const [QU_id, setQU_id] = useState('');
     const [Users, setUsers] = useState([]);
     const [buttonText, setButtonText] = useState("Submit Quote");
     const [Preparers, setPreparers] = useState([]);
+
     const [formData, setFormData] = useState({
         user: {},
-        preparer: {},
+        preparer: {
+            value: "eFvH8aSduCPeMEdtWnDeUkecnXr2",
+            label: `admin - admin@admin.com`,
+            id: "eFvH8aSduCPeMEdtWnDeUkecnXr2",
+            company_name: "Jidat Admin",
+            company_address: "USA ASADDsDDS",
+            phone_1: "45345376",
+            phone_2: "45345345",
+            name: "Admin",
+            email: "admin@admin.com"
+        },
         tablesData: { table_1: {}, table_2: {} },
         qsr_type: "",
         date: getCurrentDate(),
@@ -66,6 +78,8 @@ const EditorPage = () => {
         const searchParams = new URLSearchParams(location.search);
         const qsrTypeParam = searchParams.get('qsr_type');
         const q_params_id = searchParams.get('q_id');
+        const qu_params_id = searchParams.get('qu_id');
+        setQU_id(qu_params_id)
         setQ_id(q_params_id)
         setQSR_Type(qsrTypeParam);
         setFormData({
@@ -74,6 +88,16 @@ const EditorPage = () => {
             q_id: q_params_id
         })
     }, [location.search]);
+
+    useEffect(() => {
+        if (Users.length > 0 && QU_id) {
+            let userMatched = Users.find(user => user.value === QU_id);
+            setFormData(prevData => ({
+                ...prevData,
+                user: userMatched
+            }));
+        }
+    }, [Users, QU_id]);
 
     const getDatafromTable = (dataFromTable, tableNumber) => {
         if (tableNumber === 1) {
@@ -147,7 +171,7 @@ const EditorPage = () => {
                 <div className="w-[90%] grid grid-cols-1 mt-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
                     <div className='w-full z-30 flex flex-col justify-center items-start gap-2'>
                         <label className='font-semibold text-[20px] text-start' htmlFor="users">Select User</label>
-                        {Users && (<Select id='users' value={formData.user} onChange={(selectedUser) => setFormData({ ...formData, user: selectedUser })} name='user' className='w-full' options={Users} />)}
+                        {Users && (<Select id='users' isDisabled={true} value={formData.user} onChange={(selectedUser) => setFormData({ ...formData, user: selectedUser })} name='user' className='w-full' options={Users} />)}
                     </div>
                     <div className='w-full flex z-20 flex-col justify-center items-start gap-2'>
                         <label className='font-semibold text-[20px] text-start' htmlFor="preparers">Select Preparer</label>
