@@ -37,7 +37,7 @@ const ViewPolicyQuote = () => {
                 )
             },
             {
-                accessorKey: 'address',
+                accessorKey: 'user.mailingAddress',
                 header: 'Quote Address',
                 size: 100,
                 Cell: ({ cell }) => (
