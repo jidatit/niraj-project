@@ -8,7 +8,7 @@ import tickicon from "../../assets/dash/quotes/tick.png"
 import peopleicon from "../../assets/dash/quotes/people.png"
 import historyicon from "../../assets/dash/quotes/history.png"
 import { MaterialReactTable } from 'material-react-table';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc, getDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../../db';
 import HomePolicyPreview from "./QuotePoliciesPreviews/HomePolicyPreview"
 import AutoPolicyPreview from "./QuotePoliciesPreviews/AutoPolicyPreview"
@@ -17,6 +17,7 @@ import FloodPolicyPreview from "./QuotePoliciesPreviews/FloodPolicyPreview"
 import { Link } from 'react-router-dom';
 import DeliveredQuotePreviewAdmin from '../components/DeliveredQuotePreviewAdmin';
 import BinderReqPreview from '../components/BinderReqPreview';
+import { getCurrentDate, getType } from '../../utils/helperSnippets';
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
@@ -51,6 +52,8 @@ const QuotesPage = () => {
   const [req_quotes, setReqQuotes] = useState([]);
   const [del_quotes, setDelQuotes] = useState([]);
   const [binder_req_quotes, setBinderReqQuotes] = useState([]);
+  const [policy_bound_data, setpolicy_bound_data] = useState([]);
+  const [policy_history_data, setpolicy_history] = useState([]);
   const [selectedPolicyData, setSelectedPolicyData] = useState(null);
   const [selectedPolicyType, setSelectedPolicyType] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -130,13 +133,37 @@ const QuotesPage = () => {
       try {
         const BinderReqCollection = collection(db, 'bind_req_quotes');
         const brsnapshot = await getDocs(BinderReqCollection);
-        const BinderReqQuotesData = brsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const BinderReqQuotesData = brsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(data => data.bound_status === "pending");
         setBinderReqQuotes(BinderReqQuotesData)
       } catch (error) {
         toast.error("Error Fetching Binder Requested Quotes!")
       }
     }
+    const getAllPolicyBoundData = async () => {
+      try {
+        const currentDate = new Date();
+        const PBCollection = collection(db, 'bound_policies');
+        const pbsnapshot = await getDocs(PBCollection);
+        const data = pbsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+        const PBData = data && data?.filter(item => {
+          const effectiveDate = new Date(item.effective_date);
+          return effectiveDate > currentDate;
+        });
+
+        const historyData = data && data?.filter(item => {
+          const effectiveDate = new Date(item.effective_date);
+          return effectiveDate <= currentDate;
+        });
+
+        setpolicy_bound_data(PBData);
+        setpolicy_history(historyData);
+      } catch (error) {
+        toast.error("Error Fetching Policy Bound Data!");
+      }
+    };
+
+    getAllPolicyBoundData();
     getAllBinderRequestedQuotes();
     getAllDeliveredQuotes();
     getAllReqQuoteTypes();
@@ -289,6 +316,53 @@ const QuotesPage = () => {
     [],
   );
 
+  const handleBoundPolicy = async (data, rowdocid) => {
+    try {
+      await addDoc(collection(db, 'bound_policies'), { ...data, bound_status: "bounded", bound_date: getCurrentDate("dash") });  // add new record
+      await updateStatusStep(data.qsr_type, data.qid)   // base record status update for tracking (numeric)
+      await updateBoundStatus(rowdocid)  // update bound_status in bind_req_quotes
+      toast.success('Policy bounded successfully!');
+    } catch (error) {
+      toast.error('Error bounding policy!');
+      console.log(error)
+    }
+  }
+
+  const updateBoundStatus = async (id) => {
+    try {
+      let docdata = {}
+      const docRef = doc(db, "bind_req_quotes", id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        docdata = { ...docSnap.data(), id: docSnap.id }
+      }
+      await updateDoc(docRef, {
+        bound_status: "bounded"
+      });
+    } catch (error) {
+      toast.error("Error updating bound_status in bind_req_quotes!")
+      console.log(error)
+    }
+  }
+
+  const updateStatusStep = async (type, id) => {
+    try {
+      let docdata = {}
+      const collectionRef = getType(type)
+      const docRef = doc(db, collectionRef, id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        docdata = { ...docSnap.data(), id: docSnap.id }
+      }
+      await updateDoc(docRef, {
+        status_step: "4"
+      });
+    } catch (error) {
+      toast.error("Error updating status!")
+      console.log(error)
+    }
+  }
+
   const binder_req_columns = useMemo(
     () => [
       {
@@ -340,6 +414,138 @@ const QuotesPage = () => {
               onClick={() => slideModalOpen(cell.row.original)}
               className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
               View Binder
+            </button>
+            <button
+              onClick={() => handleBoundPolicy(cell.row.original, cell.row.original.id)}
+              className='bg-[#17A600] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
+              Bound Policy
+            </button>
+          </Box>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const policy_bound_columns = useMemo(
+    () => [
+      {
+        accessorKey: 'user.name',
+        header: 'Client',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'user.phoneNumber',
+        header: 'Client Contact no.',
+        size: 200,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'user.email',
+        header: 'Client Email',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'qsr_type',
+        header: 'Policy Type',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        header: 'Actions',
+        size: 200,
+        Cell: ({ cell }) => (
+          <Box display="flex" alignItems="center" gap="18px">
+            <button
+              onClick={() => slideModalOpen(cell.row.original)}
+              className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
+              View Policy
+            </button>
+          </Box>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const policy_history_columns = useMemo(
+    () => [
+      {
+        accessorKey: 'user.name',
+        header: 'Client',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'user.phoneNumber',
+        header: 'Client Contact no.',
+        size: 200,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'user.email',
+        header: 'Client Email',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'qsr_type',
+        header: 'Policy Type',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        )
+      },
+      {
+        header: 'Effective Dates',
+        size: 100,
+        Cell: ({ cell }) => (
+          <Box >
+            {`B: ${cell.row.original.bound_date} - E: ${cell.row.original.effective_date}`}
+          </Box>
+        )
+      },
+      {
+        header: 'Actions',
+        size: 200,
+        Cell: ({ cell }) => (
+          <Box display="flex" alignItems="center" gap="18px">
+            <button
+              onClick={() => slideModalOpen(cell.row.original)}
+              className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
+              View Policy
             </button>
           </Box>
         ),
@@ -433,6 +639,31 @@ const QuotesPage = () => {
             <BinderReqPreview data={BinderPopValue} isSlideModalOpen={slideModal} onClose={slideModalClose} />
 
           </div>)}
+
+        {selectedButton === "policyBound" && (
+          <div className='w-full flex flex-col justify-center items-center mt-[30px]'>
+            {policy_bound_data && policy_bound_data.length > 0 ? (
+              <div className="table w-full">
+                <MaterialReactTable columns={policy_bound_columns} data={policy_bound_data} />
+              </div>
+            ) : (<p className='text-center mt-5'>No Policy Bound Found....</p>)}
+
+            <BinderReqPreview data={BinderPopValue} isSlideModalOpen={slideModal} onClose={slideModalClose} />
+
+          </div>)}
+
+        {selectedButton === "policyHistory" && (
+          <div className='w-full flex flex-col justify-center items-center mt-[30px]'>
+            {policy_history_data && policy_history_data.length > 0 ? (
+              <div className="table w-full">
+                <MaterialReactTable columns={policy_history_columns} data={policy_history_data} />
+              </div>
+            ) : (<p className='text-center mt-5'>No Policy Bound Found....</p>)}
+
+            <BinderReqPreview data={BinderPopValue} isSlideModalOpen={slideModal} onClose={slideModalClose} />
+
+          </div>)}
+
 
         {selectedPolicyType === "Home" && (
           <HomePolicyPreview data={selectedPolicyData} open={isModalOpen}

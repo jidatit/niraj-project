@@ -234,7 +234,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table1_data, table2_data }) =
 
     const handleBindQuote = async () => {
         try {
-            await addDoc(collection(db, 'bind_req_quotes'), { ...formData, qid, qsr_type, user: { ...currentUser?.data } });
+            await addDoc(collection(db, 'bind_req_quotes'), { ...formData, qid, qsr_type, user: { ...currentUser?.data }, bound_status: "pending" });
             await updateStatusStep(qsr_type, qid)
             onClose()
             toast.success("Quote bind request with success!")

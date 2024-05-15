@@ -34,7 +34,7 @@ const EditorPage = () => {
         },
         tablesData: { table_1: {}, table_2: {} },
         qsr_type: "",
-        date: getCurrentDate(),
+        date: getCurrentDate("slash"),
         q_id: "",
     });
 

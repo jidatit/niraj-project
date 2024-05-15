@@ -19,7 +19,7 @@ export function hasEmptyValue(userDataWithoutPasswords) {
   return false;
 }
 
-export function getCurrentDate() {
+export function getCurrentDate(type) {
   const currentDate = new Date();
 
   const day = currentDate.getDate();
@@ -29,7 +29,12 @@ export function getCurrentDate() {
   const formattedDay = day < 10 ? '0' + day : day;
   const formattedMonth = month < 10 ? '0' + month : month;
 
-  const formattedDate = `${formattedDay}/${formattedMonth}/${year}`;
+  const formattedDate = type === "slash"
+    ? `${formattedDay}/${formattedMonth}/${year}`
+    : (type === "dash"
+      ? `${year}-${formattedMonth}-${formattedDay}`
+      : `${formattedDay}/${formattedMonth}/${year}`
+    );
 
   return formattedDate;
 }

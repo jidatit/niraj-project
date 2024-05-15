@@ -8,20 +8,35 @@ import progicon from "../../assets/dash/modal/prog.png"
 import { Link } from 'react-router-dom';
 import { useAuth } from "../../AuthContext"
 import { toast } from 'react-toastify';
+import img1 from "../../assets/dash/user/1.png"
+import img2 from "../../assets/dash/user/2.png"
+import img3 from "../../assets/dash/user/3.png"
+import img4 from "../../assets/dash/user/4.png"
 
 const ViewPolicyQuote = () => {
     const [AllQuotes, setAllQuotes] = useState([]);
     const { currentUser } = useAuth()
     const [openModal, setopenModal] = useState(false);
     const [PopupData, setPopupData] = useState();
+    const [openModalPolicy, setopenModalPolicy] = useState(false);
+    const [PopupDataPolicy, setPopupDataPolicy] = useState();
 
     const onClose = () => {
         setopenModal(false)
     }
 
+    const onClosePolicy = () => {
+        setopenModalPolicy(false)
+    }
+
     const handleOpenModalWithData = (data) => {
         setopenModal(true)
         setPopupData(data)
+    }
+
+    const handleOpenModalWithDataPolicy = (data) => {
+        setopenModalPolicy(true)
+        setPopupDataPolicy(data)
     }
 
     const columns = useMemo(
@@ -51,6 +66,11 @@ const ViewPolicyQuote = () => {
                 size: 200,
                 Cell: ({ cell }) => (
                     <Box display="flex" alignItems="center" gap="18px">
+                        <button
+                            onClick={() => { handleOpenModalWithDataPolicy(cell.row.original) }}
+                            className='bg-[#F77F00] rounded-[18px] px-[16px] py-[4px] text-white text-[10px] lg:text-[14px] lg:font-bold'>
+                            View Policy
+                        </button>
                         <button
                             onClick={() => { handleOpenModalWithData(cell.row.original) }}
                             className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px] lg:text-[14px] lg:font-bold'>
@@ -94,7 +114,6 @@ const ViewPolicyQuote = () => {
         }
         getUserQuotes()
     }, []);
-
 
     return (
         <>
@@ -144,6 +163,65 @@ const ViewPolicyQuote = () => {
                     </Slide>
                 </Modal>
 
+                <Modal
+                    open={openModalPolicy}
+                    onClose={onClosePolicy}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Slide
+                        direction="right"
+                        in={openModalPolicy}
+                        mountOnEnter
+                        unmountOnExit
+                        style={{ transition: "transform 2s ease-in-out" }}
+                    >
+                        <div className="lg:w-[30%] w-[90%] bg-white flex flex-col justify-center rounded-md shadow-lg items-center">
+
+                            {PopupDataPolicy && (
+                                <DropdownPolicy data={PopupDataPolicy} />
+                            )}
+
+                        </div>
+                    </Slide>
+                </Modal>
+
+            </div>
+        </>
+    )
+}
+
+
+const DropdownPolicy = ({ data }) => {
+    return (
+        <>
+            <div className='w-full flex-col justify-center items-center rounded-md'>
+                <div className='w-full flex flex-col justify-center rounded-t-md items-center py-2 bg-[#003049] text-white'>
+                    <p className='text-center font-semibold text-[24px]'>Select your action</p>
+                </div>
+                <div className="divide-y divide-solid">
+                    <div className='w-full flex cursor-pointer hover:bg-gray-200 flex-row gap-2 justify-center items-center py-4'>
+                        <p className='text-[17px] font-semibold'>View Coverage</p>
+                        <img className='w-[24px] h-[24px]' src={img1} alt="" />
+                    </div>
+                    <div className='w-full flex cursor-pointer hover:bg-gray-200 flex-row gap-2 justify-center items-center py-4'>
+                        <p className='text-[17px] font-semibold'>Change Coverage</p>
+                        <img className='w-[24px] h-[24px]' src={img2} alt="" />
+                    </div>
+                    <div className='w-full flex cursor-pointer hover:bg-gray-200 flex-row gap-2 justify-center items-center py-4'>
+                        <p className='text-[17px] font-semibold'>Premium History</p>
+                        <img className='w-[24px] h-[24px]' src={img3} alt="" />
+                    </div>
+                    <div className='w-full flex cursor-pointer hover:bg-gray-200 flex-row gap-2 justify-center items-center py-4'>
+                        <p className='text-[17px] font-semibold'>Cancel Policy</p>
+                        <img className='w-[24px] h-[24px]' src={img4} alt="" />
+                    </div>
+                </div>
             </div>
         </>
     )
