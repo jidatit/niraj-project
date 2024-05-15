@@ -12,6 +12,7 @@ import img1 from "../../assets/dash/user/1.png"
 import img2 from "../../assets/dash/user/2.png"
 import img3 from "../../assets/dash/user/3.png"
 import img4 from "../../assets/dash/user/4.png"
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const ViewPolicyQuote = () => {
     const [AllQuotes, setAllQuotes] = useState([]);
@@ -198,6 +199,12 @@ const ViewPolicyQuote = () => {
 
 
 const DropdownPolicy = ({ data }) => {
+    const [showChangeCoverageOptions, setShowChangeCoverageOptions] = useState(false);
+
+    const handleToggleChangeCoverageOptions = () => {
+        setShowChangeCoverageOptions(!showChangeCoverageOptions);
+    };
+
     return (
         <>
             <div className='w-full flex-col justify-center items-center rounded-md'>
@@ -209,10 +216,12 @@ const DropdownPolicy = ({ data }) => {
                         <p className='text-[17px] font-semibold'>View Coverage</p>
                         <img className='w-[24px] h-[24px]' src={img1} alt="" />
                     </div>
-                    <div className='w-full flex cursor-pointer hover:bg-gray-200 flex-row gap-2 justify-center items-center py-4'>
+                    <div className='w-full flex cursor-pointer hover:bg-gray-200 flex-row gap-2 justify-center items-center py-4' onClick={handleToggleChangeCoverageOptions}>
+                        {showChangeCoverageOptions && (<input type="checkbox" id="option1" name="option1" value="option1" checked />)}
                         <p className='text-[17px] font-semibold'>Change Coverage</p>
                         <img className='w-[24px] h-[24px]' src={img2} alt="" />
                     </div>
+
                     <div className='w-full flex cursor-pointer hover:bg-gray-200 flex-row gap-2 justify-center items-center py-4'>
                         <p className='text-[17px] font-semibold'>Premium History</p>
                         <img className='w-[24px] h-[24px]' src={img3} alt="" />
@@ -221,6 +230,14 @@ const DropdownPolicy = ({ data }) => {
                         <p className='text-[17px] font-semibold'>Cancel Policy</p>
                         <img className='w-[24px] h-[24px]' src={img4} alt="" />
                     </div>
+                    {showChangeCoverageOptions && (
+                        <>
+                            <div className='w-full flex cursor-pointer bg-[#17A600] hover:bg-[#559e4a] flex-row gap-2 justify-center text-white items-center py-4'>
+                                <p className='text-[17px] font-semibold'>Confirm</p>
+                                <ArrowForwardIcon />
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </>
