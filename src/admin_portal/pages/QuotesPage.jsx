@@ -142,18 +142,20 @@ const QuotesPage = () => {
     const getAllPolicyBoundData = async () => {
       try {
         const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
         const PBCollection = collection(db, 'bound_policies');
         const pbsnapshot = await getDocs(PBCollection);
         const data = pbsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        const PBData = data && data?.filter(item => {
+        const PBData = data && data.filter(item => {
           const effectiveDate = new Date(item.effective_date);
-          return effectiveDate > currentDate;
+          effectiveDate.setHours(0, 0, 0, 0);
+          return effectiveDate >= currentDate;
         });
 
         const historyData = data && data?.filter(item => {
           const effectiveDate = new Date(item.effective_date);
-          return effectiveDate <= currentDate;
+          return effectiveDate < currentDate;
         });
 
         setpolicy_bound_data(PBData);
@@ -564,7 +566,7 @@ const QuotesPage = () => {
           <div className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${selectedButton === 'requestedQuotes' ? 'bg-[#003049] text-white' : ''}`} onClick={() => handleButtonClick('requestedQuotes')}>
             <div className='flex w-[60%] flex-col justify-center items-center lg:items-start gap-1'>
               <p className='lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white'>Requested Quotes</p>
-              <p className='lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white'>You have 7 Quotes Requested</p>
+              <p className='lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white'>You have {req_quotes && req_quotes.length} Quotes Requested</p>
             </div>
             <img src={papericon} alt="" />
           </div>
@@ -572,7 +574,7 @@ const QuotesPage = () => {
           <div className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${selectedButton === 'deliveredQuotes' ? 'bg-[#003049] text-white' : ''}`} onClick={() => handleButtonClick('deliveredQuotes')}>
             <div className='flex w-[60%] flex-col justify-center items-center lg:items-start gap-1'>
               <p className='lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white'>Delivered Quotes</p>
-              <p className='lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white'>7 Quotes have been successfully Delivered</p>
+              <p className='lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white'>{del_quotes && del_quotes.length} Quotes have been successfully Delivered</p>
             </div>
             <img src={boxicon} alt="" />
           </div>
@@ -580,7 +582,7 @@ const QuotesPage = () => {
           <div className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${selectedButton === 'binderRequested' ? 'bg-[#003049] text-white' : ''}`} onClick={() => handleButtonClick('binderRequested')}>
             <div className='flex w-[60%] flex-col justify-center items-center lg:items-start gap-1'>
               <p className='lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white'>Binder Requested</p>
-              <p className='lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white'>7 Binder have been requested</p>
+              <p className='lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white'>{binder_req_quotes && binder_req_quotes.length} Binder have been requested</p>
             </div>
             <img src={tickicon} alt="" />
           </div>
@@ -592,7 +594,7 @@ const QuotesPage = () => {
           <div className={`group w-full lg:w-[33%] hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${selectedButton === 'policyBound' ? 'bg-[#003049] text-white' : ''}`} onClick={() => handleButtonClick('policyBound')}>
             <div className='flex w-[60%] flex-col justify-center items-center lg:items-start gap-1'>
               <p className='lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white'>Policy Bound</p>
-              <p className='lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white'>7 policies have been bound</p>
+              <p className='lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white'>{policy_bound_data && policy_bound_data.length} policies have been bound</p>
             </div>
             <img src={peopleicon} alt="" />
           </div>
@@ -600,7 +602,7 @@ const QuotesPage = () => {
           <div className={`group w-full lg:w-[33%] hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${selectedButton === 'policyHistory' ? 'bg-[#003049] text-white' : ''}`} onClick={() => handleButtonClick('policyHistory')}>
             <div className='flex w-[60%] flex-col justify-center items-center lg:items-start gap-1'>
               <p className='lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white'>Policy History</p>
-              <p className='lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white'>52 Policies have been expired</p>
+              <p className='lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white'>{policy_history_data && policy_history_data.length} Policies have been expired</p>
             </div>
             <img src={historyicon} alt="" />
           </div>

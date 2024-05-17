@@ -9,6 +9,7 @@ const SideNav = () => {
   const menus = [
     { name: "Back to website", link: "/", icon: FaUser },
     { name: "Quotes", link: "/admin_portal", icon: FaUser },
+    { name: "Policy Changes", link: "/admin_portal/policy_changes", icon: FaUser },
     { name: "Blogs", link: "/admin_portal/blogs", icon: FaUser },
     { name: "Preparers", link: "/admin_portal/preparers", icon: FaUser },
     { name: "Logout", link: "/admin_portal/logout", icon: FiLogOut },

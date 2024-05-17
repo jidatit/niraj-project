@@ -35,7 +35,7 @@ export const options = {
 };
 
 const labels = ['2019', '2020', '2021', '2022', '2023', '2024'];
-const Yearlabels = ['2019', '2020', '2021', '2022', '2023', '2024'];
+// const Yearlabels = ['2019', '2020', '2021', '2022', '2023', '2024'];
 const Pricelabels = [1000, 2000, 7000, 4000, 5000, 3000, 6000];
 
 export const data = {
