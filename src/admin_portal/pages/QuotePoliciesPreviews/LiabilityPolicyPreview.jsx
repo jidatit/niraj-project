@@ -46,10 +46,13 @@ const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
           </div>
 
           {persons && persons.map((person, index) => (
-            <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
-              {person.name && renderTextField(`Name to be Insured  ${index + 1}`, person.name)}
-              {person.dob && renderTextField(`Date of Birth ${index + 1}`, person.dob)}
-            </div>
+            <>
+              <div className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Person {index + 1}</p></div>
+              <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+                {person.name && renderTextField(`Name to be Insured  ${index + 1}`, person.name)}
+                {person.dob && renderTextField(`Date of Birth ${index + 1}`, person.dob)}
+              </div>
+            </>
           ))}
 
           <div className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>

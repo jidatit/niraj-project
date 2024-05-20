@@ -31,14 +31,14 @@ const DeliveredQuotePreviewAdmin = ({ data, openModal, onClose }) => {
                             <div className='w-full grid grid-cols-1 gap-20 lg:grid-cols-2 justify-center items-center'>
 
                                 <div className='w-full flex flex-col justify-start items-start gap-3'>
-                                    <h1 className='font-bold underline text-[20px]'>Preparer:</h1>
+                                    <h1 className='font-bold underline text-[20px]'>Agent:</h1>
                                     <div className='w-full flex flex-col text-[16px] font-normal justify-start items-start gap-1'>
-                                        <p>{data.preparer.company_name || "The John Galt Insurance Agency"}</p>
-                                        <p>{data.preparer.company_address || "3303 W Commercial Blvd Suite 200 Fort Lauderdale, FL 33309"}</p>
-                                        <p><span className='font-medium'>Agent: </span>{data.preparer.name || "Niraj Thaker"}</p>
-                                        <p><span className='font-medium'>Email: </span>{data.preparer.email || "nirajt@john-galt.com"}</p>
-                                        <p><span className='font-medium'>Phone 1: </span>{data.preparer.phone_1 || "N/A"}</p>
-                                        <p><span className='font-medium'>Phone 2: </span>{data.preparer.phone_2 || "N/A"}</p>
+                                        <p>{data.agent.company_name || "The John Galt Insurance Agency"}</p>
+                                        <p>{data.agent.company_address || "3303 W Commercial Blvd Suite 200 Fort Lauderdale, FL 33309"}</p>
+                                        <p><span className='font-medium'>Agent: </span>{data.agent.name || "Niraj Thaker"}</p>
+                                        <p><span className='font-medium'>Email: </span>{data.agent.email || "nirajt@john-galt.com"}</p>
+                                        <p><span className='font-medium'>Phone 1: </span>{data.agent.phone_1 || "N/A"}</p>
+                                        <p><span className='font-medium'>Phone 2: </span>{data.agent.phone_2 || "N/A"}</p>
                                     </div>
                                 </div>
 

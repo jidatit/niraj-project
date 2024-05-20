@@ -18,7 +18,7 @@ import LoginReferral from './auth/LoginReferral'
 import RequestPage from "./user_portal/pages/RequestPage"
 import AdminLogin from './auth/AdminLogin'
 import QuotesPage from './admin_portal/pages/QuotesPage'
-import PreparerPage from './admin_portal/pages/PreparerPage'
+import AgentPage from './admin_portal/pages/AgentPage'
 import EditorPage from './admin_portal/pages/EditorPage'
 import ViewPolicyQuote from './user_portal/pages/ViewPolicyQuote'
 import PolicyQuoteProgess from './user_portal/pages/PolicyQuoteProgess'
@@ -49,7 +49,7 @@ function App() {
             <Route index element={<QuotesPage />} />
             <Route path='blogs' element={<BlogPage />} />
             <Route path='policy_changes' element={<PolicyChanges />} />
-            <Route path='preparers' element={<PreparerPage />} />
+            <Route path='agents' element={<AgentPage />} />
             <Route path='editor' element={<EditorPage />} />
             <Route path='logout' element={<Logout />} />
           </Route>

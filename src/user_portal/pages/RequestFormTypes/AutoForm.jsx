@@ -224,7 +224,7 @@ const AutoForm = () => {
                                     </Select>
                                 </FormControl>
 
-                                {vehicle.vin === 'no' && (
+                                {vehicle.vin === 'yes' && (
                                     <>
                                         <InputLabel htmlFor={`vin_number-${index}`}>VIN Number</InputLabel>
                                         <TextField
@@ -237,7 +237,7 @@ const AutoForm = () => {
                                     </>
                                 )}
 
-                                {vehicle.vin === "yes" && (
+                                {vehicle.vin === "no" && (
                                     <>
                                         <TextField
                                             className='w-full'

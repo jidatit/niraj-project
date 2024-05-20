@@ -17,11 +17,11 @@ const EditorPage = () => {
     const [QU_id, setQU_id] = useState('');
     const [Users, setUsers] = useState([]);
     const [buttonText, setButtonText] = useState("Submit Quote");
-    const [Preparers, setPreparers] = useState([]);
+    const [Agents, setAgents] = useState([]);
 
     const [formData, setFormData] = useState({
         user: {},
-        preparer: {
+        agent: {
             value: "eFvH8aSduCPeMEdtWnDeUkecnXr2",
             label: `admin - admin@admin.com`,
             id: "eFvH8aSduCPeMEdtWnDeUkecnXr2",
@@ -54,24 +54,24 @@ const EditorPage = () => {
                 console.error('Error fetching Users:', error);
             }
         };
-        const fetchPreparers = async () => {
+        const fetchAgents = async () => {
             try {
-                const ref = collection(db, 'preparers');
+                const ref = collection(db, 'agents');
                 const snapshot = await getDocs(ref);
-                const PreparersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const prep_options = PreparersData.map(user => ({
+                const AgentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const prep_options = AgentsData.map(user => ({
                     value: user.id,
                     label: `${user.name} - ${user.email}`,
                     ...user
                 }));
-                setPreparers(prep_options);
+                setAgents(prep_options);
             } catch (error) {
-                console.error('Error fetching Preparers:', error);
+                console.error('Error fetching Agents:', error);
             }
         };
 
         fetchUsers();
-        fetchPreparers();
+        fetchAgents();
     }, []);
 
     useEffect(() => {
@@ -125,8 +125,8 @@ const EditorPage = () => {
                 toast.warn("Select a user!")
                 return
             }
-            if (Object.keys(formData.preparer).length === 0) {
-                toast.warn("Select a preparer!")
+            if (Object.keys(formData.agent).length === 0) {
+                toast.warn("Select a agent!")
                 return
             }
             setButtonText("Submitting Quote");
@@ -166,7 +166,7 @@ const EditorPage = () => {
             <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
                 <ToastContainer />
                 <div className="w-[90%] flex flex-col gap-5 justify-center items-start">
-                    <h1 className="text-black font-bold text-[25px] mt-5 mb-5">Prepare Quote for & Preparer:</h1>
+                    <h1 className="text-black font-bold text-[25px] mt-5 mb-5">Prepare Quote for & Agent:</h1>
                 </div>
                 <div className="w-[90%] grid grid-cols-1 mt-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
                     <div className='w-full z-30 flex flex-col justify-center items-start gap-2'>
@@ -174,8 +174,8 @@ const EditorPage = () => {
                         {Users && (<Select id='users' isDisabled={true} value={formData.user} onChange={(selectedUser) => setFormData({ ...formData, user: selectedUser })} name='user' className='w-full' options={Users} />)}
                     </div>
                     <div className='w-full flex z-20 flex-col justify-center items-start gap-2'>
-                        <label className='font-semibold text-[20px] text-start' htmlFor="preparers">Select Preparer</label>
-                        {Preparers && (<Select id='preparers' value={formData.preparer} onChange={(selectedPreparer) => setFormData({ ...formData, preparer: selectedPreparer })} name='preparer' className='w-full' options={Preparers} />)}
+                        <label className='font-semibold text-[20px] text-start' htmlFor="agents">Select Agent</label>
+                        {Agents && (<Select id='agents' value={formData.agent} onChange={(selectedAgent) => setFormData({ ...formData, agent: selectedAgent })} name='agent' className='w-full' options={Agents} />)}
                     </div>
                 </div>
 

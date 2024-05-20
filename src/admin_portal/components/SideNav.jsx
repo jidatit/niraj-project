@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import LOGO from "../../assets/logo.png"
+import LOGO from "../../assets/newlogo.png"
 import { FiLogOut } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
 
@@ -11,7 +11,7 @@ const SideNav = () => {
     { name: "Quotes", link: "/admin_portal", icon: FaUser },
     { name: "Policy Changes", link: "/admin_portal/policy_changes", icon: FaUser },
     { name: "Blogs", link: "/admin_portal/blogs", icon: FaUser },
-    { name: "Preparers", link: "/admin_portal/preparers", icon: FaUser },
+    { name: "Agents", link: "/admin_portal/agents", icon: FaUser },
     { name: "Logout", link: "/admin_portal/logout", icon: FiLogOut },
   ];
 
@@ -39,7 +39,7 @@ const SideNav = () => {
         className={` bg-[#003049] min-h-screen shadow-md ${open ? "w-68" : " w-14 lg:w-[75px]"
           } duration-500 text-gray-100 px-2 lg:px-4 py-1 sm:py-2 md:py-2 lg:py-4 xl:py-6 2xl:py-6`}
       >
-        <div className="py-3 flex justify-center items-center">
+        <div className="py-3 flex bg-white justify-center items-center">
           {open && (
             <img className="cursor-pointer unselectable w-[200px]" onClick={() => setOpen(!open)} src={LOGO} alt="" />
           )}

@@ -387,7 +387,7 @@ const DropdownPolicy = ({ popup_data }) => {
                         >
                             <div className='w-[95%] overflow-y-auto max-h-[80vh] lg:w-[50%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md gap-y-10'>
                                 <div className='w-full flex flex-col justify-center items-start'>
-                                    <p><span className='font-medium'>Company Name: </span>{viewModalData.company_name || "Name of the company"}</p>
+                                    {viewModalData.company_name && (<p><span className='font-medium'>Company Name: </span>{viewModalData.company_name || "Name of the company"}</p>)}
                                     <p><span className='font-medium'>Effective Dates: </span>{`${viewModalData.bound_date} - ${viewModalData.effective_date}` || "Dates From - To"}</p>
                                     <p><span className='font-medium'>Policy Number: </span>{viewModalData.policy_id || "Policy Id"}</p>
                                     <p><span className='font-medium'>Policy Type: </span>{viewModalData.qsr_type || "Policy Type"}</p>

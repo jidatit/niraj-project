@@ -71,33 +71,39 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
           </div>
 
           {drivers && drivers.map((driver, index) => (
-            <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 flex-wrap gap-5 justify-center items-center'>
-              {driver.name && renderTextField(`Name to be Insured  ${index + 1}`, driver.name)}
-              {driver.dob && renderTextField(`Date of Birth ${index + 1}`, driver.dob)}
-              {driver.LN && renderTextField(`License Number ${index + 1}`, driver.LN)}
-            </div>
+            <>
+              <div className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Driver {index + 1}</p></div>
+              <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 flex-wrap gap-5 justify-center items-center'>
+                {driver.name && renderTextField(`Name to be Insured  ${index + 1}`, driver.name)}
+                {driver.dob && renderTextField(`Date of Birth ${index + 1}`, driver.dob)}
+                {driver.LN && renderTextField(`License Number ${index + 1}`, driver.LN)}
+              </div>
+            </>
           ))}
 
           {garaging_address && renderTextField("Garaging Address", garaging_address)}
 
           {vehicles && vehicles.map((vehicle, index) => (
-            <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 flex-wrap gap-5 justify-center items-center'>
-              {vehicle.vin === 'yes' && (
-                <>
-                  {renderTextField(`Make ${index + 1}`, vehicle.v_make)}
-                  {renderTextField(`Model ${index + 1}`, vehicle.v_model)}
-                  {renderTextField(`Year ${index + 1}`, vehicle.v_year)}
-                  {vehicle.current_insurance === 'yes' && renderTextField(`Expiration Date ${index + 1}`, vehicle.expiration_date)}
-                </>
-              )}
-              {vehicle.vin === 'yes' && renderTextField(`Garaging Address ${index + 1}`, vehicle.v_garaging_address_input)}
-              {vehicle.vin === 'no' && (
-                <>
-                  {renderTextField(`VIN Number ${index + 1}`, vehicle.vin_number)}
-                  {renderTextField(`Garaging Address ${index + 1}`, garaging_address)}
-                </>
-              )}
-            </div>
+            <>
+              <div className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Vehicle {index + 1}</p></div>
+              <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 flex-wrap gap-5 justify-center items-center'>
+                {vehicle.vin === 'no' && (
+                  <>
+                    {renderTextField(`Make ${index + 1}`, vehicle.v_make)}
+                    {renderTextField(`Model ${index + 1}`, vehicle.v_model)}
+                    {renderTextField(`Year ${index + 1}`, vehicle.v_year)}
+                    {vehicle.current_insurance === 'yes' && renderTextField(`Expiration Date ${index + 1}`, vehicle.expiration_date)}
+                  </>
+                )}
+                {vehicle.vin === 'no' && renderTextField(`Garaging Address ${index + 1}`, vehicle.v_garaging_address_input)}
+                {vehicle.vin === 'yes' && (
+                  <>
+                    {renderTextField(`VIN Number ${index + 1}`, vehicle.vin_number)}
+                    {renderTextField(`Garaging Address ${index + 1}`, garaging_address)}
+                  </>
+                )}
+              </div>
+            </>
           ))}
 
           {UM && renderTextField("Uninsured Motorists/ UM", UM)}

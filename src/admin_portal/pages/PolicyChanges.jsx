@@ -33,7 +33,6 @@ const PolicyChanges = () => {
                 const cpSnapshot = await getDocs(collRef)
                 const CPdata = cpSnapshot.docs.map(doc => ({ cancel_policy_id: doc.id, ...doc.data() }))
                 setCancelPolicyData(CPdata)
-                console.log(CPdata)
             } catch (error) {
                 console.log("error", error)
             }
@@ -45,7 +44,6 @@ const PolicyChanges = () => {
                 const pcsnapshot = await getDocs(pcdata);
                 const PCData = pcsnapshot.docs.map(doc => ({ policy_change_id: doc.id, ...doc.data() }));
                 setPolicyChangeData(PCData)
-                console.log(PCData)
             } catch (error) {
                 console.log("error", error)
             }
