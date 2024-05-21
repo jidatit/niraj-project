@@ -60,7 +60,7 @@ const ViewPolicyQuote = () => {
                 size: 100,
                 Cell: ({ cell }) => (
                     <Box >
-                        {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+                        {cell.getValue() && cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
                     </Box>
                 )
             },

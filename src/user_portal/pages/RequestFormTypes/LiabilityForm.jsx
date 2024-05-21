@@ -13,6 +13,7 @@ import { addDoc, collection } from 'firebase/firestore';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '../../../AuthContext';
+import { ClientQuoteReqMail } from '../../../utils/mailingFuncs';
 
 const LiabilityForm = () => {
     const { currentUser } = useAuth();
@@ -50,6 +51,8 @@ const LiabilityForm = () => {
                 status: "completed",
                 status_step: "1"
             });
+
+            ClientQuoteReqMail(currentUser.data.name, "Liability")
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")

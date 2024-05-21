@@ -15,6 +15,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import tickicon from "../../../assets/dash/tick.png"
 import { useAuth } from '../../../AuthContext';
+import { ClientQuoteReqMail } from '../../../utils/mailingFuncs';
 
 const HomeForm = () => {
     const { currentUser } = useAuth();
@@ -52,6 +53,7 @@ const HomeForm = () => {
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: "pending", status_step: "1" }
                 await addDoc(collection(db, 'home_quotes'), nofilesformData);
+                ClientQuoteReqMail(currentUser.data.name, "Home")
                 toast.success("Application submitted with success.");
                 return;
             }
@@ -89,6 +91,8 @@ const HomeForm = () => {
                 user: { ...currentUser.data, id: currentUser.uid }
             });
             setFiles([]);
+
+            ClientQuoteReqMail(currentUser.data.name, "Home")
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")
