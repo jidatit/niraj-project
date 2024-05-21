@@ -31,7 +31,7 @@ const ReferFriend = () => {
         const mailingAddress_fi = document.getElementById('mailingAddress').value;
 
         if (!name_fi || !email_fi || !phoneNumber_fi || !mailingAddress_fi) {
-            setButtonText("Fill out first!")
+            toast.warn("Fill out first!")
             return;
         }
 
