@@ -42,8 +42,10 @@ const ReferFriend = () => {
             phoneNumber: phoneNumber_fi,
             dob: dob_fi,
             mailingAddress: mailingAddress_fi,
-            link: `${import.meta.env.VITE_BUTTON_LINK}`
+            link: `${import.meta.env.VITE_BUTTON_LINK}?name=${name_fi}&email=${email_fi}&phoneNumber=${phoneNumber_fi}`,
+            message: `We are excited to have you on board. Please click the button below to view your invite.`
         };
+
         setButtonText('Confirming...');
         emailjs
             .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_REFER_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)

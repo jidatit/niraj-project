@@ -39,7 +39,7 @@ const FloodForm = () => {
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: "pending", status_step: "1" }
                 await addDoc(collection(db, 'flood_quotes'), nofilesformData);
-                ClientQuoteReqMail(currentUser.data.name, "Flood")
+                ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Flood")
                 toast.success("Application submitted with success.");
                 return;
             }
@@ -77,7 +77,7 @@ const FloodForm = () => {
             });
             setFiles([]);
 
-            ClientQuoteReqMail(currentUser.data.name, "Flood")
+            ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Flood")
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")

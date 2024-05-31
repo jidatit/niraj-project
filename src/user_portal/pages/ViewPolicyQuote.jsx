@@ -15,6 +15,7 @@ import img4 from "../../assets/dash/user/4.png"
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Button from "../components/Button"
 import LineGraph from '../components/LineGraph';
+import { ClientQuotePolicyCancelMail, ClientQuotePolicyChangeMail } from '../../utils/mailingFuncs';
 
 const ViewPolicyQuote = () => {
     const [AllQuotes, setAllQuotes] = useState([]);
@@ -205,7 +206,7 @@ const DropdownPolicy = ({ popup_data }) => {
     // const years = [2018, 2019, 2020, 2021, 2022];
     // const premiumPrices1 = [100, 120, 130, 125, 140];
     // const premiumPrices2 = [90, 110, 125, 115, 130];
-
+    const { currentUser } = useAuth()
     const [policyData, setPolicyData] = useState(null);
     const [prepData, setPrepData] = useState(null);
     const [changeData, setchangeData] = useState(null);
@@ -297,6 +298,7 @@ const DropdownPolicy = ({ popup_data }) => {
         try {
             const data = { ...changeData, changesAnswer }
             await addDoc(collection(db, 'policy_changes'), data);
+            ClientQuotePolicyChangeMail(currentUser.data?.name, currentUser.data?.email, changeData.qsr_type)
             closechangeModal()
             closeviewModal()
             toast.success("Changes submitted!")
@@ -310,6 +312,7 @@ const DropdownPolicy = ({ popup_data }) => {
         try {
             const data = { ...cancelModalData, type: "cancel" }
             await addDoc(collection(db, 'cancel_policies'), data);
+            ClientQuotePolicyCancelMail(currentUser.data?.name, currentUser.data?.email, cancelModalData.qsr_type)
             closecancelModal()
             closeviewModal()
             toast.success("Cancel request submitted!")

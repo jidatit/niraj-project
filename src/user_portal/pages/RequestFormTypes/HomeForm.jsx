@@ -53,7 +53,7 @@ const HomeForm = () => {
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: "pending", status_step: "1" }
                 await addDoc(collection(db, 'home_quotes'), nofilesformData);
-                ClientQuoteReqMail(currentUser.data.name, "Home")
+                ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Home")
                 toast.success("Application submitted with success.");
                 return;
             }
@@ -92,7 +92,7 @@ const HomeForm = () => {
             });
             setFiles([]);
 
-            ClientQuoteReqMail(currentUser.data.name, "Home")
+            ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Home")
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")

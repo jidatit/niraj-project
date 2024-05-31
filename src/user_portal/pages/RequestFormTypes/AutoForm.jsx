@@ -39,7 +39,7 @@ const AutoForm = () => {
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: "pending", status_step: "1" }
                 await addDoc(collection(db, 'auto_quotes'), nofilesformData);
-                ClientQuoteReqMail(currentUser.data.name, "Auto")
+                ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Auto")
                 toast.success("Application submitted with success.");
                 return;
             }
@@ -79,7 +79,7 @@ const AutoForm = () => {
             });
             setFiles([]);
 
-            ClientQuoteReqMail(currentUser.data.name, "Auto")
+            ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Auto")
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")

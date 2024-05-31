@@ -8,6 +8,7 @@ import { useLocation } from 'react-router-dom';
 import { addDoc, collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from "../../../db"
 import { getCurrentDate, getType } from '../../utils/helperSnippets';
+import { AdminPrepareQuoteMail } from '../../utils/mailingFuncs';
 
 const EditorPage = () => {
 
@@ -134,6 +135,7 @@ const EditorPage = () => {
 
             await updateStatusStep(QSR_Type, Q_id)
 
+            AdminPrepareQuoteMail(formData.user.name, formData.user.email, QSR_Type)
             toast.success('Quote prepared successfully!');
             setButtonText("Submit Quote");
         } catch (error) {

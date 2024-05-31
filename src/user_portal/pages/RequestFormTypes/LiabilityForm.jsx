@@ -52,7 +52,7 @@ const LiabilityForm = () => {
                 status_step: "1"
             });
 
-            ClientQuoteReqMail(currentUser.data.name, "Liability")
+            ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Liability")
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")

@@ -1,10 +1,11 @@
 import emailjs from '@emailjs/browser';
-
-export function ClientQuoteReqMail(user_name, policy_type) {
+//done
+export function ClientQuoteReqMail(user_name, user_email, policy_type) {
     const templateParams = {
         from_name: "FL Insurance Hub",
         name: user_name,
-        type: policy_type
+        type: policy_type,
+        email: user_email
     };
     emailjs
         .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_QR_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
@@ -15,15 +16,16 @@ export function ClientQuoteReqMail(user_name, policy_type) {
             console.log('FAILED...', err);
         });
 }
-
-export function ClientQuotePolicyCancelMail(user_name, policy_type) {
+//done
+export function ClientQuotePolicyCancelMail(user_name, user_email, policy_type) {
     const templateParams = {
         from_name: "FL Insurance Hub",
         name: user_name,
-        type: policy_type
+        type: policy_type,
+        email: user_email
     };
     emailjs
-        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_QR_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
+        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_CLIENTCANCELPOLICY_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
         .then((response) => {
             console.log('SUCCESS!', response.status, response.text);
         })
@@ -31,15 +33,16 @@ export function ClientQuotePolicyCancelMail(user_name, policy_type) {
             console.log('FAILED...', err);
         });
 }
-
-export function ClientQuotePolicyChangeMail(user_name, policy_type) {
+//done
+export function ClientQuotePolicyChangeMail(user_name, user_email, policy_type) {
     const templateParams = {
         from_name: "FL Insurance Hub",
         name: user_name,
-        type: policy_type
+        type: policy_type,
+        email: user_email
     };
     emailjs
-        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_QR_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
+        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_CLIENTCHANGECOVERAGE_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
         .then((response) => {
             console.log('SUCCESS!', response.status, response.text);
         })
@@ -47,15 +50,16 @@ export function ClientQuotePolicyChangeMail(user_name, policy_type) {
             console.log('FAILED...', err);
         });
 }
-
-export function ClientQuoteBindMail(user_name, policy_type) {
+//done
+export function ClientQuoteBindMail(user_name, user_email, policy_type) {
     const templateParams = {
         from_name: "FL Insurance Hub",
         name: user_name,
-        type: policy_type
+        type: policy_type,
+        email: user_email
     };
     emailjs
-        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_QR_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
+        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_CLIENTBINDREQ_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
         .then((response) => {
             console.log('SUCCESS!', response.status, response.text);
         })
@@ -63,15 +67,16 @@ export function ClientQuoteBindMail(user_name, policy_type) {
             console.log('FAILED...', err);
         });
 }
-
-export function AdminPrepareQuoteMail(user_name, policy_type) {
+//done
+export function AdminPrepareQuoteMail(user_name, user_email, policy_type) {
     const templateParams = {
         from_name: "FL Insurance Hub",
         name: user_name,
-        type: policy_type
+        type: policy_type,
+        email: user_email
     };
     emailjs
-        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_QR_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
+        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_ADMINQUOTEPREP_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
         .then((response) => {
             console.log('SUCCESS!', response.status, response.text);
         })
@@ -79,15 +84,16 @@ export function AdminPrepareQuoteMail(user_name, policy_type) {
             console.log('FAILED...', err);
         });
 }
-
-export function AdminBindConfirmQuoteMail(user_name, policy_type) {
+//done
+export function AdminBindConfirmQuoteMail(user_name, user_email, policy_type) {
     const templateParams = {
         from_name: "FL Insurance Hub",
         name: user_name,
-        type: policy_type
+        type: policy_type,
+        email: user_email
     };
     emailjs
-        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_QR_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
+        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_ADMINBINDCONFIRM_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
         .then((response) => {
             console.log('SUCCESS!', response.status, response.text);
         })

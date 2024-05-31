@@ -18,6 +18,7 @@ import { Link } from 'react-router-dom';
 import DeliveredQuotePreviewAdmin from '../components/DeliveredQuotePreviewAdmin';
 import BinderReqPreview from '../components/BinderReqPreview';
 import { getCurrentDate, getType } from '../../utils/helperSnippets';
+import { AdminBindConfirmQuoteMail } from '../../utils/mailingFuncs';
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
@@ -323,6 +324,7 @@ const QuotesPage = () => {
       await addDoc(collection(db, 'bound_policies'), { ...data, bound_status: "bounded", bound_date: getCurrentDate("dash") });  // add new record
       await updateStatusStep(data.qsr_type, data.qid)   // base record status update for tracking (numeric)
       await updateBoundStatus(rowdocid)  // update bound_status in bind_req_quotes
+      AdminBindConfirmQuoteMail(data.user?.name, data.user?.email, data.qsr_type)
       toast.success('Policy bounded successfully!');
     } catch (error) {
       toast.error('Error bounding policy!');

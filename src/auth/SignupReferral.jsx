@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import logo from "../assets/newlogo.png"
 import { Link } from 'react-router-dom'
 import CreatableSelect from 'react-select/creatable';
@@ -59,8 +59,7 @@ const SignupReferral = () => {
                 toast.error("Password Not Matched!")
                 return
             }
-            if(hasEmptyValue(userDataWithoutPasswords))
-            {
+            if (hasEmptyValue(userDataWithoutPasswords)) {
                 toast.error("Fill all Fields!")
                 return
             }
@@ -71,6 +70,20 @@ const SignupReferral = () => {
             toast.error(error.message);
         }
     };
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const url_name = urlParams.get('name');
+        const url_email = urlParams.get('email');
+        const url_phoneNumber = urlParams.get('phoneNumber');
+
+        setUserData(prevData => ({
+            ...prevData,
+            name: url_name,
+            email: url_email,
+            phoneNumber: url_phoneNumber
+        }));
+    }, []);
 
     return (
         <>
@@ -94,9 +107,9 @@ const SignupReferral = () => {
                     }),
                 }} value={userData.occupation}
                     onChange={handleOccupationChange}
-                    isClearable={true} className='w-full md:w-[60%]' placeholder={!isFocus?"Occupation":"Add New Occupation"}
-                    onFocus={()=>setIsFocus(true)}
-                    onBlur={()=>setIsFocus(false)}
+                    isClearable={true} className='w-full md:w-[60%]' placeholder={!isFocus ? "Occupation" : "Add New Occupation"}
+                    onFocus={() => setIsFocus(true)}
+                    onBlur={() => setIsFocus(false)}
                     options={occupations} required />
 
                 <input type="password" name="password" placeholder="Password" className="w-full md:w-[60%] border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500" value={userData.password} onChange={handleInputChange} required />
