@@ -6,7 +6,8 @@ app.use(express.json());
 
 app.post('/webhook', (req, res) => {
     const payload = req.body;
-    console.log('Received webhook payload:', payload);
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] Received webhook payload:`, payload);
     res.status(200).send('Webhook received successfully');
 });
 
