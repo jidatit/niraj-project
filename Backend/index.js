@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
+const CORS = require('cors')
 const config = require("./config.js")
 const PORT = config.port || 10000;
 const HOSTURL = config.hostUrl
 const { getDocs, addDoc, collection } = require('firebase/firestore');
 const { db } = require('./firebase.js');
 
+app.use(CORS())
 app.use(express.json());
 
 app.post('/webhook', async (req, res) => {

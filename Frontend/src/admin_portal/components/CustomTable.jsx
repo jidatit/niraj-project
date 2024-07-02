@@ -10,8 +10,40 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
+import axiosInstance from '../../utils/axiosConfig';
+import { JsonView, allExpanded, darkStyles } from 'react-json-view-lite';
+import 'react-json-view-lite/dist/index.css';
 
 const CustomTable = ({ QSR, tableData }) => {
+
+    const [CmsData, setCmsData] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCmsData = async () => {
+            try {
+                const { data } = await axiosInstance.get("/get_quotes");
+                setCmsData(data);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        const fetchDataWithDelay = () => {
+            setLoading(true);
+            setTimeout(() => {
+                fetchCmsData();
+            }, 2000);
+        };
+
+        fetchDataWithDelay();
+
+        const interval = setInterval(fetchDataWithDelay, 120000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     const [tableCols1, setTableCols1] = useState(null);
     const [tableData1, setTableData1] = useState(null);
@@ -358,6 +390,24 @@ const CustomTable = ({ QSR, tableData }) => {
 
                 <div className="mt-5 mb-5 w-full">
                     <SubOptButton actionType={handleActionChange} />
+                </div>
+
+                <div className="mt-5 mb-5 w-full">
+                    <div className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+                        <span className="font-medium">(Data reloads after every 2 minutes)</span> More data may come in a while!
+                    </div>
+                    {CmsData && (
+                        <div className='relative'>
+                            {loading && (
+                                <div className="absolute inset-0 flex items-center gap-1 justify-center bg-gray-100 bg-opacity-50 z-50">
+                                    <div className='h-6 w-6 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                                    <div className='h-6 w-6 bg-black rounded-full animate-bounce [animation-delay:-0.20s]'></div>
+                                    <div className='h-6 w-6 bg-black rounded-full animate-bounce'></div>
+                                </div>
+                            )}
+                            <JsonView data={CmsData} shouldExpandNode={allExpanded} style={darkStyles} />
+                        </div>
+                    )}
                 </div>
 
                 {tableCols1 && tableData1 && (<div className="w-full">
