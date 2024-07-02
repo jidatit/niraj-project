@@ -104,12 +104,22 @@ const HomeForm = () => {
     };
 
     const handleChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
+        const { name, value, type, checked } = event.target;
+
+        if (name === "mailing") {
+            setFormData((prevData) => ({
+                ...prevData,
+                mailing: checked,
+                address: checked ? currentUser.data.mailingAddress : ''
+            }));
+        } else {
+            setFormData((prevData) => ({
+                ...prevData,
+                [name]: type === 'checkbox' ? checked : value
+            }));
+        }
     };
+
 
     const handleAddPerson = () => {
         setFormData((prevData) => ({
@@ -176,7 +186,7 @@ const HomeForm = () => {
                     </div>
                     <div className='flex w-full flex-row pt-5 gap-2 justify-start items-center'>
                         <input value={formData.mailing} checked={formData.mailing} name="mailing"
-                            onChange={(e) => handleChange(e)} className='w-[20px] h-[20px]' type="checkbox" id="mailing" />
+                            onChange={handleChange} className='w-[20px] h-[20px]' type="checkbox" id="mailing" />
                         <InputLabel htmlFor="mailing">Same as Mailing Address</InputLabel>
                     </div>
                 </div>

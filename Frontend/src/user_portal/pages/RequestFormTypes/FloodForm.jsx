@@ -102,11 +102,20 @@ const FloodForm = () => {
     });
 
     const handleChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
+        const { name, value, type, checked } = event.target;
+
+        if (name === "mailing") {
+            setFormData((prevData) => ({
+                ...prevData,
+                mailing: checked,
+                address: checked ? currentUser.data.mailingAddress : ''
+            }));
+        } else {
+            setFormData((prevData) => ({
+                ...prevData,
+                [name]: type === 'checkbox' ? checked : value
+            }));
+        }
     };
 
     const handleAddPerson = () => {

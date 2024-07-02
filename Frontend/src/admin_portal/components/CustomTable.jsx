@@ -397,7 +397,7 @@ const CustomTable = ({ QSR, tableData }) => {
                         <span className="font-medium">(Data reloads after every 2 minutes)</span> More data may come in a while!
                     </div>
                     {CmsData && (
-                        <div className='relative'>
+                        <div className='relative custom'>
                             {loading && (
                                 <div className="absolute inset-0 flex items-center gap-1 justify-center bg-gray-100 bg-opacity-50 z-50">
                                     <div className='h-6 w-6 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
