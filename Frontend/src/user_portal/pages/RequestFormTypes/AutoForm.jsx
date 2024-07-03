@@ -301,11 +301,11 @@ const AutoForm = () => {
 
                                 {vehicle.current_insurance === "yes" && (
                                     <>
+                                        <InputLabel htmlFor={`exp-date`}>Expiration Date</InputLabel>
                                         <TextField
                                             className='w-full'
                                             id={`expiration_date-${index}`}
                                             type='date'
-                                            label="Expiration Date"
                                             value={vehicle.expiration_date}
                                             onChange={(e) => handleVehicleChange(index, 'expiration_date', e.target.value)}
                                         />

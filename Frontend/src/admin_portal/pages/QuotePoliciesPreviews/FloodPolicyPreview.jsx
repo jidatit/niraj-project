@@ -102,18 +102,18 @@ const FloodPolicyPreview = ({ data, open, handleClose }) => {
               >
                 {showImages ? 'Hide Uploaded Inspections' : 'View Uploaded Inspections'}
               </button>
-              {showImages === true && files.map((file, index) => (
-                <div key={index}>
-                  <ul>
+              <div className='w-full grid grid-cols-2 flex-wrap justify-center items-center'>
+                {showImages === true && files.map((file, index) => (
+                  <ul key={index} className='w-full'>
+                    <li className='mt-2' key={file.name}>
+                      {renderFilePreview(file)}
+                    </li>
                     <a href={file.file} target='_blank' download>
                       <button className='bg-blue-500 rounded-lg text-white font-semibold px-2 py-2 mt-[10px] mb-[10px]'>Download File</button>
                     </a>
-                    <li key={file.name}>
-                      {renderFilePreview(file)}
-                    </li>
                   </ul>
-                </div>
-              ))}
+                ))}
+              </div>
 
             </div>
           )}

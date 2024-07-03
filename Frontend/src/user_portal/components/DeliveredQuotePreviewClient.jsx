@@ -1,6 +1,7 @@
 import React from 'react'
 import logo from "../../assets/dash/modal/logo.png"
 import CustomTablePreviewClient from './CustomTablePreviewClient';
+import { formatKey } from '../../utils/helperSnippets';
 
 const DeliveredQuotePreviewClient = ({ data }) => {
     return (
@@ -44,7 +45,7 @@ const DeliveredQuotePreviewClient = ({ data }) => {
                                         {Object.keys(item).map((key) => (
                                             key !== 'id' &&
                                             <p key={key}>
-                                                <span className='font-medium'>{key}: </span>
+                                                <span className='font-medium'>{formatKey(key)}: </span>
                                                 {item[key]}
                                             </p>
                                         ))}

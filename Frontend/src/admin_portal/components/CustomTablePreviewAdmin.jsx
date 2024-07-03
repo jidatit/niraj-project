@@ -1,17 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { MaterialReactTable } from 'material-react-table';
 
-const CustomTablePreviewAdmin = ({ qsr_type, table1_data, table2_data }) => {
+const CustomTablePreviewAdmin = ({ qsr_type, table2_data }) => {
 
     const [tableCols1, setTableCols1] = useState(null);
 
     const table_columns_lia = useMemo(
         () => [
-            {
-                accessorKey: 'carrier',
-                header: 'Carrier',
-                size: 150,
-            },
             {
                 accessorKey: 'liability_coverage_amount',
                 header: 'Liability Coverage Amount',
@@ -32,21 +27,11 @@ const CustomTablePreviewAdmin = ({ qsr_type, table1_data, table2_data }) => {
                 header: 'Identity Theft',
                 size: 150,
             },
-            {
-                accessorKey: 'premium',
-                header: 'Premium',
-                size: 150,
-            },
         ],
         [],
     );
     const table_columns_flood = useMemo(
         () => [
-            {
-                accessorKey: 'carrier',
-                header: 'Carrier',
-                size: 150,
-            },
             {
                 accessorKey: 'dwelling',
                 header: 'Dwelling',
@@ -57,21 +42,11 @@ const CustomTablePreviewAdmin = ({ qsr_type, table1_data, table2_data }) => {
                 header: 'Personal Property',
                 size: 150,
             },
-            {
-                accessorKey: 'premium',
-                header: 'Premium',
-                size: 150,
-            },
         ],
         [],
     );
     const table_columns_auto = useMemo(
         () => [
-            {
-                accessorKey: 'carrier',
-                header: 'Carrier',
-                size: 150,
-            },
             {
                 accessorKey: 'bodily_injury',
                 header: 'Bodily Injury',
@@ -103,11 +78,6 @@ const CustomTablePreviewAdmin = ({ qsr_type, table1_data, table2_data }) => {
                 size: 150,
             },
             {
-                accessorKey: 'premium',
-                header: 'Premium',
-                size: 150,
-            },
-            {
                 accessorKey: 'comprehensive_deductible',
                 header: 'Comprehensive Deductible',
                 size: 150,
@@ -117,11 +87,6 @@ const CustomTablePreviewAdmin = ({ qsr_type, table1_data, table2_data }) => {
     );
     const table_columns_home = useMemo(
         () => [
-            {
-                accessorKey: 'carrier',
-                header: 'Carrier',
-                size: 150,
-            },
             {
                 accessorKey: 'dwelling',
                 header: 'Dwelling',
@@ -162,11 +127,6 @@ const CustomTablePreviewAdmin = ({ qsr_type, table1_data, table2_data }) => {
                 header: 'Hurricane Deductible',
                 size: 150,
             },
-            {
-                accessorKey: 'premium',
-                header: 'Premium',
-                size: 150,
-            },
         ],
         [],
     );
@@ -191,10 +151,12 @@ const CustomTablePreviewAdmin = ({ qsr_type, table1_data, table2_data }) => {
         () => [
             {
                 accessorKey: 'carrier',
+                header: 'Carrier',
                 size: 200,
             },
             {
-                accessorKey: 'description',
+                accessorKey: 'premium',
+                header: 'Premium',
                 size: 800,
             },
         ],
@@ -204,21 +166,21 @@ const CustomTablePreviewAdmin = ({ qsr_type, table1_data, table2_data }) => {
     return (
         <>
             <div className="w-full flex mt-[20px] flex-col justify-center items-start">
-                {tableCols1 && table1_data && (<div className="w-full">
+                {/* {tableCols1 && table1_data && (<div className="w-full">
                     <MaterialReactTable
                         columns={tableCols1}
                         data={table1_data}
                         enableBottomToolbar={false}
                         enableTopToolbar={false}
                     />
-                </div>)}
+                </div>)} */}
                 {table_columns_2 && table2_data && (<div className="w-full">
                     <MaterialReactTable
                         columns={table_columns_2}
                         data={table2_data}
                         enableBottomToolbar={false}
                         enableTopToolbar={false}
-                        enableTableHead={false}
+                        enableTableHead={true}
                     />
                 </div>)}
             </div>

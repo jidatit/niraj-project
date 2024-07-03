@@ -58,3 +58,10 @@ export function getType(t) {
       break;
   }
 }
+
+export function formatKey(key) {
+  let formattedKey = key.replace(/_/g, ' ');
+  let words = formattedKey.split(' ');
+  words = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+  return words.join(' ');
+}

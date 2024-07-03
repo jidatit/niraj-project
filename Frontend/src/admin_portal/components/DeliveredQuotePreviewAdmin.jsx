@@ -2,6 +2,7 @@ import React from 'react'
 import logo from "../../assets/dash/modal/logo.png"
 import { Modal, Slide } from '@mui/material';
 import CustomTablePreviewAdmin from './CustomTablePreviewAdmin';
+import { formatKey } from '../../utils/helperSnippets';
 
 const DeliveredQuotePreviewAdmin = ({ data, openModal, onClose }) => {
     return (
@@ -64,7 +65,7 @@ const DeliveredQuotePreviewAdmin = ({ data, openModal, onClose }) => {
                                                 {Object.keys(item).map((key) => (
                                                     key !== 'id' &&
                                                     <p key={key}>
-                                                        <span className='font-medium'>{key}: </span>
+                                                        <span className='font-medium'>{formatKey(key)}: </span>
                                                         {item[key]}
                                                     </p>
                                                 ))}

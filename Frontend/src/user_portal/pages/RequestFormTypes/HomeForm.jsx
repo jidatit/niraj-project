@@ -242,6 +242,7 @@ const HomeForm = () => {
                         </div>
                     )}
                     {formData.newPurchase === "yes" && (<div className='flex w-full flex-col justify-center items-start gap-2'>
+                        <InputLabel htmlFor={`closing-date`}>Closing Date</InputLabel>
                         <TextField
                             className='w-full'
                             id="closingDate"
@@ -249,7 +250,6 @@ const HomeForm = () => {
                             value={formData.closingDate}
                             onChange={(e) => handleChange(e)}
                             name="closingDate"
-                            label="Closing Date"
                         />
                     </div>)}
                     {formData.newPurchase === "no" && (
@@ -275,6 +275,7 @@ const HomeForm = () => {
                 {formData.newPurchase === "no" && formData.currentInsurance === "yes" && (
                     <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
                         <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`exp-date`}>Expiration Date</InputLabel>
                             <TextField
                                 className='w-full'
                                 id="expiryDate"
@@ -282,7 +283,6 @@ const HomeForm = () => {
                                 value={formData.expiryDate}
                                 onChange={(e) => handleChange(e)}
                                 name="expiryDate"
-                                label="Expiration Date"
                             />
                         </div>
                     </div>)}

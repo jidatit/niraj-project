@@ -90,82 +90,82 @@ const QuotesPage = () => {
     setIsModalOpen(false);
   };
 
+  const getAllReqQuoteTypes = async () => {
+    try {
+      const homeQuotesCollection = collection(db, 'home_quotes');
+      const autoQuotesCollection = collection(db, 'auto_quotes');
+      const liabilityQuotesCollection = collection(db, 'liability_quotes');
+      const floodQuotesCollection = collection(db, 'flood_quotes');
+
+      const hqsnapshot = await getDocs(homeQuotesCollection);
+      const aqsnapshot = await getDocs(autoQuotesCollection);
+      const lqsnapshot = await getDocs(liabilityQuotesCollection);
+      const fqsnapshot = await getDocs(floodQuotesCollection);
+
+      const homeQuotesData = hqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const autoQuotesData = aqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const liabilityQuotesData = lqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const floodQuotesData = fqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      const allQuotes = [...homeQuotesData, ...autoQuotesData, ...liabilityQuotesData, ...floodQuotesData];
+      let allReqQuotes = [];
+      allQuotes && allQuotes.forEach(quote => {
+        if (quote.status_step === "1") {
+          allReqQuotes.push(quote);
+        }
+      });
+      setReqQuotes(allReqQuotes);
+    } catch (error) {
+      toast.error("Error Fetching Requested Quotes!")
+    }
+  };
+  const getAllDeliveredQuotes = async () => {
+    try {
+      const DeliveredQuotesCollection = collection(db, 'prep_quotes');
+      const dqsnapshot = await getDocs(DeliveredQuotesCollection);
+      const DeliveredQuotesData = dqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setDelQuotes(DeliveredQuotesData)
+    } catch (error) {
+      toast.error("Error Fetching Delivered Quotes!")
+    }
+  }
+  const getAllBinderRequestedQuotes = async () => {
+    try {
+      const BinderReqCollection = collection(db, 'bind_req_quotes');
+      const brsnapshot = await getDocs(BinderReqCollection);
+      const BinderReqQuotesData = brsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(data => data.bound_status === "pending");
+      setBinderReqQuotes(BinderReqQuotesData)
+    } catch (error) {
+      toast.error("Error Fetching Binder Requested Quotes!")
+    }
+  }
+  const getAllPolicyBoundData = async () => {
+    try {
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+      const PBCollection = collection(db, 'bound_policies');
+      const pbsnapshot = await getDocs(PBCollection);
+      const data = pbsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      const PBData = data && data.filter(item => {
+        const effectiveDate = new Date(item.effective_date);
+        effectiveDate.setHours(0, 0, 0, 0);
+        return effectiveDate >= currentDate;
+      });
+
+      const historyData = data && data?.filter(item => {
+        const effectiveDate = new Date(item.effective_date);
+        return effectiveDate < currentDate;
+      });
+
+      setpolicy_bound_data(PBData);
+      setpolicy_history(historyData);
+    } catch (error) {
+      toast.error("Error Fetching Policy Bound Data!");
+    }
+  };
+
   useEffect(() => {
-    const getAllReqQuoteTypes = async () => {
-      try {
-        const homeQuotesCollection = collection(db, 'home_quotes');
-        const autoQuotesCollection = collection(db, 'auto_quotes');
-        const liabilityQuotesCollection = collection(db, 'liability_quotes');
-        const floodQuotesCollection = collection(db, 'flood_quotes');
-
-        const hqsnapshot = await getDocs(homeQuotesCollection);
-        const aqsnapshot = await getDocs(autoQuotesCollection);
-        const lqsnapshot = await getDocs(liabilityQuotesCollection);
-        const fqsnapshot = await getDocs(floodQuotesCollection);
-
-        const homeQuotesData = hqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const autoQuotesData = aqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const liabilityQuotesData = lqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const floodQuotesData = fqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-        const allQuotes = [...homeQuotesData, ...autoQuotesData, ...liabilityQuotesData, ...floodQuotesData];
-        let allReqQuotes = [];
-        allQuotes && allQuotes.forEach(quote => {
-          if (quote.status_step === "1") {
-            allReqQuotes.push(quote);
-          }
-        });
-        setReqQuotes(allReqQuotes);
-      } catch (error) {
-        toast.error("Error Fetching Requested Quotes!")
-      }
-    };
-    const getAllDeliveredQuotes = async () => {
-      try {
-        const DeliveredQuotesCollection = collection(db, 'prep_quotes');
-        const dqsnapshot = await getDocs(DeliveredQuotesCollection);
-        const DeliveredQuotesData = dqsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setDelQuotes(DeliveredQuotesData)
-      } catch (error) {
-        toast.error("Error Fetching Delivered Quotes!")
-      }
-    }
-    const getAllBinderRequestedQuotes = async () => {
-      try {
-        const BinderReqCollection = collection(db, 'bind_req_quotes');
-        const brsnapshot = await getDocs(BinderReqCollection);
-        const BinderReqQuotesData = brsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(data => data.bound_status === "pending");
-        setBinderReqQuotes(BinderReqQuotesData)
-      } catch (error) {
-        toast.error("Error Fetching Binder Requested Quotes!")
-      }
-    }
-    const getAllPolicyBoundData = async () => {
-      try {
-        const currentDate = new Date();
-        currentDate.setHours(0, 0, 0, 0);
-        const PBCollection = collection(db, 'bound_policies');
-        const pbsnapshot = await getDocs(PBCollection);
-        const data = pbsnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-        const PBData = data && data.filter(item => {
-          const effectiveDate = new Date(item.effective_date);
-          effectiveDate.setHours(0, 0, 0, 0);
-          return effectiveDate >= currentDate;
-        });
-
-        const historyData = data && data?.filter(item => {
-          const effectiveDate = new Date(item.effective_date);
-          return effectiveDate < currentDate;
-        });
-
-        setpolicy_bound_data(PBData);
-        setpolicy_history(historyData);
-      } catch (error) {
-        toast.error("Error Fetching Policy Bound Data!");
-      }
-    };
-
     getAllPolicyBoundData();
     getAllBinderRequestedQuotes();
     getAllDeliveredQuotes();
@@ -326,6 +326,7 @@ const QuotesPage = () => {
       await updateBoundStatus(rowdocid)  // update bound_status in bind_req_quotes
       AdminBindConfirmQuoteMail(data.user?.name, data.user?.email, data.qsr_type)
       toast.success('Policy bounded successfully!');
+      getAllBinderRequestedQuotes()
     } catch (error) {
       toast.error('Error bounding policy!');
       console.log(error)

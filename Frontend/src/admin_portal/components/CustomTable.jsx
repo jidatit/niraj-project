@@ -9,6 +9,7 @@ import {
     DialogTitle,
     Stack,
     TextField,
+    Box
 } from '@mui/material';
 import axiosInstance from '../../utils/axiosConfig';
 import { JsonView, allExpanded, darkStyles } from 'react-json-view-lite';
@@ -56,34 +57,44 @@ const CustomTable = ({ QSR, tableData }) => {
     const table_columns_lia = useMemo(
         () => [
             {
-                accessorKey: 'carrier',
-                header: 'Carrier',
-                size: 150,
-            },
-            {
                 accessorKey: 'liability_coverage_amount',
                 header: 'Liability Coverage Amount',
                 size: 200,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'um_coverage',
                 header: 'U/M Coverage',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'cyber_liability',
                 header: 'Cyber Liability',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'identity_theft',
                 header: 'Identity Theft',
                 size: 150,
-            },
-            {
-                accessorKey: 'premium',
-                header: 'Premium',
-                size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
         ],
         [],
@@ -91,35 +102,33 @@ const CustomTable = ({ QSR, tableData }) => {
     const data_lia = [
         {
             id: 1,
-            carrier: "Liability Monarch",
-            liability_coverage_amount: "700000",
-            um_coverage: "14000",
-            cyber_liability: "75000",
-            identity_theft: "300000",
-            premium: "140000",
+            liability_coverage_amount: "",
+            um_coverage: "",
+            cyber_liability: "",
+            identity_theft: "",
         },
     ];
     const table_columns_flood = useMemo(
         () => [
             {
-                accessorKey: 'carrier',
-                header: 'Carrier',
-                size: 150,
-            },
-            {
                 accessorKey: 'dwelling',
                 header: 'Dwelling',
                 size: 200,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'personal_property',
                 header: 'Personal Property',
                 size: 150,
-            },
-            {
-                accessorKey: 'premium',
-                header: 'Premium',
-                size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
         ],
         [],
@@ -127,58 +136,81 @@ const CustomTable = ({ QSR, tableData }) => {
     const data_flood = [
         {
             id: 1,
-            carrier: "Flood Monarch",
-            dwelling: "700000",
-            personal_property: "14000",
-            premium: "75000",
+            dwelling: "",
+            personal_property: "",
         },
     ];
     const table_columns_auto = useMemo(
         () => [
             {
-                accessorKey: 'carrier',
-                header: 'Carrier',
-                size: 150,
-            },
-            {
                 accessorKey: 'bodily_injury',
                 header: 'Bodily Injury',
                 size: 200,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'property_damage',
                 header: 'Property Damage',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'um',
                 header: 'U/M',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'collision_deductible',
                 header: 'Collision Deductible',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'rental',
                 header: 'Rental',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'roadside',
                 header: 'Roadside',
                 size: 150,
-            },
-            {
-                accessorKey: 'premium',
-                header: 'Premium',
-                size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'comprehensive_deductible',
                 header: 'Comprehensive Deductible',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
         ],
         [],
@@ -186,68 +218,96 @@ const CustomTable = ({ QSR, tableData }) => {
     const data_auto = [
         {
             id: 1,
-            carrier: "Auto Monarch",
-            bodily_injury: "700000",
-            property_damage: "14000",
-            um: "75000",
-            collision_deductible: "300000",
-            rental: "140000",
-            roadside: "75000",
-            premium: "75000",
-            comprehensive_deductible: "75000",
+            bodily_injury: "",
+            property_damage: "",
+            um: "",
+            collision_deductible: "",
+            rental: "",
+            roadside: "",
+            comprehensive_deductible: "",
         },
     ];
     const table_columns_home = useMemo(
         () => [
             {
-                accessorKey: 'carrier',
-                header: 'Carrier',
-                size: 150,
-            },
-            {
                 accessorKey: 'dwelling',
                 header: 'Dwelling',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'other_structures',
                 header: 'Other Structures',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'contents',
                 header: 'Contents',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'loss_of_use',
                 header: 'Loss of Use',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'liability',
                 header: 'Liability',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'medical_payments',
                 header: 'Medical Payments',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'aop_deductible',
                 header: 'AOP Deductible',
                 size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
             {
                 accessorKey: 'hurricane_deductible',
                 header: 'Hurricane Deductible',
                 size: 150,
-            },
-            {
-                accessorKey: 'premium',
-                header: 'Premium',
-                size: 150,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 0 ? cell.getValue() : "Enter any value"}
+                    </Box>
+                )
             },
         ],
         [],
@@ -255,16 +315,14 @@ const CustomTable = ({ QSR, tableData }) => {
     const data_home = [
         {
             id: 1,
-            carrier: "Home Monarch",
-            dwelling: "700000",
-            other_structures: "14000",
-            contents: "75000",
-            loss_of_use: "300000",
-            liability: "140000",
-            medical_payments: "140000",
-            aop_deductible: "75000",
-            hurricane_deductible: "75000",
-            premium: "75000",
+            dwelling: "",
+            other_structures: "",
+            contents: "",
+            loss_of_use: "",
+            liability: "",
+            medical_payments: "",
+            aop_deductible: "",
+            hurricane_deductible: "",
         },
     ];
 
@@ -272,10 +330,12 @@ const CustomTable = ({ QSR, tableData }) => {
         () => [
             {
                 accessorKey: 'carrier',
+                header: 'Carrier',
                 size: 200,
             },
             {
-                accessorKey: 'description',
+                accessorKey: 'premium',
+                header: 'Premium',
                 size: 800,
             },
         ],
@@ -285,27 +345,27 @@ const CustomTable = ({ QSR, tableData }) => {
         {
             id: 1,
             carrier: "Monarch",
-            description: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
+            premium: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
         },
         {
             id: 2,
             carrier: "Monarch",
-            description: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
+            premium: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
         },
         {
             id: 3,
             carrier: "Monarch",
-            description: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
+            premium: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
         },
         {
             id: 4,
             carrier: "Monarch",
-            description: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
+            premium: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
         },
         {
             id: 5,
             carrier: "Monarch",
-            description: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
+            premium: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
         },
     ];
 
@@ -426,7 +486,7 @@ const CustomTable = ({ QSR, tableData }) => {
                         data={tableData2}
                         enableBottomToolbar={false}
                         enableTopToolbar={false}
-                        enableTableHead={false}
+                        enableTableHead={true}
                         enableEditing={true}
                         onEditingRowSave={handleSaveRowTable2}
                     />
@@ -434,19 +494,19 @@ const CustomTable = ({ QSR, tableData }) => {
             </div>
 
 
-            <AddNumberRowModal
+            {tableCols1 && (<AddNumberRowModal
                 columns={tableCols1}
                 open={CreateModalOpen1}
                 onClose={() => setCreateModalOpen1(false)}
                 onSubmit={handleNewNumberRow}
-            />
+            />)}
 
-            <AddWordRowModal
+            {tableCols2 && (<AddWordRowModal
                 columns={tableCols2}
                 open={CreateModalOpen2}
                 onClose={() => setCreateModalOpen2(false)}
                 onSubmit={handleNewWordRow}
-            />
+            />)}
 
 
         </>
@@ -456,15 +516,29 @@ const CustomTable = ({ QSR, tableData }) => {
 
 export const AddNumberRowModal = ({ open, columns, onClose, onSubmit }) => {
     const [values, setValues] = useState(() =>
-        columns && columns?.reduce((acc, column) => {
+        columns?.reduce((acc, column) => {
             acc[column.accessorKey ?? ''] = '';
             return acc;
-        }, {}),
+        }, {}) || {}
     );
+    const [errors, setErrors] = useState({});
+
+    const validate = () => {
+        const newErrors = {};
+        columns.forEach(column => {
+            if (!values[column.accessorKey]) {
+                newErrors[column.accessorKey] = `${column.header} is required`;
+            }
+        });
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = () => {
-        onSubmit(values);
-        onClose();
+        if (validate()) {
+            onSubmit(values);
+            onClose();
+        }
     };
 
     return (
@@ -479,14 +553,18 @@ export const AddNumberRowModal = ({ open, columns, onClose, onSubmit }) => {
                             gap: '1.5rem',
                         }}
                     >
-                        {columns && columns?.map((column) => (
+                        {columns.map(column => (
                             <TextField
                                 key={column.accessorKey}
                                 label={column.header}
                                 name={column.accessorKey}
-                                onChange={(e) =>
-                                    setValues({ ...values, [e.target.name]: e.target.value })
-                                }
+                                onChange={(e) => {
+                                    setValues({ ...values, [e.target.name]: e.target.value });
+                                    setErrors({ ...errors, [e.target.name]: '' });
+                                }}
+                                required
+                                error={Boolean(errors[column.accessorKey])}
+                                helperText={errors[column.accessorKey]}
                             />
                         ))}
                     </Stack>
@@ -504,15 +582,29 @@ export const AddNumberRowModal = ({ open, columns, onClose, onSubmit }) => {
 
 export const AddWordRowModal = ({ open, columns, onClose, onSubmit }) => {
     const [values, setValues] = useState(() =>
-        columns && columns?.reduce((acc, column) => {
+        columns?.reduce((acc, column) => {
             acc[column.accessorKey ?? ''] = '';
             return acc;
-        }, {}),
+        }, {}) || {}
     );
+    const [errors, setErrors] = useState({});
+
+    const validate = () => {
+        const newErrors = {};
+        columns.forEach(column => {
+            if (!values[column.accessorKey]) {
+                newErrors[column.accessorKey] = `${column.header} is required`;
+            }
+        });
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = () => {
-        onSubmit(values);
-        onClose();
+        if (validate()) {
+            onSubmit(values);
+            onClose();
+        }
     };
 
     return (
@@ -527,22 +619,20 @@ export const AddWordRowModal = ({ open, columns, onClose, onSubmit }) => {
                             gap: '1.5rem',
                         }}
                     >
-                        <TextField
-                            key={"carrier"}
-                            label={"Carrier"}
-                            name={"carrier"}
-                            onChange={(e) =>
-                                setValues({ ...values, [e.target.name]: e.target.value })
-                            }
-                        />
-                        <TextField
-                            key={"description"}
-                            label={"Description"}
-                            name={"description"}
-                            onChange={(e) =>
-                                setValues({ ...values, [e.target.name]: e.target.value })
-                            }
-                        />
+                        {columns.map(column => (
+                            <TextField
+                                key={column.accessorKey}
+                                label={column.header}
+                                name={column.accessorKey}
+                                onChange={(e) => {
+                                    setValues({ ...values, [e.target.name]: e.target.value });
+                                    setErrors({ ...errors, [e.target.name]: '' });
+                                }}
+                                required
+                                error={Boolean(errors[column.accessorKey])}
+                                helperText={errors[column.accessorKey]}
+                            />
+                        ))}
                     </Stack>
                 </form>
             </DialogContent>

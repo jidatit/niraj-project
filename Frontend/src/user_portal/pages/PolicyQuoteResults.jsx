@@ -74,7 +74,14 @@ const PolicyQuoteResults = () => {
                             )
                             :
                             (
-                                <div className='w-[95%] animate-pulse min-h-screen lg:w-[95%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md'></div>
+                                <div className='w-[95%] lg:w-[95%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md'>
+                                    <div className='flex flex-col items-center'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="animate-pulse size-12">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        <p className='text-xl lg:text-2xl font-bold text-center'>Waiting for admin to send quote.</p>
+                                    </div>
+                                </div>
                             )}
                     </>
                 )
