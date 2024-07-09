@@ -17,34 +17,13 @@ import 'react-json-view-lite/dist/index.css';
 
 const CustomTable = ({ QSR, tableData }) => {
 
+    const homeCarriers = [
+        "All Risks", "Allstate", "American Integrity", "American Traditions", "Bass Underwriters", "Centauri", "Citizens Policy Center", "Edison", "Florida Family", "Florida Peninsula", "GeoVera", "Heritage", "Monarch", "Olympus", "Orchid", "Peoples Trust", "SageSure", "Security First", "Slide", "Southern Oak", "Stillwater", "Tower Hill", "True", "TypTap Home", "Universal North America", "Universal PC", "VYRD", "Western World"
+    ]
+
     const [CmsData, setCmsData] = useState([]);
 
     const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchCmsData = async () => {
-            try {
-                const { data } = await axiosInstance.get("/get_quotes");
-                setCmsData(data);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-
-        const fetchDataWithDelay = () => {
-            setLoading(true);
-            setTimeout(() => {
-                fetchCmsData();
-            }, 2000);
-        };
-
-        fetchDataWithDelay();
-
-        const interval = setInterval(fetchDataWithDelay, 120000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     const [tableCols1, setTableCols1] = useState(null);
     const [tableData1, setTableData1] = useState(null);
@@ -336,37 +315,12 @@ const CustomTable = ({ QSR, tableData }) => {
             {
                 accessorKey: 'premium',
                 header: 'Premium',
-                size: 800,
+                size: 200,
             },
         ],
         [],
     );
     const data_2 = [
-        {
-            id: 1,
-            carrier: "Monarch",
-            premium: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
-        },
-        {
-            id: 2,
-            carrier: "Monarch",
-            premium: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
-        },
-        {
-            id: 3,
-            carrier: "Monarch",
-            premium: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
-        },
-        {
-            id: 4,
-            carrier: "Monarch",
-            premium: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
-        },
-        {
-            id: 5,
-            carrier: "Monarch",
-            premium: "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations",
-        },
     ];
 
     useEffect(() => {
@@ -415,7 +369,7 @@ const CustomTable = ({ QSR, tableData }) => {
         exitEditingMode();
     };
     const handleSaveRowTable2 = async ({ exitEditingMode, row, values }) => {
-        tableData2[row.index] = values;
+        tableData2[row.index] = { ...values, id: row.original.id };
         setTableData2([...tableData2]);
         tableData(tableData2, 2)
         exitEditingMode();
@@ -432,17 +386,68 @@ const CustomTable = ({ QSR, tableData }) => {
         }
     }
 
-    const handleNewNumberRow = (values) => {
-        tableData1.push(values);
-        setTableData1([...tableData1]);
-        tableData(tableData1, 1)
+    const getRandomId = () => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const idLength = 10;
+        let result = '';
+
+        for (let i = 0; i < idLength; i++) {
+            const randomIndex = Math.floor(Math.random() * characters.length);
+            result += characters.charAt(randomIndex);
+        }
+
+        return result;
     };
 
     const handleNewWordRow = (values) => {
-        tableData2.push(values);
+        tableData2.push({ ...values, id: getRandomId() });
         setTableData2([...tableData2]);
-        tableData(tableData2, 2)
+        tableData(tableData2, 2);
     };
+
+    useEffect(() => {
+        const fetchCmsData = async () => {
+            try {
+                const { data } = await axiosInstance.get("/get_quotes");
+                setCmsData(data);
+                const homeQuotes = data.filter(quote => homeCarriers.includes(quote.Carrier));
+                const filteredData = homeQuotes.map(quote => ({
+                    id: quote.id,
+                    carrier: quote.Carrier || "",
+                    premium: quote.ReturnAmount || 0
+                }));
+                setTableData2(filteredData);
+                tableData(filteredData, 2);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        const fetchDataWithDelay = () => {
+            setLoading(true);
+            setTimeout(() => {
+                fetchCmsData();
+            }, 2000);
+        };
+
+        fetchDataWithDelay();
+
+        const interval = setInterval(fetchDataWithDelay, 120000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleWordRowDelete = (id) => {
+        const updatedData = tableData2 && tableData2.filter(row => row.id !== id)
+        setTableData2(updatedData)
+        tableData(updatedData, 2)
+    }
+
+    useEffect(() => {
+        tableData(tableData2, 2)
+        tableData(tableData1, 1)
+    }, [tableData2, tableData1])
 
     return (
         <>
@@ -485,21 +490,40 @@ const CustomTable = ({ QSR, tableData }) => {
                         columns={tableCols2}
                         data={tableData2}
                         enableBottomToolbar={false}
-                        enableTopToolbar={false}
+                        // enableTopToolbar={false}
                         enableTableHead={true}
                         enableEditing={true}
                         onEditingRowSave={handleSaveRowTable2}
+                        enableRowSelection
+                        renderTopToolbarCustomActions={({ table }) => {
+                            const handleDelete = () => {
+                                const selectedRows = table.getSelectedRowModel().flatRows;
+
+                                if (selectedRows.length === 1) {
+                                    const selectedRow = selectedRows[0];
+                                    const selectedRowId = selectedRow.original.id;
+                                    handleWordRowDelete(selectedRowId)
+                                } else {
+                                    alert('Please select a single row to delete.');
+                                }
+                            };
+
+                            return (
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <Button
+                                        color="error"
+                                        // disabled={!table.getIsSomeRowsSelected()}
+                                        onClick={handleDelete}
+                                        variant="contained"
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            )
+                        }}
                     />
                 </div>)}
             </div>
-
-
-            {tableCols1 && (<AddNumberRowModal
-                columns={tableCols1}
-                open={CreateModalOpen1}
-                onClose={() => setCreateModalOpen1(false)}
-                onSubmit={handleNewNumberRow}
-            />)}
 
             {tableCols2 && (<AddWordRowModal
                 columns={tableCols2}
@@ -512,73 +536,6 @@ const CustomTable = ({ QSR, tableData }) => {
         </>
     )
 }
-
-
-export const AddNumberRowModal = ({ open, columns, onClose, onSubmit }) => {
-    const [values, setValues] = useState(() =>
-        columns?.reduce((acc, column) => {
-            acc[column.accessorKey ?? ''] = '';
-            return acc;
-        }, {}) || {}
-    );
-    const [errors, setErrors] = useState({});
-
-    const validate = () => {
-        const newErrors = {};
-        columns.forEach(column => {
-            if (!values[column.accessorKey]) {
-                newErrors[column.accessorKey] = `${column.header} is required`;
-            }
-        });
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = () => {
-        if (validate()) {
-            onSubmit(values);
-            onClose();
-        }
-    };
-
-    return (
-        <Dialog open={open}>
-            <DialogTitle textAlign="center">Add New Number Row</DialogTitle>
-            <DialogContent>
-                <form onSubmit={(e) => e.preventDefault()}>
-                    <Stack
-                        sx={{
-                            width: '100%',
-                            minWidth: { xs: '300px', sm: '360px', md: '400px' },
-                            gap: '1.5rem',
-                        }}
-                    >
-                        {columns.map(column => (
-                            <TextField
-                                key={column.accessorKey}
-                                label={column.header}
-                                name={column.accessorKey}
-                                onChange={(e) => {
-                                    setValues({ ...values, [e.target.name]: e.target.value });
-                                    setErrors({ ...errors, [e.target.name]: '' });
-                                }}
-                                required
-                                error={Boolean(errors[column.accessorKey])}
-                                helperText={errors[column.accessorKey]}
-                            />
-                        ))}
-                    </Stack>
-                </form>
-            </DialogContent>
-            <DialogActions sx={{ p: '1.25rem' }}>
-                <Button onClick={onClose}>Cancel</Button>
-                <Button color="secondary" onClick={handleSubmit} variant="contained">
-                    Add New Number Row
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
-};
 
 export const AddWordRowModal = ({ open, columns, onClose, onSubmit }) => {
     const [values, setValues] = useState(() =>
