@@ -19,6 +19,11 @@ export function hasEmptyValue(userDataWithoutPasswords) {
   return false;
 }
 
+export function formatDate(dateString){
+  const [year, month, day] = dateString.split('-');
+  return `${day}-${month}-${year}`;
+};
+
 export function getCurrentDate(type) {
   const currentDate = new Date();
 

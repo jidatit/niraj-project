@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import Modal from '@mui/material/Modal';
 import { TextField, InputLabel } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { formatDate } from '../../../utils/helperSnippets';
 
 const HomePolicyPreview = ({ data, open, handleClose }) => {
   const [showImages, setShowImages] = useState(false);
-  const { address, ishomebuild, newPurchase, persons, files } = data;
+  const { address, ishomebuild, newPurchase, persons, files, closingDate, expiryDate } = data;
 
   const renderTextField = (label, value) => (
     <div className='flex w-full flex-col justify-center items-start gap-2'>
@@ -16,6 +17,20 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
         label={label}
         variant="outlined"
         value={value}
+        disabled
+      />
+    </div>
+  );
+
+  const renderDateField = (label, value) => (
+    <div className='flex w-full flex-col justify-center items-start gap-2'>
+      <InputLabel htmlFor="dateOfBirth">{label}</InputLabel>
+      <TextField
+        className='w-full'
+        id="dateOfBirth"
+        label={label}
+        variant="outlined"
+        value={formatDate(value)}
         disabled
       />
     </div>
@@ -73,7 +88,7 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
               <div className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Person {index + 1}</p></div>
               <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
                 {person.name && renderTextField(`Name to be Insured  ${index + 1}`, person.name)}
-                {person.dob && renderTextField(`Date of Birth ${index + 1}`, person.dob)}
+                {person.dob && renderDateField(`Date of Birth ${index + 1}`, person.dob)}
               </div>
             </>
           ))}
@@ -83,6 +98,11 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
           <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
             {ishomebuild && renderTextField("Is this home built before 2005?", ishomebuild)}
             {newPurchase && renderTextField("New Purchase?", newPurchase)}
+          </div>
+
+          <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+            {closingDate && renderDateField("Closing Date", closingDate)}
+            {expiryDate && renderDateField("Expiry Date", expiryDate)}
           </div>
 
           {files && files.length > 0 && (

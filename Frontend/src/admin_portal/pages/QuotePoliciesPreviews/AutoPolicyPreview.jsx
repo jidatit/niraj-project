@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Modal from '@mui/material/Modal';
 import { TextField, InputLabel } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { formatDate } from '../../../utils/helperSnippets';
 
 const AutoPolicyPreview = ({ data, open, handleClose }) => {
   const [showImages, setShowImages] = useState(false);
@@ -18,6 +19,20 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
         label={label}
         variant="outlined"
         value={value}
+        disabled
+      />
+    </div>
+  );
+
+  const renderDateField = (label, value) => (
+    <div className='flex w-full flex-col justify-center items-start gap-2'>
+      <InputLabel htmlFor="exp">{label}</InputLabel>
+      <TextField
+        className='w-full'
+        id="exp"
+        label={label}
+        variant="outlined"
+        value={formatDate(value)}
         disabled
       />
     </div>
@@ -75,7 +90,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
               <div className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Driver {index + 1}</p></div>
               <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 flex-wrap gap-5 justify-center items-center'>
                 {driver.name && renderTextField(`Name to be Insured  ${index + 1}`, driver.name)}
-                {driver.dob && renderTextField(`Date of Birth ${index + 1}`, driver.dob)}
+                {driver.dob && renderDateField(`Date of Birth ${index + 1}`, driver.dob)}
                 {driver.LN && renderTextField(`License Number ${index + 1}`, driver.LN)}
               </div>
             </>
@@ -102,6 +117,9 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
                     {renderTextField(`Garaging Address ${index + 1}`, garaging_address)}
                   </>
                 )}
+              </div>
+              <div className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 flex-wrap gap-5 justify-center items-center'>
+                {renderDateField("Expiration Date",vehicle.expiration_date)}
               </div>
             </>
           ))}

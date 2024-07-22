@@ -1,17 +1,28 @@
-import React, { useState } from 'react'
-import logo from "../assets/newlogo.png"
+import React, { useState } from 'react';
+import logo from "../assets/newlogo.png";
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../db';
+import { auth, db } from '../../db';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const AdminLogin = () => {
-    const [email, setemail] = useState("");
-    const [password, setpassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
-    const handleLogin = async () => {
+    const handleLogin = async (e) => {
+        e.preventDefault(); // Prevent the default form submission
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const q = query(collection(db, "admins"), where("email", "==", email));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                await signInWithEmailAndPassword(auth, email, password);
+                setError(""); // Clear any previous errors
+            } else {
+                setError("You are not authorized to access this page. An Admin with these credentials not found!");
+            }
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            setError("Failed to log in. Please check your credentials and try again.");
         }
     }
 
@@ -24,24 +35,46 @@ const AdminLogin = () => {
                     <h2 className="text-center text-3xl font-extrabold">
                         Admin Login
                     </h2>
-                    <div className="mt-10 space-y-4">
+                    <form onSubmit={handleLogin} className="mt-10 space-y-4">
                         <div>
-                            <input value={email} onChange={(e) => setemail(e.target.value)} name="email" type="email" autoComplete="email" required className="w-full text-sm px-4 py-3 rounded outline-none border-2 focus:border-blue-500" placeholder="Email address" />
+                            <input 
+                                value={email} 
+                                onChange={(e) => setEmail(e.target.value)} 
+                                name="email" 
+                                type="email" 
+                                autoComplete="email" 
+                                required 
+                                className="w-full text-sm px-4 py-3 rounded outline-none border-2 focus:border-blue-500" 
+                                placeholder="Email address" 
+                            />
                         </div>
                         <div>
-                            <input value={password} onChange={(e) => setpassword(e.target.value)} name="password" type="password" autoComplete="current-password" required className="w-full text-sm px-4 py-3 rounded outline-none border-2 focus:border-blue-500" placeholder="Password" />
+                            <input 
+                                value={password} 
+                                onChange={(e) => setPassword(e.target.value)} 
+                                name="password" 
+                                type="password" 
+                                autoComplete="current-password" 
+                                required 
+                                className="w-full text-sm px-4 py-3 rounded outline-none border-2 focus:border-blue-500" 
+                                placeholder="Password" 
+                            />
                         </div>
 
                         <div className="!mt-10">
-                            <button onClick={handleLogin} type="button" className="w-full py-2.5 px-4 text-sm rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
+                            <button 
+                                type="submit" 
+                                className="w-full py-2.5 px-4 text-sm rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                            >
                                 Log in
                             </button>
                         </div>
-                    </div>
+                        {error && <div className="text-red-500 text-sm mt-4">{error}</div>}
+                    </form>
                 </div>
             </div>
         </>
-    )
+    );
 }
 
-export default AdminLogin
+export default AdminLogin;

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import logo from "../assets/newlogo.png"
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import logo from "../assets/newlogo.png";
+import { Link } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
 import { auth, db } from '../../db';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -20,16 +20,15 @@ const SignupReferral = () => {
         confirmPassword: '',
         signupType: 'Referral'
     });
-    const [isFocus, setIsFocus] = useState(false)
+    const [isFocus, setIsFocus] = useState(false);
+    const [passwordError, setPasswordError] = useState('');
 
     const occupations = [
         { value: 'Real Estate Agent', label: 'Real Estate Agent' },
         { value: 'Mortgage Broker', label: 'Mortgage Broker' },
         { value: 'Property Manager', label: 'Property Manager' },
         { value: 'Inspector', label: 'Inspector' },
-    ]
-
-    const [passwordError, setPasswordError] = useState('');
+    ];
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -48,20 +47,24 @@ const SignupReferral = () => {
     };
 
     const handleOccupationChange = (selectedOption) => {
-        setUserData({ ...userData, occupation: selectedOption.value });
-        occupations.push(selectedOption)
+        setUserData({ ...userData, occupation: selectedOption ? selectedOption.value : '' });
+        // Only push new occupation to the list if it's not already included
+        if (selectedOption && !occupations.find(o => o.value === selectedOption.value)) {
+            occupations.push(selectedOption);
+        }
     };
 
-    const handleSignup = async () => {
+    const handleSignup = async (e) => {
+        e.preventDefault(); // Prevent default form submission
         try {
             const { confirmPassword, password, ...userDataWithoutPasswords } = userData;
             if (confirmPassword !== password) {
-                toast.error("Password Not Matched!")
-                return
+                toast.error("Password Not Matched!");
+                return;
             }
             if (hasEmptyValue(userDataWithoutPasswords)) {
-                toast.error("Fill all Fields!")
-                return
+                toast.error("Fill all Fields!");
+                return;
             }
             const { user } = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
             await setDoc(doc(db, "users", user.uid), userDataWithoutPasswords);
@@ -79,9 +82,9 @@ const SignupReferral = () => {
 
         setUserData(prevData => ({
             ...prevData,
-            name: url_name,
-            email: url_email,
-            phoneNumber: url_phoneNumber
+            name: url_name || '',
+            email: url_email || '',
+            phoneNumber: url_phoneNumber || ''
         }));
     }, []);
 
@@ -92,52 +95,111 @@ const SignupReferral = () => {
 
                 <h2 className="text-center text-[22px] md:text-[28px] mb-[10px] font-bold leading-9 tracking-tight text-gray-900">Sign up</h2>
 
-                <input type="text" name="name" placeholder="Name" className="w-full md:w-[60%] border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500" value={userData.name} onChange={handleInputChange} required />
+                <form onSubmit={handleSignup} className="w-full flex flex-col gap-4 md:w-[60%]">
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Name"
+                        className="w-full border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500"
+                        value={userData.name}
+                        onChange={handleInputChange}
+                        required
+                    />
 
-                <input type="text" name="mailingAddress" placeholder="Mailing Address" className="w-full md:w-[60%] border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500" value={userData.mailingAddress} onChange={handleInputChange} required />
+                    <input
+                        type="text"
+                        name="mailingAddress"
+                        placeholder="Mailing Address"
+                        className="w-full border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500"
+                        value={userData.mailingAddress}
+                        onChange={handleInputChange}
+                        required
+                    />
 
-                <input type="email" name="email" placeholder="Email" className="w-full md:w-[60%] border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500" value={userData.email} onChange={handleInputChange} required />
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        className="w-full border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500"
+                        value={userData.email}
+                        onChange={handleInputChange}
+                        required
+                    />
 
-                <input type="number" name="phoneNumber" placeholder="Phone Number" className="w-full md:w-[60%] border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500" value={userData.phoneNumber} onChange={handleInputChange} required />
+                    <input
+                        type="number"
+                        name="phoneNumber"
+                        placeholder="Phone Number"
+                        className="w-full border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500"
+                        value={userData.phoneNumber}
+                        onChange={handleInputChange}
+                        required
+                    />
 
-                <CreatableSelect styles={{
-                    control: (provided, state) => ({
-                        ...provided,
-                        minHeight: '57px',
-                    }),
-                }} value={userData.occupation}
-                    onChange={handleOccupationChange}
-                    isClearable={true} className='w-full md:w-[60%]' placeholder={!isFocus ? "Occupation" : "Add New Occupation"}
-                    onFocus={() => setIsFocus(true)}
-                    onBlur={() => setIsFocus(false)}
-                    options={occupations} required />
+                    <CreatableSelect
+                        styles={{
+                            control: (provided, state) => ({
+                                ...provided,
+                                minHeight: '57px',
+                            }),
+                        }}
+                        value={occupations.find(o => o.value === userData.occupation) || null}
+                        onChange={handleOccupationChange}
+                        isClearable={true}
+                        className='w-full md:w-[60%]'
+                        placeholder={!isFocus ? "Occupation" : "Add New Occupation"}
+                        onFocus={() => setIsFocus(true)}
+                        onBlur={() => setIsFocus(false)}
+                        options={occupations}
+                        required
+                    />
 
-                <input type="password" name="password" placeholder="Password" className="w-full md:w-[60%] border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500" value={userData.password} onChange={handleInputChange} required />
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        className="w-full border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500"
+                        value={userData.password}
+                        onChange={handleInputChange}
+                        required
+                    />
 
-                <input type="password" name="confirmPassword" placeholder="Confirm Password" className="w-full md:w-[60%] border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500" value={userData.confirmPassword} onChange={handleInputChange} required />
+                    <input
+                        type="password"
+                        name="confirmPassword"
+                        placeholder="Confirm Password"
+                        className="w-full border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500"
+                        value={userData.confirmPassword}
+                        onChange={handleInputChange}
+                        required
+                    />
 
-                {passwordError && <p className="text-red-500">{passwordError}</p>}
+                    {passwordError && <p className="text-red-500">{passwordError}</p>}
 
-                <button
-                    disabled={passwordError}
-                    className={`bg-[#003049] ${passwordError && "bg-gray-400"} w-full md:w-[60%] text-[20px] font-bold text-white px-4 py-2 rounded-md`}
-                    onClick={handleSignup}
-                >
-                    Register
-                </button>
+                    <button
+                        type="submit"
+                        disabled={passwordError}
+                        className={`bg-[#003049] ${passwordError && "bg-gray-400"} w-full text-[20px] font-bold text-white px-4 py-2 rounded-md`}
+                    >
+                        Register
+                    </button>
+                </form>
 
                 <div className="w-full md:w-[60%] flex flex-col justify-center items-end">
-                    <Link to="/auth/login_referral"> <p className="md:text-[15px] text-[12px] hover:underline">Already a member?</p></Link>
+                    <Link to="/auth/login_referral">
+                        <p className="md:text-[15px] text-[12px] hover:underline">Already a member?</p>
+                    </Link>
                 </div>
 
                 <div className="w-full mb-[30px] md:w-[60%]">
-                    <Link to="/auth/login_referral" className="block"><button className="bg-[#D62828] w-full text-[20px] font-bold text-white px-4 py-2 rounded-md">Login</button></Link>
+                    <Link to="/auth/login_referral" className="block">
+                        <button className="bg-[#D62828] w-full text-[20px] font-bold text-white px-4 py-2 rounded-md">Login</button>
+                    </Link>
                 </div>
-
             </div>
             <ToastContainer />
         </>
-    )
-}
+    );
+};
 
-export default SignupReferral
+export default SignupReferral;

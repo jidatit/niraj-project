@@ -2,10 +2,13 @@ import React from 'react';
 import Modal from '@mui/material/Modal';
 import { TextField, InputLabel } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { formatDate } from '../../../utils/helperSnippets';
 
 const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
 
   const { application_policy, autos, owner_occupied_num, rented_address_num, address_num, coverageAmount, addresses, persons } = data;
+
+  console.log(data)
 
   const renderTextField = (label, value) => (
     <div className='flex w-full flex-col justify-center items-start gap-2'>
@@ -16,6 +19,20 @@ const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
         label={label}
         variant="outlined"
         value={value}
+        disabled
+      />
+    </div>
+  );
+
+  const renderDateField = (label, value) => (
+    <div className='flex w-full flex-col justify-center items-start gap-2'>
+      <InputLabel htmlFor="exp">{label}</InputLabel>
+      <TextField
+        className='w-full'
+        id="exp"
+        label={label}
+        variant="outlined"
+        value={formatDate(value)}
         disabled
       />
     </div>
@@ -50,7 +67,7 @@ const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
               <div className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Person {index + 1}</p></div>
               <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
                 {person.name && renderTextField(`Name to be Insured  ${index + 1}`, person.name)}
-                {person.dob && renderTextField(`Date of Birth ${index + 1}`, person.dob)}
+                {person.dob && renderDateField(`Date of Birth ${index + 1}`, person.dob)}
               </div>
             </>
           ))}
