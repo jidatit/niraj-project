@@ -14,8 +14,18 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '../../../AuthContext';
 import { ClientQuoteReqMail } from '../../../utils/mailingFuncs';
+import { useNavigate } from 'react-router-dom';
 
 const LiabilityForm = () => {
+
+    const navigate = useNavigate()
+
+    const redirectFunc = (path) => {
+        setTimeout(() => {
+            navigate(path)
+        }, 2000);
+    }
+
     const { currentUser } = useAuth();
     const [formData, setFormData] = useState({
         policyType: "Liability",
@@ -24,7 +34,8 @@ const LiabilityForm = () => {
         owner_occupied_num: '',
         rented_address_num: '',
         coverageAmount: '',
-        persons: [{ name: '', dob: '' }],
+        mailingAddress: '',
+        persons: [{ name: '', dob: '', email: '', phoneNumber: '' }],
         addresses: [{ address: '' }],
         autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' },
         user: { ...currentUser.data, id: currentUser.uid }
@@ -44,7 +55,8 @@ const LiabilityForm = () => {
                 owner_occupied_num: '',
                 rented_address_num: '',
                 coverageAmount: '',
-                persons: [{ name: '', dob: '' }],
+                mailingAddress: '',
+                persons: [{ name: '', dob: '', email: '', phoneNumber: '' }],
                 addresses: [{ address: '' }],
                 autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' },
                 user: { ...currentUser.data, id: currentUser.uid },
@@ -56,6 +68,7 @@ const LiabilityForm = () => {
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")
+            redirectFunc("/user_portal/view_policy_quote")
         } catch (error) {
             console.error("Error submitting application:", error);
             toast.error("Error submitting application.");
@@ -101,7 +114,7 @@ const LiabilityForm = () => {
     const handleAddPerson = () => {
         setFormData((prevData) => ({
             ...prevData,
-            persons: [...prevData.persons, { name: '', dob: '' }]
+            persons: [...prevData.persons, { name: '', dob: '', email: '', phoneNumber: '' }]
         }));
     };
 
@@ -157,6 +170,26 @@ const LiabilityForm = () => {
                                 onChange={(e) => handlePersonChange(index, 'dob', e.target.value)}
                             />
                         </div>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`email-${index}`}>Email</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`email-${index}`}
+                                type='email'
+                                value={person.email}
+                                onChange={(e) => handlePersonChange(index, 'email', e.target.value)}
+                            />
+                        </div>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`phoneNumber-${index}`}>Phone Number</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`phoneNumber-${index}`}
+                                type='phoneNumber'
+                                value={person.phoneNumber}
+                                onChange={(e) => handlePersonChange(index, 'phoneNumber', e.target.value)}
+                            />
+                        </div>
                     </div>
                 ))}
 
@@ -164,6 +197,14 @@ const LiabilityForm = () => {
                     <button onClick={handleAddPerson} className='bg-[#F77F00] w-full text-white py-3 font-semibold rounded-md outline-none px-3 md:[80%] lg:w-[40%] flex flex-row justify-center items-center gap-2'>
                         <img src={plusicon} alt="" /> <span className='text-[12px] md:text-[16px]'>Add Another Person</span>
                     </button>
+                </div>
+
+                <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+                    <div className='flex w-full flex-col justify-center items-start gap-2'>
+                        <InputLabel htmlFor="mailingAddress">Mailing Address</InputLabel>
+                        <TextField value={formData.mailingAddress}
+                            onChange={(e) => handleChange(e)} name="mailingAddress" className='w-full' id="mailingAddress" label="Type your Mailing Address here......" variant="outlined" />
+                    </div>
                 </div>
 
                 <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>

@@ -9,9 +9,11 @@ import { addDoc, collection, getDocs, doc, updateDoc, getDoc } from 'firebase/fi
 import { db } from "../../../db"
 import { getCurrentDate, getType } from '../../utils/helperSnippets';
 import { AdminPrepareQuoteMail } from '../../utils/mailingFuncs';
+import { useNavigate } from 'react-router-dom';
 
 const EditorPage = () => {
 
+    const navigate = useNavigate()
     const location = useLocation();
     const [QSR_Type, setQSR_Type] = useState('');
     const [Q_id, setQ_id] = useState('');
@@ -138,6 +140,9 @@ const EditorPage = () => {
             AdminPrepareQuoteMail(formData.user.name, formData.user.email, QSR_Type)
             toast.success('Quote prepared successfully!');
             setButtonText("Submit Quote");
+            setTimeout(() => {
+                navigate("/admin_portal")
+            }, 2000);
         } catch (error) {
             toast.error('Error preparing quote!');
         }

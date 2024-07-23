@@ -6,9 +6,7 @@ import { formatDate } from '../../../utils/helperSnippets';
 
 const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
 
-  const { application_policy, autos, owner_occupied_num, rented_address_num, address_num, coverageAmount, addresses, persons } = data;
-
-  console.log(data)
+  const { application_policy, autos, owner_occupied_num, rented_address_num, address_num, coverageAmount, addresses, persons, mailingAddress } = data;
 
   const renderTextField = (label, value) => (
     <div className='flex w-full flex-col justify-center items-start gap-2'>
@@ -26,7 +24,7 @@ const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
 
   const renderDateField = (label, value) => (
     <div className='flex w-full flex-col justify-center items-start gap-2'>
-      <InputLabel htmlFor="exp">{label}</InputLabel>
+      <InputLabel htmlFor="exp">{label} <span className='text-xs'>(DD-MM-YYYY)</span></InputLabel>
       <TextField
         className='w-full'
         id="exp"
@@ -71,6 +69,8 @@ const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
               </div>
             </>
           ))}
+
+          {mailingAddress && renderTextField("Mailing Address", mailingAddress)}
 
           <div className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
             {application_policy && renderTextField("Policy Type", application_policy)}

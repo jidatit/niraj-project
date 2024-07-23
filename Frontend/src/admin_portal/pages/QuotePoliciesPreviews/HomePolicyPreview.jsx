@@ -6,7 +6,7 @@ import { formatDate } from '../../../utils/helperSnippets';
 
 const HomePolicyPreview = ({ data, open, handleClose }) => {
   const [showImages, setShowImages] = useState(false);
-  const { address, ishomebuild, newPurchase, persons, files, closingDate, expiryDate } = data;
+  const { address, ishomebuild, newPurchase, persons, files, closingDate, expiryDate, mailingAddress } = data;
 
   const renderTextField = (label, value) => (
     <div className='flex w-full flex-col justify-center items-start gap-2'>
@@ -24,7 +24,7 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
 
   const renderDateField = (label, value) => (
     <div className='flex w-full flex-col justify-center items-start gap-2'>
-      <InputLabel htmlFor="dateOfBirth">{label}</InputLabel>
+      <InputLabel htmlFor="dateOfBirth">{label} <span className='text-xs'>(DD-MM-YYYY)</span></InputLabel>
       <TextField
         className='w-full'
         id="dateOfBirth"
@@ -93,6 +93,7 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
             </>
           ))}
 
+          {mailingAddress && renderTextField("Mailing Address", mailingAddress)}
           {address && renderTextField("Address to be insured", address)}
 
           <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
@@ -131,7 +132,7 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
             </div>
           )}
 
-          <div className='w-full flex mt-[10px] flex-col justify-center items-center'>
+          {data.status.toLowerCase() === "completed" && (<div className='w-full flex mt-[10px] flex-col justify-center items-center'>
             <Link onClick={handleClose} className='w-full' to={`/admin_portal/editor?qsr_type=${data.policyType}&q_id=${data.id}&qu_id=${data.user.id}`} target="_blank">
               <button
                 className="text-white w-full justify-center bg-[#F77F00] outline-none md:text-[15px] font-semibold rounded-lg text-[12px] px-5 py-4 text-center inline-flex items-center shadow-md"
@@ -140,7 +141,7 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
                 Send the Customer a Customized Quote According to their Requirements
               </button>
             </Link>
-          </div>
+          </div>)}
 
         </div>
       </Modal>

@@ -37,39 +37,41 @@ const AdminLogin = () => {
                     </h2>
                     <form onSubmit={handleLogin} className="mt-10 space-y-4">
                         <div>
-                            <input 
-                                value={email} 
-                                onChange={(e) => setEmail(e.target.value)} 
-                                name="email" 
-                                type="email" 
-                                autoComplete="email" 
-                                required 
-                                className="w-full text-sm px-4 py-3 rounded outline-none border-2 focus:border-blue-500" 
-                                placeholder="Email address" 
+                            <input
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                name="email"
+                                type="email"
+                                autoComplete="email"
+                                required
+                                className="w-full text-sm px-4 py-3 rounded outline-none border-2 focus:border-blue-500"
+                                placeholder="Email address"
                             />
                         </div>
                         <div>
-                            <input 
-                                value={password} 
-                                onChange={(e) => setPassword(e.target.value)} 
-                                name="password" 
-                                type="password" 
-                                autoComplete="current-password" 
-                                required 
-                                className="w-full text-sm px-4 py-3 rounded outline-none border-2 focus:border-blue-500" 
-                                placeholder="Password" 
+                            <input
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                name="password"
+                                type="password"
+                                autoComplete="current-password"
+                                required
+                                className="w-full text-sm px-4 py-3 rounded outline-none border-2 focus:border-blue-500"
+                                placeholder="Password"
                             />
                         </div>
 
+                        {error && <div className="text-red-500 text-sm mt-4">{error}</div>}
+
                         <div className="!mt-10">
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 className="w-full py-2.5 px-4 text-sm rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
                             >
                                 Log in
                             </button>
                         </div>
-                        {error && <div className="text-red-500 text-sm mt-4">{error}</div>}
+
                     </form>
                 </div>
             </div>

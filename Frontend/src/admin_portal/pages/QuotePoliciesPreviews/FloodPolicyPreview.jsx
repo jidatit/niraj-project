@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import Modal from '@mui/material/Modal';
 import { TextField, InputLabel } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { formatDate } from '../../../utils/helperSnippets';
 
 const FloodPolicyPreview = ({ data, open, handleClose }) => {
 
   const [showImages, setShowImages] = useState(false);
-  const { address, closingDate, expiryDate, haveCurrentPolicy, cert_elevation, newPurchase, persons, files } = data;
+  const { address, closingDate, expiryDate, haveCurrentPolicy, cert_elevation, newPurchase, persons, files, mailingAddress } = data;
 
   const renderTextField = (label, value) => (
     <div className='flex w-full flex-col justify-center items-start gap-2'>
@@ -17,6 +18,20 @@ const FloodPolicyPreview = ({ data, open, handleClose }) => {
         label={label}
         variant="outlined"
         value={value}
+        disabled
+      />
+    </div>
+  );
+
+  const renderDateField = (label, value) => (
+    <div className='flex w-full flex-col justify-center items-start gap-2'>
+      <InputLabel htmlFor="exp">{label} <span className='text-xs'>(DD-MM-YYYY)</span></InputLabel>
+      <TextField
+        className='w-full'
+        id="exp"
+        label={label}
+        variant="outlined"
+        value={formatDate(value)}
         disabled
       />
     </div>
@@ -74,21 +89,22 @@ const FloodPolicyPreview = ({ data, open, handleClose }) => {
               <div className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Person {index + 1}</p></div>
               <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
                 {person.name && renderTextField(`Name to be Insured  ${index + 1}`, person.name)}
-                {person.dob && renderTextField(`Date of Birth ${index + 1}`, person.dob)}
+                {person.dob && renderDateField(`Date of Birth ${index + 1}`, person.dob)}
               </div>
             </>
           ))}
 
+          {mailingAddress && renderTextField("Mailing Address", mailingAddress)}
           {address && renderTextField("Address to be insured", address)}
 
           <div className='w-full grid grid-cols-1 mt-[20px] flex-wrap mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
             {cert_elevation && renderTextField("Do you have an elevation certificate?", cert_elevation)}
             {newPurchase && renderTextField("New Purchase?", newPurchase)}
             {newPurchase === "yes" && (
-              renderTextField("Closing Date", closingDate)
+              renderDateField("Closing Date", closingDate)
             )}
             {haveCurrentPolicy === "yes" && (
-              renderTextField("Expiry Date", expiryDate)
+              renderDateField("Expiry Date", expiryDate)
             )}
             {haveCurrentPolicy && renderTextField("Have Current Policy?", haveCurrentPolicy)}
           </div>
@@ -118,7 +134,7 @@ const FloodPolicyPreview = ({ data, open, handleClose }) => {
             </div>
           )}
 
-          <div className='w-full flex mt-[10px] flex-col justify-center items-center'>
+          {data.status.toLowerCase() === "completed" && (<div className='w-full flex mt-[10px] flex-col justify-center items-center'>
             <Link onClick={handleClose} className='w-full' to={`/admin_portal/editor?qsr_type=${data.policyType}&q_id=${data.id}&qu_id=${data.user.id}`} target="_blank">
               <button
                 className="text-white w-full justify-center bg-[#F77F00] outline-none md:text-[15px] font-semibold rounded-lg text-[12px] px-5 py-4 text-center inline-flex items-center shadow-md"
@@ -127,7 +143,7 @@ const FloodPolicyPreview = ({ data, open, handleClose }) => {
                 Send the Customer a Customized Quote According to their Requirements
               </button>
             </Link>
-          </div>
+          </div>)}
 
         </div>
       </Modal>

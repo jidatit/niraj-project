@@ -8,7 +8,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
   const [showImages, setShowImages] = useState(false);
   const { drivers, files, bodily_injury_limit,
     collision_deductible,
-    comprehensive_deductible, garaging_address, property_damage, vehicles, UM } = data;
+    comprehensive_deductible, garaging_address, property_damage, vehicles, UM, mailingAddress } = data;
 
   const renderTextField = (label, value) => (
     <div className='flex w-full flex-col justify-center items-start gap-2'>
@@ -26,7 +26,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
 
   const renderDateField = (label, value) => (
     <div className='flex w-full flex-col justify-center items-start gap-2'>
-      <InputLabel htmlFor="exp">{label}</InputLabel>
+      <InputLabel htmlFor="exp">{label} <span className='text-xs'>(DD-MM-YYYY)</span></InputLabel>
       <TextField
         className='w-full'
         id="exp"
@@ -96,6 +96,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
             </>
           ))}
 
+          {mailingAddress && renderTextField("Mailing Address", mailingAddress)}
           {garaging_address && renderTextField("Garaging Address", garaging_address)}
 
           {vehicles && vehicles.map((vehicle, index) => (
@@ -119,7 +120,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
                 )}
               </div>
               <div className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 flex-wrap gap-5 justify-center items-center'>
-                {renderDateField("Expiration Date",vehicle.expiration_date)}
+                {renderDateField("Expiration Date", vehicle.expiration_date)}
               </div>
             </>
           ))}
@@ -155,7 +156,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
             </div>
           )}
 
-          <div className='w-full flex mt-[10px] flex-col justify-center items-center'>
+          {data.status.toLowerCase() === "completed" && (<div className='w-full flex mt-[10px] flex-col justify-center items-center'>
             <Link onClick={handleClose} className='w-full' to={`/admin_portal/editor?qsr_type=${data.policyType}&q_id=${data.id}&qu_id=${data.user.id}`} target="_blank">
               <button
                 className="text-white w-full justify-center bg-[#F77F00] outline-none md:text-[15px] font-semibold rounded-lg text-[12px] px-5 py-4 text-center inline-flex items-center shadow-md"
@@ -164,7 +165,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
                 Send the Customer a Customized Quote According to their Requirements
               </button>
             </Link>
-          </div>
+          </div>)}
 
         </div>
       </Modal>

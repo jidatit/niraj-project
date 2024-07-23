@@ -16,8 +16,24 @@ import 'react-toastify/dist/ReactToastify.css';
 import tickicon from "../../../assets/dash/tick.png"
 import { useAuth } from '../../../AuthContext';
 import { ClientQuoteReqMail } from '../../../utils/mailingFuncs';
+import { useNavigate } from 'react-router-dom';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 const AutoForm = () => {
+
+    const navigate = useNavigate()
+
+    const redirectFunc = (path) => {
+        setTimeout(() => {
+            navigate(path)
+        }, 2000);
+    }
+
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const { currentUser } = useAuth();
     const [buttonstate, setbuttonstate] = useState("Submit")
     const [fileModal, setfileModal] = useState(false);
@@ -33,14 +49,25 @@ const AutoForm = () => {
 
     const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
+    const checkInspections = () => {
+        if (formData.files.length === 0) {
+            setConfirmDialogOpen(true)
+        } else {
+            addFormToDb()
+        }
+    }
+
     const addFormToDb = async () => {
         try {
+            setConfirmDialogOpen(false)
             setbuttonstate("Submitting...")
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: "pending", status_step: "1" }
                 await addDoc(collection(db, 'auto_quotes'), nofilesformData);
                 ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Auto")
                 toast.success("Application submitted with success.");
+                setbuttonstate("Submit")
+                redirectFunc("/user_portal/view_policy_quote")
                 return;
             }
 
@@ -65,7 +92,8 @@ const AutoForm = () => {
 
             setFormData({
                 policyType: "Auto",
-                drivers: [{ name: '', dob: '', LN: '' }],
+                mailingAddress: '',
+                drivers: [{ name: '', dob: '', LN: '', email: '', phoneNumber: '' }],
                 garaging_address: '',
                 mailing: false,
                 vehicles: [{ vin: false, vin_number: '', v_make: '', v_model: '', v_year: '', current_insurance: '', expiration_date: '', v_garaging_address: '', v_garaging_address_input: '' }],
@@ -83,6 +111,7 @@ const AutoForm = () => {
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")
+            redirectFunc("/user_portal/view_policy_quote")
         } catch (error) {
             console.error("Error submitting application:", error);
             toast.error("Error submitting application.");
@@ -92,7 +121,8 @@ const AutoForm = () => {
 
     const [formData, setFormData] = useState({
         policyType: "Auto",
-        drivers: [{ name: '', dob: '', LN: '' }],
+        mailingAddress: '',
+        drivers: [{ name: '', dob: '', LN: '', email: '', phoneNumber: '' }],
         garaging_address: '',
         mailing: false,
         vehicles: [{ vin: false, vin_number: '', v_make: '', v_model: '', v_year: '', current_insurance: '', expiration_date: '', v_garaging_address: '', v_garaging_address_input: '' }],
@@ -125,7 +155,7 @@ const AutoForm = () => {
     const handleAddDriver = () => {
         setFormData((prevData) => ({
             ...prevData,
-            drivers: [...prevData.drivers, { name: '', dob: '', LN: '' }]
+            drivers: [...prevData.drivers, { name: '', dob: '', LN: '', email: '', phoneNumber: '' }]
         }));
     };
     const handleAddVehicle = () => {
@@ -194,6 +224,26 @@ const AutoForm = () => {
                                 onChange={(e) => handleDriverChange(index, 'LN', e.target.value)}
                             />
                         </div>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`email-${index}`}>Email</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`email-${index}`}
+                                type='email'
+                                value={driver.email}
+                                onChange={(e) => handleDriverChange(index, 'email', e.target.value)}
+                            />
+                        </div>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`phoneNumber-${index}`}>Phone Number</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`phoneNumber-${index}`}
+                                type='phoneNumber'
+                                value={driver.phoneNumber}
+                                onChange={(e) => handleDriverChange(index, 'phoneNumber', e.target.value)}
+                            />
+                        </div>
                     </div>
                 ))}
 
@@ -201,6 +251,14 @@ const AutoForm = () => {
                     <button onClick={handleAddDriver} className='bg-[#F77F00] w-full text-white py-3 font-semibold rounded-md outline-none px-3 md:[80%] lg:w-[40%] flex flex-row justify-center items-center gap-2'>
                         <img src={plusicon} alt="" /> <span className='text-[12px] md:text-[16px]'>Add Another Driver</span>
                     </button>
+                </div>
+
+                <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+                    <div className='flex w-full flex-col justify-center items-start gap-2'>
+                        <InputLabel htmlFor="mailingAddress">Mailing Address</InputLabel>
+                        <TextField value={formData.mailingAddress}
+                            onChange={(e) => handleChange(e)} name="mailingAddress" className='w-full' id="mailingAddress" label="Type your Mailing Address here......" variant="outlined" />
+                    </div>
                 </div>
 
                 <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-start items-center'>
@@ -474,7 +532,7 @@ const AutoForm = () => {
 
 
                 <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-end items-center'>
-                    <button onClick={addFormToDb} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-[22px] text-white'>
+                    <button onClick={checkInspections} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-[22px] text-white'>
                         <span>{buttonstate}</span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
@@ -539,6 +597,34 @@ const AutoForm = () => {
                     </Box>
 
                 </Modal>
+
+                <Dialog
+                    open={confirmDialogOpen}
+                    onClose={() => setConfirmDialogOpen(false)}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">Submit Quote Without Inspections?</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to submit the quote without inspections?
+                        </DialogContentText>
+                        <DialogContentText sx={{
+                            fontSize: "14px",
+                            marginTop: "10px"
+                        }} id="alert-dialog-description">
+                            Note: The request will be submitted but your quote will not begin until the inspections are uploaded.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <button onClick={addFormToDb} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-white'>
+                            Upload Anyway
+                        </button>
+                        <button onClick={() => setConfirmDialogOpen(false)} className='px-5 bg-[#F77F00] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-white'>
+                            Add Inspections
+                        </button>
+                    </DialogActions>
+                </Dialog>
 
             </div>
         </>

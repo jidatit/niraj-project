@@ -178,11 +178,17 @@ const QuotesPage = () => {
         accessorKey: 'user.name',
         header: 'Client',
         size: 100,
-        Cell: ({ cell }) => (
-          <Box >
-            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
-          </Box>
-        )
+        Cell: ({ cell, row }) => {
+          const { persons, drivers } = row.original;
+          const name = (persons && persons.length > 0 && persons[0].name) ||
+            (drivers && drivers.length > 0 && drivers[0].name) ||
+            cell.getValue();
+          return (
+            <Box>
+              {name.length > 100 ? name.slice(0, 100) + '...' : name}
+            </Box>
+          );
+        }
       },
       {
         accessorKey: 'user.phoneNumber',
@@ -253,6 +259,13 @@ const QuotesPage = () => {
               </button>
             </Link>
 
+            <button
+              disabled={cell.row.original.status === "pending" ? false : true}
+              className={`${cell.row.original.status === "pending" ? "bg-[#175ae1]" : "bg-[#ADADAD]"} font-bold rounded-[18px] px-[16px] py-[4px] text-white text-[10px]`}
+            >
+              Send Reminder
+            </button>
+
           </Box>
         ),
       },
@@ -266,11 +279,17 @@ const QuotesPage = () => {
         accessorKey: 'user.name',
         header: 'Client',
         size: 100,
-        Cell: ({ cell }) => (
-          <Box >
-            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
-          </Box>
-        )
+        Cell: ({ cell, row }) => {
+          const { persons, drivers } = row.original;
+          const name = (persons && persons.length > 0 && persons[0].name) ||
+            (drivers && drivers.length > 0 && drivers[0].name) ||
+            cell.getValue();
+          return (
+            <Box>
+              {name.length > 100 ? name.slice(0, 100) + '...' : name}
+            </Box>
+          );
+        }
       },
       {
         accessorKey: 'user.phoneNumber',

@@ -61,6 +61,8 @@ const Login = () => {
                     required
                 />
 
+                {error && <div className="text-red-500 text-sm mt-4">{error}</div>}
+
                 <div className="w-full flex flex-col items-end">
                     <a href="#" className="md:text-[15px] text-[12px] hover:underline">Forgot password?</a>
                 </div>
@@ -85,7 +87,7 @@ const Login = () => {
                         </button>
                     </Link>
                 </div>
-                {error && <div className="text-red-500 text-sm mt-4">{error}</div>}
+
             </form>
         </div>
     );

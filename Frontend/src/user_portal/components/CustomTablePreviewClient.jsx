@@ -9,8 +9,10 @@ import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getType } from "../../utils/helperSnippets"
 import { useAuth } from "../../AuthContext"
 import { ClientQuoteBindMail } from '../../utils/mailingFuncs';
+import { useNavigate } from 'react-router-dom';
 
 const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
+    const navigate = useNavigate()
     const { currentUser } = useAuth()
     const [tableCols1, setTableCols1] = useState(null);
 
@@ -202,6 +204,9 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
             onClose()
             ClientQuoteBindMail(currentUser.data?.name, currentUser.data?.email, qsr_type)
             toast.success("Quote bind request with success!")
+            setTimeout(() => {
+                navigate("/user_portal/view_policy_quote")
+            }, 2000);
         } catch (error) {
             toast.error("Error Requesting Bind Quote!")
         }

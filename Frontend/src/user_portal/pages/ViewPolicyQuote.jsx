@@ -56,6 +56,16 @@ const ViewPolicyQuote = () => {
                 )
             },
             {
+                accessorKey: 'status',
+                header: 'Inspection Status',
+                size: 100,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+                    </Box>
+                )
+            },
+            {
                 accessorKey: 'user.mailingAddress',
                 header: 'Quote Address',
                 size: 100,

@@ -16,8 +16,23 @@ import 'react-toastify/dist/ReactToastify.css';
 import tickicon from "../../../assets/dash/tick.png"
 import { useAuth } from '../../../AuthContext';
 import { ClientQuoteReqMail } from '../../../utils/mailingFuncs';
+import { useNavigate } from 'react-router-dom';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 const HomeForm = () => {
+    const navigate = useNavigate()
+
+    const redirectFunc = (path) => {
+        setTimeout(() => {
+            navigate(path)
+        }, 2000);
+    }
+
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const { currentUser } = useAuth();
     const [formData, setFormData] = useState({
         policyType: "Home",
@@ -28,7 +43,8 @@ const HomeForm = () => {
         closingDate: "",
         currentInsurance: "",
         expiryDate: "",
-        persons: [{ name: '', dob: '' }],
+        mailingAddress: '',
+        persons: [{ name: '', dob: '', email: '', phoneNumber: '' }],
         files: [],
         user: { ...currentUser.data, id: currentUser.uid }
     });
@@ -47,14 +63,26 @@ const HomeForm = () => {
 
     const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
+    const checkInspections = () => {
+        if (formData.files.length === 0) {
+            setConfirmDialogOpen(true)
+        }
+        else {
+            addFormToDb()
+        }
+    }
+
     const addFormToDb = async () => {
         try {
+            setConfirmDialogOpen(false)
             setbuttonstate("Submitting...")
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: "pending", status_step: "1" }
                 await addDoc(collection(db, 'home_quotes'), nofilesformData);
                 ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Home")
                 toast.success("Application submitted with success.");
+                setbuttonstate("Submit")
+                redirectFunc("/user_portal/view_policy_quote")
                 return;
             }
 
@@ -86,7 +114,8 @@ const HomeForm = () => {
                 closingDate: "",
                 currentInsurance: "",
                 expiryDate: "",
-                persons: [{ name: '', dob: '' }],
+                mailingAddress: '',
+                persons: [{ name: '', dob: '', email: '', phoneNumber: '' }],
                 files: [],
                 user: { ...currentUser.data, id: currentUser.uid }
             });
@@ -96,6 +125,7 @@ const HomeForm = () => {
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")
+            redirectFunc("/user_portal/view_policy_quote")
         } catch (error) {
             console.error("Error submitting application:", error);
             toast.error("Error submitting application.");
@@ -124,7 +154,7 @@ const HomeForm = () => {
     const handleAddPerson = () => {
         setFormData((prevData) => ({
             ...prevData,
-            persons: [...prevData.persons, { name: '', dob: '' }]
+            persons: [...prevData.persons, { name: '', dob: '', email: '', phoneNumber: '' }]
         }));
     };
 
@@ -168,6 +198,26 @@ const HomeForm = () => {
                                 onChange={(e) => handlePersonChange(index, 'dob', e.target.value)}
                             />
                         </div>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`email-${index}`}>Email</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`email-${index}`}
+                                type='email'
+                                value={person.email}
+                                onChange={(e) => handlePersonChange(index, 'email', e.target.value)}
+                            />
+                        </div>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`phoneNumber-${index}`}>Phone Number</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`phoneNumber-${index}`}
+                                type='phoneNumber'
+                                value={person.phoneNumber}
+                                onChange={(e) => handlePersonChange(index, 'phoneNumber', e.target.value)}
+                            />
+                        </div>
                     </div>
                 ))}
 
@@ -176,6 +226,14 @@ const HomeForm = () => {
                     <button onClick={handleAddPerson} className='bg-[#F77F00] w-full text-white py-3 font-semibold rounded-md outline-none px-3 md:[80%] lg:w-[40%] flex flex-row justify-center items-center gap-2'>
                         <img src={plusicon} alt="" /> <span className='text-[12px] md:text-[16px]'>Add Another Person</span>
                     </button>
+                </div>
+
+                <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+                    <div className='flex w-full flex-col justify-center items-start gap-2'>
+                        <InputLabel htmlFor="mailingAddress">Mailing Address</InputLabel>
+                        <TextField value={formData.mailingAddress}
+                            onChange={(e) => handleChange(e)} name="mailingAddress" className='w-full' id="mailingAddress" label="Type your Mailing Address here......" variant="outlined" />
+                    </div>
                 </div>
 
                 <div className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
@@ -288,7 +346,7 @@ const HomeForm = () => {
                     </div>)}
 
                 <div className='w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-end items-center'>
-                    <button onClick={addFormToDb} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-[22px] text-white'>
+                    <button onClick={checkInspections} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-[22px] text-white'>
                         <span>{buttonstate}</span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
@@ -353,6 +411,36 @@ const HomeForm = () => {
                     </Box>
 
                 </Modal>
+
+
+                <Dialog
+                    open={confirmDialogOpen}
+                    onClose={() => setConfirmDialogOpen(false)}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">Submit Quote Without Inspections?</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to submit the quote without inspections?
+                        </DialogContentText>
+                        <DialogContentText sx={{
+                            fontSize: "14px",
+                            marginTop: "10px"
+                        }} id="alert-dialog-description">
+                            Note: The request will be submitted but your quote will not begin until the inspections are uploaded.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <button onClick={addFormToDb} className='px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-white'>
+                            Upload Anyway
+                        </button>
+                        <button onClick={() => setConfirmDialogOpen(false)} className='px-5 bg-[#F77F00] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-white'>
+                            Add Inspections
+                        </button>
+                    </DialogActions>
+                </Dialog>
+
 
             </div>
         </>
