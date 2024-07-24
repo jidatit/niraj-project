@@ -1,3 +1,5 @@
+import { formatDistanceToNow } from 'date-fns';
+
 export const ModalCenteringstyle = {
   position: 'absolute',
   top: '50%',
@@ -70,3 +72,7 @@ export function formatKey(key) {
   words = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
   return words.join(' ');
 }
+
+export function formatTimeSince(date){
+  return formatDistanceToNow(new Date(date), { addSuffix: true });
+};

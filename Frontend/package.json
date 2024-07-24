@@ -21,6 +21,7 @@
     "axios": "^1.7.2",
     "chart.js": "^4.4.2",
     "concurrently": "^8.2.2",
+    "date-fns": "^3.6.0",
     "firebase": "^10.10.0",
     "material-react-table": "^2.12.1",
     "react": "^18.2.0",

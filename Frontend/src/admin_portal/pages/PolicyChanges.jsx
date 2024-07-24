@@ -255,7 +255,6 @@ export const ViewPolicyModal = ({ openModal, handleCloseModal, selectedRowData }
                                 <Typography variant="body1"><strong>QID:</strong> {selectedRowData.qid}</Typography>
                                 <Typography variant="body1"><strong>QSR Type:</strong> {selectedRowData.qsr_type}</Typography>
                                 <Typography variant="body1"><strong>Responsible Payment:</strong> {selectedRowData.responsible_payment}</Typography>
-                                {console.log(selectedRowData)}
                             </Grid>
                         </Grid>
                         <Typography sx={{ marginTop: "10px" }} variant="h5" id="modal-modal-title" gutterBottom>

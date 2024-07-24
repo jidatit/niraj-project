@@ -19,6 +19,7 @@ import DeliveredQuotePreviewAdmin from '../components/DeliveredQuotePreviewAdmin
 import BinderReqPreview from '../components/BinderReqPreview';
 import { getCurrentDate, getType } from '../../utils/helperSnippets';
 import { AdminBindConfirmQuoteMail } from '../../utils/mailingFuncs';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
@@ -172,6 +173,28 @@ const QuotesPage = () => {
     getAllReqQuoteTypes();
   }, []);
 
+  const [reminderLoader, setReminderLoader] = useState({});
+
+  const sendReminder = async (req_qid, policyType, user) => {
+    try {
+      setReminderLoader(prevState => ({ ...prevState, [req_qid]: true }));
+      const docRef = await addDoc(collection(db, "reminders"), {
+        req_qid,
+        policyType,
+        user,
+        reminderCreatedAt: new Date().toISOString(),
+        fulfilled: false,
+      });
+      if (docRef.id) {
+        toast.success("Reminder sent!");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setReminderLoader(prevState => ({ ...prevState, [req_qid]: false }));
+    }
+  };
+
   const req_columns = useMemo(
     () => [
       {
@@ -188,37 +211,37 @@ const QuotesPage = () => {
               {name.length > 100 ? name.slice(0, 100) + '...' : name}
             </Box>
           );
-        }
+        },
       },
       {
         accessorKey: 'user.phoneNumber',
         header: 'Client Contact no.',
         size: 200,
         Cell: ({ cell }) => (
-          <Box >
+          <Box>
             {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
           </Box>
-        )
+        ),
       },
       {
         accessorKey: 'user.email',
         header: 'Client Email',
         size: 100,
         Cell: ({ cell }) => (
-          <Box >
+          <Box>
             {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
           </Box>
-        )
+        ),
       },
       {
         accessorKey: 'policyType',
         header: 'Policy Type',
         size: 100,
         Cell: ({ cell }) => (
-          <Box >
+          <Box>
             {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
           </Box>
-        )
+        ),
       },
       {
         accessorKey: 'status',
@@ -228,17 +251,17 @@ const QuotesPage = () => {
           <Box display="flex" justifyContent="center" alignItems="center" gap="5px">
             {cell.getValue() === "pending" ? (
               <>
-                <div className='h-[5px] w-[5px] bg-[#ff0000] rounded-full'></div>
-                <p className='text-center text-[12px]'>Pending</p>
+                <div className="h-[5px] w-[5px] bg-[#ff0000] rounded-full"></div>
+                <p className="text-center text-[12px]">Pending</p>
               </>
             ) : (
               <>
-                <div className='h-[5px] w-[5px] bg-[#00C32B] rounded-full'></div>
-                <p className='text-center text-[12px]'>Completed</p>
+                <div className="h-[5px] w-[5px] bg-[#00C32B] rounded-full"></div>
+                <p className="text-center text-[12px]">Completed</p>
               </>
             )}
           </Box>
-        )
+        ),
       },
       {
         header: 'Actions',
@@ -246,8 +269,8 @@ const QuotesPage = () => {
         Cell: ({ cell }) => (
           <Box display="flex" alignItems="center" gap="18px">
             <button
-              onClick={() => { handleViewPolicy(cell.row.original, cell.row.original.policyType) }}
-              className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
+              onClick={() => { handleViewPolicy(cell.row.original, cell.row.original.policyType); }}
+              className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]">
               View Form Details
             </button>
 
@@ -260,17 +283,24 @@ const QuotesPage = () => {
             </Link>
 
             <button
-              disabled={cell.row.original.status === "pending" ? false : true}
-              className={`${cell.row.original.status === "pending" ? "bg-[#175ae1]" : "bg-[#ADADAD]"} font-bold rounded-[18px] px-[16px] py-[4px] text-white text-[10px]`}
+              onClick={() => sendReminder(cell.row.original.id, cell.row.original.policyType, cell.row.original.user)}
+              disabled={reminderLoader[cell.row.original.id] || cell.row.original.status !== "pending"}
+              className={`${cell.row.original.status === "pending" ? "bg-[#175ae1]" : "bg-[#ADADAD]"} font-bold rounded-[18px] px-[16px] py-[4px] text-white text-[10px] flex gap-1 items-center justify-center`}
             >
-              Send Reminder
+              {reminderLoader[cell.row.original.id] ? (
+                <>
+                  <span>Sending</span>
+                  <CircularProgress size={20} color="inherit" />
+                </>
+              ) : (
+                "Send Reminder"
+              )}
             </button>
-
           </Box>
         ),
       },
     ],
-    [],
+    [reminderLoader]
   );
 
   const del_columns = useMemo(

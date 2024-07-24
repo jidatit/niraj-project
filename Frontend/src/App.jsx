@@ -25,6 +25,7 @@ import PolicyQuoteProgess from './user_portal/pages/PolicyQuoteProgess'
 import PolicyQuoteResults from './user_portal/pages/PolicyQuoteResults'
 import PolicyChanges from './admin_portal/pages/PolicyChanges'
 import ReferFriend from './user_portal/pages/ReferFriend'
+import UploadInspections from './user_portal/pages/UploadInspections'
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
             <Route path='refer_friend' element={<ReferFriend />} />
             <Route path='pq_progress' element={<PolicyQuoteProgess />} />
             <Route path='pq_results' element={<PolicyQuoteResults />} />
+            <Route path='upload_inspections' element={<UploadInspections />} />
             <Route path='logout' element={<Logout />} />
           </Route>
 
