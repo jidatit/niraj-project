@@ -62,10 +62,6 @@ const LoginReferral = () => {
 
                 {error && <div className="text-red-500 text-sm mt-4">{error}</div>}
 
-                <div className="w-full flex flex-col items-end">
-                    <a href="#" className="md:text-[15px] text-[12px] hover:underline">Forgot password?</a>
-                </div>
-
                 <button
                     type="submit"
                     className="bg-[#003049] w-full text-[20px] font-bold text-white px-4 py-2 rounded-md"
