@@ -46,7 +46,7 @@ const LiabilityForm = () => {
     const addFormToDb = async () => {
         try {
             setbuttonstate("Submitting...")
-            await addDoc(collection(db, 'liability_quotes'), { ...formData, status: "completed", status_step: "1" });
+            await addDoc(collection(db, 'liability_quotes'), { ...formData, status: "completed", status_step: "1", inuser: formData.persons[0] });
 
             setFormData({
                 policyType: "Liability",

@@ -11,7 +11,7 @@ import { useAuth } from "../../AuthContext"
 import { ClientQuoteBindMail } from '../../utils/mailingFuncs';
 import { useNavigate } from 'react-router-dom';
 
-const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
+const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
     const navigate = useNavigate()
     const { currentUser } = useAuth()
     const [tableCols1, setTableCols1] = useState(null);
@@ -199,7 +199,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
 
     const handleBindQuote = async () => {
         try {
-            await addDoc(collection(db, 'bind_req_quotes'), { ...formData, qid, qsr_type, user: { ...currentUser?.data }, bound_status: "pending" });
+            await addDoc(collection(db, 'bind_req_quotes'), { ...formData, qid, qsr_type, user: { ...user }, bound_status: "pending" });
             await updateStatusStep(qsr_type, qid)
             onClose()
             ClientQuoteBindMail(currentUser.data?.name, currentUser.data?.email, qsr_type)

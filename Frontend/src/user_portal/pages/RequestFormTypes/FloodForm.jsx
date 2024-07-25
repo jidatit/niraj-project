@@ -63,7 +63,7 @@ const FloodForm = () => {
             setbuttonstate("Submitting...")
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: "pending", status_step: "1" }
-                await addDoc(collection(db, 'flood_quotes'), nofilesformData);
+                await addDoc(collection(db, 'flood_quotes'), { ...nofilesformData, inuser: nofilesformData.persons[0] });
                 ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Flood")
                 toast.success("Application submitted with success.");
                 setbuttonstate("Submit")
@@ -88,7 +88,7 @@ const FloodForm = () => {
             };
 
             let statusformData = { ...formDataWithUrls, status: "completed", status_step: "1" }
-            await addDoc(collection(db, 'flood_quotes'), statusformData);
+            await addDoc(collection(db, 'flood_quotes'), { ...statusformData, inuser: formDataWithUrls.persons[0] });
 
             setFormData({
                 policyType: "Flood",

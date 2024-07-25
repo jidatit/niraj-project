@@ -61,7 +61,7 @@ const DeliveredQuotePreviewClient = ({ data }) => {
                 </div>)}
 
                 <div className='w-full flex flex-col justify-center items-center'>
-                    {data && data.qsr_type && (<CustomTablePreviewClient qid={data.q_id} qsr_type={data.qsr_type} table1_data={data.tablesData.table_1} table2_data={data.tablesData.table_2} />)}
+                    {data && data.qsr_type && (<CustomTablePreviewClient qid={data.q_id} qsr_type={data.qsr_type} table1_data={data.tablesData.table_1} table2_data={data.tablesData.table_2} user={data.user} />)}
                 </div>
 
             </div>

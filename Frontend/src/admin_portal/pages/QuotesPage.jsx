@@ -200,23 +200,17 @@ const QuotesPage = () => {
   const req_columns = useMemo(
     () => [
       {
-        accessorKey: 'user.name',
+        accessorKey: 'inuser.name',
         header: 'Client',
         size: 100,
-        Cell: ({ cell, row }) => {
-          const { persons, drivers } = row.original;
-          const name = (persons && persons.length > 0 && persons[0].name) ||
-            (drivers && drivers.length > 0 && drivers[0].name) ||
-            cell.getValue();
-          return (
-            <Box>
-              {name.length > 100 ? name.slice(0, 100) + '...' : name}
-            </Box>
-          );
-        },
+        Cell: ({ cell }) => (
+          <Box>
+            {cell.getValue().length > 100 ? cell.getValue().slice(0, 100) + '...' : cell.getValue()}
+          </Box>
+        ),
       },
       {
-        accessorKey: 'user.phoneNumber',
+        accessorKey: 'inuser.phoneNumber',
         header: 'Client Contact no.',
         size: 200,
         Cell: ({ cell }) => (
@@ -226,7 +220,7 @@ const QuotesPage = () => {
         ),
       },
       {
-        accessorKey: 'user.email',
+        accessorKey: 'inuser.email',
         header: 'Client Email',
         size: 100,
         Cell: ({ cell }) => (
