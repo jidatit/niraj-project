@@ -10,7 +10,7 @@ import { styled } from '@mui/material/styles';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { formatTimeSince } from '../../utils/helperSnippets';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { getDocs, collection, where, query } from 'firebase/firestore';
+import { getDocs, collection, where, query,onSnapshot } from 'firebase/firestore';
 import { db } from '../../../db';
 
 const StyledMenu = styled((props) => (
@@ -25,7 +25,7 @@ const StyledMenu = styled((props) => (
     overflowY: "auto",
     top: '60px',
     left: '700px',
-    width: '30%',
+    // width: '30%',
   },
 }));
 
@@ -47,37 +47,32 @@ const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
 function StickyTitle() {
 
   const [Reminders, setReminders] = useState([])
-
-  const getAllReminders = async (email) => {
-    try {
-      const remindersRef = collection(db, "reminders");
-      const q = query(remindersRef,
-        where("user.email", "==", email),
-        where("fulfilled", "==", false));
-      const querySnapshot = await getDocs(q);
-
-      let reminders = [];
-      querySnapshot.forEach((doc) => {
-        const reminder = {
-          id: doc.id,
-          ...doc.data()
-        };
-        reminders.push(reminder);
-      });
-      setReminders(reminders);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const { currentUser } = useAuth()
+  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     if (currentUser) {
-      getAllReminders(currentUser.email);
-    }
-  }, []);
+      const remindersRef = collection(db, "reminders");
+      const q = query(remindersRef,
+        where("user.email", "==", currentUser.email),
+        where("fulfilled", "==", false));
 
-  const { currentUser } = useAuth()
-  const [anchorEl, setAnchorEl] = useState(null);
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        let reminders = [];
+        querySnapshot.forEach((doc) => {
+          const reminder = {
+            id: doc.id,
+            ...doc.data()
+          };
+          reminders.push(reminder);
+        });
+        setReminders(reminders);
+      }, (error) => {
+        console.log(error);
+      });
+      return () => unsubscribe();
+    }
+  }, [currentUser]);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -135,19 +130,19 @@ function StickyTitle() {
                 {Reminders.length > 0 && Reminders.map((reminder, index) => (
                   <Link key={index} className='w-full' to={`/user_portal/upload_inspections/?type=${reminder.policyType}&id=${reminder.req_qid}&r_id=${reminder.id}`}>
                     <StyledMenuItem sx={{ display: 'flex', flexDirection: "column", justifyContent: "start", gap: "10px" }} key={index} onClick={handleMenuClose}>
-                      <div className='w-full flex flex-row gap-1 justify-end items-center'>
-                        <AccessTimeIcon fontSize='15px' />
-                        <p className='text-[13px]'>{formatTimeSince(reminder.reminderCreatedAt)}</p>
-                      </div>
                       <div className='flex w-full flex-row justify-start items-center gap-[10px] relative'>
                         <FileUploadIcon />
                         Reminder for inspections upload
+                      </div>
+                      <div className='w-full flex flex-row gap-1 justify-end items-center'>
+                        <AccessTimeIcon fontSize='15px' />
+                        <p className='text-[12px]'>{formatTimeSince(reminder.reminderCreatedAt)}</p>
                       </div>
                     </StyledMenuItem>
                   </Link>
                 ))}
                 {Reminders.length === 0 && (
-                  <MenuItem>No New Notifications.</MenuItem>
+                  <MenuItem onClick={handleMenuClose}>No New Notifications.</MenuItem>
                 )}
               </StyledMenu>
             </div>

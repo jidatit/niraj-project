@@ -146,7 +146,7 @@ const SignupReferral = () => {
                         value={occupations.find(o => o.value === userData.occupation) || null}
                         onChange={handleOccupationChange}
                         isClearable={true}
-                        className='w-full md:w-[60%]'
+                        className='w-full'
                         placeholder={!isFocus ? "Occupation" : "Add New Occupation"}
                         onFocus={() => setIsFocus(true)}
                         onBlur={() => setIsFocus(false)}

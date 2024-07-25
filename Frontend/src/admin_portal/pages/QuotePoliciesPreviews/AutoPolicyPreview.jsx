@@ -87,11 +87,13 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
 
           {drivers && drivers.map((driver, index) => (
             <>
-              <div className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Driver {index + 1}</p></div>
+              <div key={index + 1} className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Driver {index + 1}</p></div>
               <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 flex-wrap gap-5 justify-center items-center'>
                 {driver.name && renderTextField(`Name to be Insured  ${index + 1}`, driver.name)}
                 {driver.dob && renderDateField(`Date of Birth ${index + 1}`, driver.dob)}
                 {driver.LN && renderTextField(`License Number ${index + 1}`, driver.LN)}
+                {driver.email && renderTextField(`Email ${index + 1}`, driver.email)}
+                {driver.phoneNumber && renderTextField(`Phone Number ${index + 1}`, driver.phoneNumber)}
               </div>
             </>
           ))}
@@ -101,7 +103,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
 
           {vehicles && vehicles.map((vehicle, index) => (
             <>
-              <div className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Vehicle {index + 1}</p></div>
+              <div key={index + 1} className='w-full flex flex-col justify-center items-start'><p className='font-bold text-[17px]'>Vehicle {index + 1}</p></div>
               <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 flex-wrap gap-5 justify-center items-center'>
                 {vehicle.vin === 'no' && (
                   <>

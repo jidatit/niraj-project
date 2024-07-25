@@ -65,7 +65,7 @@ const Navbar = () => {
                                 <Link to="/resource-center"> <p className="block py-2 px-2 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 text-black">Resource Center</p></Link>
                             </li>
                             <li>
-                                <Link> <p className="block py-2 px-2 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 text-black">Testimonials</p></Link>
+                                <Link to="/#testimonials"> <p className="block py-2 px-2 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 text-black">Testimonials</p></Link>
                             </li>
                             {loaderB ? (
                                 <LoaderButton />

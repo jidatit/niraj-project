@@ -8,7 +8,7 @@ import tickicon from "../../assets/dash/quotes/tick.png"
 import peopleicon from "../../assets/dash/quotes/people.png"
 import historyicon from "../../assets/dash/quotes/history.png"
 import { MaterialReactTable } from 'material-react-table';
-import { collection, getDocs, addDoc, getDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, getDoc, updateDoc, doc, where, query, deleteDoc } from 'firebase/firestore';
 import { db } from '../../../db';
 import HomePolicyPreview from "./QuotePoliciesPreviews/HomePolicyPreview"
 import AutoPolicyPreview from "./QuotePoliciesPreviews/AutoPolicyPreview"
@@ -18,7 +18,7 @@ import { Link } from 'react-router-dom';
 import DeliveredQuotePreviewAdmin from '../components/DeliveredQuotePreviewAdmin';
 import BinderReqPreview from '../components/BinderReqPreview';
 import { getCurrentDate, getType } from '../../utils/helperSnippets';
-import { AdminBindConfirmQuoteMail } from '../../utils/mailingFuncs';
+import { AdminBindConfirmQuoteMail, AdminSendReminder } from '../../utils/mailingFuncs';
 import CircularProgress from '@mui/material/CircularProgress';
 
 const QuotesPage = () => {
@@ -185,8 +185,10 @@ const QuotesPage = () => {
         reminderCreatedAt: new Date().toISOString(),
         fulfilled: false,
       });
+      AdminSendReminder(user.name, user.email, policyType)
       if (docRef.id) {
         toast.success("Reminder sent!");
+        getAllReqQuoteTypes()
       }
     } catch (error) {
       console.log(error);
@@ -368,17 +370,22 @@ const QuotesPage = () => {
     [],
   );
 
+  const [boundLoader, setBoundLoader] = useState({});
+
   const handleBoundPolicy = async (data, rowdocid) => {
     try {
+      setBoundLoader(prevState => ({ ...prevState, [data.id]: true }));
       await addDoc(collection(db, 'bound_policies'), { ...data, bound_status: "bounded", bound_date: getCurrentDate("dash") });  // add new record
-      await updateStatusStep(data.qsr_type, data.qid)   // base record status update for tracking (numeric)
-      await updateBoundStatus(rowdocid)  // update bound_status in bind_req_quotes
+      await updateStatusStep(data.qsr_type, data.qid)
+      await updateBoundStatus(rowdocid)
       AdminBindConfirmQuoteMail(data.user?.name, data.user?.email, data.qsr_type)
       toast.success('Policy bounded successfully!');
       getAllBinderRequestedQuotes()
     } catch (error) {
       toast.error('Error bounding policy!');
       console.log(error)
+    } finally {
+      setBoundLoader(prevState => ({ ...prevState, [data.id]: false }));
     }
   }
 
@@ -470,15 +477,23 @@ const QuotesPage = () => {
               View Binder
             </button>
             <button
+              disabled={boundLoader[cell.row.original.id]}
               onClick={() => handleBoundPolicy(cell.row.original, cell.row.original.id)}
-              className='bg-[#17A600] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
-              Bound Policy
+              className='bg-[#17A600] rounded-[18px] flex flex-row justify-center items-center gap-1 px-[16px] py-[4px] text-white text-[10px]'>
+              {boundLoader[cell.row.original.id] ? (
+                <>
+                  <span>Binding</span>
+                  <CircularProgress size={20} color="inherit" />
+                </>
+              ) : (
+                "Bound Policy"
+              )}
             </button>
           </Box>
         ),
       },
     ],
-    [],
+    [boundLoader],
   );
 
   const policy_bound_columns = useMemo(
@@ -539,6 +554,28 @@ const QuotesPage = () => {
     ],
     [],
   );
+
+  const [deleteExpiredLoader, setdeleteExpiredLoader] = useState({})
+
+  const deleteExpiredPolicy = async (id) => {
+    try {
+      setdeleteExpiredLoader(prevState => ({ ...prevState, [id]: true }));
+      const policiesCollectionRef = collection(db, "bound_policies");
+      const q = query(policiesCollectionRef, where("id", "==", id));
+
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        const policyDocRef = doc.ref;
+        await deleteDoc(policyDocRef);
+        toast.success(`Expired Policy deleted successfully.`);
+        getAllPolicyBoundData();
+      });
+    } catch (error) {
+      console.error("Error deleting documents: ", error);
+    } finally {
+      setdeleteExpiredLoader(prevState => ({ ...prevState, [id]: false }));
+    }
+  }
 
   const policy_history_columns = useMemo(
     () => [
@@ -601,11 +638,24 @@ const QuotesPage = () => {
               className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]'>
               View Policy
             </button>
+            <button
+              onClick={() => deleteExpiredPolicy(cell.row.original.id)}
+              disabled={deleteExpiredLoader[cell.row.original.id]}
+              className='bg-[#db1e1e] rounded-[18px] flex flex-row justify-center items-center gap-1 px-[16px] py-[4px] text-white text-[10px]'>
+              {deleteExpiredLoader[cell.row.original.id] ? (
+                <>
+                  <span>Deleting</span>
+                  <CircularProgress size={20} color="inherit" />
+                </>
+              ) : (
+                "Delete Policy"
+              )}
+            </button>
           </Box>
         ),
       },
     ],
-    [],
+    [deleteExpiredLoader],
   );
 
   return (

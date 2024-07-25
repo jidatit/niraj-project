@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { CircularProgress } from '@mui/material';
 import { db, storage } from '../../../db';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getType } from '../../utils/helperSnippets';
 import { toast, ToastContainer } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Container, Grid, Button, Typography, IconButton } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import 'react-toastify/dist/ReactToastify.css';
@@ -28,7 +28,7 @@ const UploadInspections = () => {
                     const docRef = doc(db, collection_ref, id);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
-                        setDocumentData(docSnap.data());
+                        setDocumentData({ id: docSnap.id, ...docSnap.data() });
                     } else {
                         console.log("No such document!");
                     }
@@ -39,7 +39,6 @@ const UploadInspections = () => {
                 setLoading(false);
             }
         };
-
         fetchDocument();
     }, []);
 
@@ -78,11 +77,16 @@ const UploadInspections = () => {
                     status: "completed"
                 });
 
-                const reminderDocRef = doc(db, "reminders", reminder_id)
+                const remindersCollectionRef = collection(db, "reminders");
+                const q = query(remindersCollectionRef, where("req_qid", "==", id));
 
-                await updateDoc(reminderDocRef, {
-                    fulfilled: true
-                })
+                const querySnapshot = await getDocs(q);
+                querySnapshot.forEach(async (doc) => {
+                    const reminderDocRef = doc.ref;
+                    await updateDoc(reminderDocRef, {
+                        fulfilled: true
+                    });
+                });
 
                 toast.success("Inspections uploaded.")
                 setTimeout(() => {
@@ -118,64 +122,81 @@ const UploadInspections = () => {
             <Container className="min-h-screen flex flex-col justify-center items-center">
                 <ToastContainer />
                 {loading ? (
-                    <CircularProgress color="primary" />
+                    <div className='flex flex-col justify-center items-center w-full'>
+                        <CircularProgress color="primary" />
+                    </div>
+                ) : documentData?.files.length === 0 ? (
+                    <>
+                        <div className='w-full flex flex-col justify-center p-4 items-start shadow-lg rounded-lg'>
+                            <Typography variant="h6">
+                                <span className='font-semibold'>Note: Your Requested Quote for type: </span>{documentData.policyType} <span className='font-semibold'>with Id: </span> {documentData.id} cannot be processed further until you have submit required Inspections with it.
+                            </Typography>
+                            <Typography sx={{ marginTop: "20px" }} variant="h6">
+                                <span className='font-semibold'>Upload Files</span>
+                            </Typography>
+
+                            <input
+                                type="file"
+                                multiple
+                                onChange={handleFileChange}
+                                style={{ display: 'none' }}
+                                id="file-upload"
+                            />
+                            <label htmlFor="file-upload">
+                                <Button sx={{ marginTop: "20px", marginBottom: "20px" }} variant="contained" color="primary" component="span">
+                                    Select Files
+                                </Button>
+                            </label>
+
+                            <Grid container spacing={2} className="mt-5 mb-5">
+                                {files.length > 0 && (
+                                    <Grid item xs={12}>
+                                        <Grid container spacing={2}>
+                                            {files.map((file, index) => (
+                                                <Grid item xs={4} sm={3} md={2} key={index}>
+                                                    <div className="flex flex-col justify-center items-center">
+                                                        <p>{file.name}</p>
+                                                        {renderFilePreview(file)}
+                                                        <IconButton
+                                                            color="secondary"
+                                                            onClick={() => handleRemoveFile(index)}
+                                                        >
+                                                            <Delete />
+                                                        </IconButton>
+                                                    </div>
+                                                </Grid>
+                                            ))}
+                                        </Grid>
+                                    </Grid>
+                                )}
+                            </Grid>
+
+                            {files.length > 0 && (
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleSubmit}
+                                    className="mt-4"
+                                    disabled={files.length === 0 || uploading}
+                                >
+                                    {uploading ? (
+                                        <CircularProgress size={24} />
+                                    ) : (
+                                        'Submit'
+                                    )}
+                                </Button>
+                            )}
+                        </div>
+
+                    </>
                 ) : (
                     <>
-                        <Typography variant="h4" gutterBottom>
-                            Upload Files
-                        </Typography>
-
-                        <input
-                            type="file"
-                            multiple
-                            onChange={handleFileChange}
-                            style={{ display: 'none' }}
-                            id="file-upload"
-                        />
-                        <label htmlFor="file-upload">
-                            <Button sx={{ marginBottom: "20px" }} variant="contained" color="primary" component="span">
-                                Select Files
-                            </Button>
-                        </label>
-
-                        <Grid container spacing={2} className="mt-5 mb-5">
-                            {files.length > 0 && (
-                                <Grid item xs={12}>
-                                    <Grid container spacing={2}>
-                                        {files.map((file, index) => (
-                                            <Grid item xs={4} sm={3} md={2} key={index}>
-                                                <div className="flex flex-col justify-center items-center">
-                                                    <p>{file.name}</p>
-                                                    {renderFilePreview(file)}
-                                                    <IconButton
-                                                        color="secondary"
-                                                        onClick={() => handleRemoveFile(index)}
-                                                    >
-                                                        <Delete />
-                                                    </IconButton>
-                                                </div>
-                                            </Grid>
-                                        ))}
-                                    </Grid>
-                                </Grid>
-                            )}
-                        </Grid>
-
-                        {files.length > 0 && (
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleSubmit}
-                                className="mt-4"
-                                disabled={files.length === 0 || uploading}
-                            >
-                                {uploading ? (
-                                    <CircularProgress size={24} />
-                                ) : (
-                                    'Submit'
-                                )}
-                            </Button>
-                        )}
+                        <div className='w-full flex-col flex justify-center items-center'>
+                            <p className='font-semibold'>Inspections already uploaded.</p>
+                            <Link to={"/user_portal"}>
+                                <p className='underline'>Click to go back</p>
+                            </Link>
+                        </div>
                     </>
                 )}
             </Container>

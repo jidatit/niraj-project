@@ -26,6 +26,7 @@ import PolicyQuoteResults from './user_portal/pages/PolicyQuoteResults'
 import PolicyChanges from './admin_portal/pages/PolicyChanges'
 import ReferFriend from './user_portal/pages/ReferFriend'
 import UploadInspections from './user_portal/pages/UploadInspections'
+import ScrollToHashElement from './ScrollToSection'
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
           <Route path='*' element={<NotFound />} />
 
         </Routes>
+        <ScrollToHashElement />
       </Router>
     </>
   )

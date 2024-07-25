@@ -66,6 +66,8 @@ const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
               <div key={index} className='w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
                 {person.name && renderTextField(`Name to be Insured  ${index + 1}`, person.name)}
                 {person.dob && renderDateField(`Date of Birth ${index + 1}`, person.dob)}
+                {person.email && renderTextField(`Email ${index + 1}`, person.email)}
+                {person.phoneNumber && renderTextField(`Phone Number ${index + 1}`, person.phoneNumber)}
               </div>
             </>
           ))}

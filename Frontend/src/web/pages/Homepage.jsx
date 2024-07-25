@@ -119,9 +119,9 @@ const Homepage = () => {
           <h2 className='font-bold md:text-[40px] text-[25px] text-[#003049]'>Testimonials</h2>
         </div>
 
-        <div className='w-full flex flex-col md:flex-row justify-center mb-4 md:mb-[40px] items-center gap-5 overflow-x-hidden'>
+        <section id='testimonials' className='w-full flex flex-col md:flex-row justify-center mb-4 md:mb-[40px] items-center gap-5 overflow-x-hidden'>
           <TestimonialSlider />
-        </div>
+        </section>
 
       </div>
 
