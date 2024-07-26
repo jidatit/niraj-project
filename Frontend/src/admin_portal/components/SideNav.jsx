@@ -3,15 +3,18 @@ import { Link, useLocation } from "react-router-dom";
 import LOGO from "../../assets/newlogo.png"
 import { FiLogOut } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
+import { MdRequestQuote, MdPublishedWithChanges } from "react-icons/md";
+import { LiaBlogSolid } from "react-icons/lia";
+import { BsPersonWorkspace } from "react-icons/bs";
 
 const SideNav = () => {
 
   const menus = [
     { name: "Back to website", link: "/", icon: FaUser },
-    { name: "Quotes", link: "/admin_portal", icon: FaUser },
-    { name: "Policy Changes", link: "/admin_portal/policy_changes", icon: FaUser },
-    { name: "Blogs", link: "/admin_portal/blogs", icon: FaUser },
-    { name: "Agents", link: "/admin_portal/agents", icon: FaUser },
+    { name: "Quotes", link: "/admin_portal", icon: MdRequestQuote },
+    { name: "Policy Changes", link: "/admin_portal/policy_changes", icon: MdPublishedWithChanges },
+    { name: "Blogs", link: "/admin_portal/blogs", icon: LiaBlogSolid },
+    { name: "Agents", link: "/admin_portal/agents", icon: BsPersonWorkspace },
     { name: "Logout", link: "/admin_portal/logout", icon: FiLogOut },
   ];
 

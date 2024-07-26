@@ -166,14 +166,6 @@ const CustomTablePreviewAdmin = ({ qsr_type, table2_data }) => {
     return (
         <>
             <div className="w-full flex mt-[20px] flex-col justify-center items-start">
-                {/* {tableCols1 && table1_data && (<div className="w-full">
-                    <MaterialReactTable
-                        columns={tableCols1}
-                        data={table1_data}
-                        enableBottomToolbar={false}
-                        enableTopToolbar={false}
-                    />
-                </div>)} */}
                 {table_columns_2 && table2_data && (<div className="w-full">
                     <MaterialReactTable
                         columns={table_columns_2}

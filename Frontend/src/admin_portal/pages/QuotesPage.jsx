@@ -480,7 +480,7 @@ const QuotesPage = () => {
                   <CircularProgress size={20} color="inherit" />
                 </>
               ) : (
-                "Bound Policy"
+                "Bind Policy"
               )}
             </button>
           </Box>

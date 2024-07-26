@@ -4,15 +4,18 @@ import { Link } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../../db';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { CircularProgress } from '@mui/material';
 
 const LoginReferral = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState("");
+    const [Loader, setLoader] = useState(false)
 
     const handleLogin = async (e) => {
         e.preventDefault(); // Prevent default form submission
         try {
+            setLoader(true)
             const q = query(
                 collection(db, "users"),
                 where("email", "==", email),
@@ -22,12 +25,15 @@ const LoginReferral = () => {
             if (!querySnapshot.empty) {
                 await signInWithEmailAndPassword(auth, email, password);
                 setError(""); // Clear any previous errors
+                setLoader(false)
             } else {
+                setLoader(false)
                 setError("You are not authorized to access this page. A referral client with these credentials not found!");
             }
         } catch (error) {
             console.error('Error signing in:', error.message);
             setError("Failed to log in. Please check your credentials and try again.");
+            setLoader(false)
         }
     };
 
@@ -66,7 +72,11 @@ const LoginReferral = () => {
                     type="submit"
                     className="bg-[#003049] w-full text-[20px] font-bold text-white px-4 py-2 rounded-md"
                 >
-                    Login
+                    {Loader ? (
+                        <CircularProgress size={20} color='inherit' />
+                    ) : (
+                        "Log in"
+                    )}
                 </button>
 
                 <div className="w-full flex flex-col items-end">

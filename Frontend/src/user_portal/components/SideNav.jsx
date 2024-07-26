@@ -3,14 +3,16 @@ import { Link, useLocation } from "react-router-dom";
 import LOGO from "../../assets/newlogo.png"
 import { FiLogOut } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
+import { MdRequestQuote, MdPolicy } from "react-icons/md";
+import { GiThreeFriends } from "react-icons/gi";
 
 const SideNav = () => {
 
   const menus = [
     { name: "Back to website", link: "/", icon: FaUser },
-    { name: "Request Quote", link: "/user_portal", icon: FaUser },
-    { name: "View Policy or Quote", link: "/user_portal/view_policy_quote", icon: FaUser },
-    { name: "Refer a Friend", link: "/user_portal/refer_friend", icon: FaUser },
+    { name: "Request Quote", link: "/user_portal", icon: MdRequestQuote },
+    { name: "View Policy or Quote", link: "/user_portal/view_policy_quote", icon: MdPolicy },
+    { name: "Refer a Friend", link: "/user_portal/refer_friend", icon: GiThreeFriends },
     { name: "Logout", link: "/user_portal/logout", icon: FiLogOut },
   ];
 

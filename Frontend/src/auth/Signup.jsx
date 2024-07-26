@@ -7,8 +7,10 @@ import { doc, setDoc } from "firebase/firestore";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { hasEmptyValue } from '../utils/helperSnippets';
+import { CircularProgress } from '@mui/material';
 
 const Signup = () => {
+    const [Loader, setLoader] = useState(false)
     const [userData, setUserData] = useState({
         name: '',
         dateOfBirth: '',
@@ -36,20 +38,25 @@ const Signup = () => {
     const handleSignup = async (e) => {
         e.preventDefault(); // Prevent default form submission
         try {
+            setLoader(true)
             const { confirmPassword, password, ...userDataWithoutPasswords } = userData;
             if (confirmPassword !== password) {
                 toast.error("Password Not Matched!");
+                setLoader(false)
                 return;
             }
             if (hasEmptyValue(userDataWithoutPasswords)) {
                 toast.error("Fill all Fields!");
+                setLoader(false)
                 return;
             }
             const { user } = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
             await setDoc(doc(db, "users", user.uid), userDataWithoutPasswords);
+            setLoader(false)
             toast.success("User registered!");
         } catch (error) {
             toast.error(error.message);
+            setLoader(false)
         }
     };
 
@@ -138,7 +145,11 @@ const Signup = () => {
                         disabled={passwordError}
                         className={`bg-[#003049] ${passwordError && "bg-gray-400"} w-full text-[20px] font-bold text-white px-4 py-2 rounded-md`}
                     >
-                        Register
+                        {Loader ? (
+                            <CircularProgress size={20} color='inherit' />
+                        ) : (
+                            "Register"
+                        )}
                     </button>
                 </form>
 

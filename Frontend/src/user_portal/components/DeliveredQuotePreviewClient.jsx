@@ -31,7 +31,7 @@ const DeliveredQuotePreviewClient = ({ data }) => {
                             <h1 className='font-bold underline text-[20px]'>Quote For:</h1>
                             <div className='w-full flex flex-col text-[16px] font-normal justify-start items-start gap-1'>
                                 <p>{data.user.name || "SEAN JONES"}</p>
-                                <p>{data.user.mailingAddress || "4025 NE 34TH AVE FT LAUDERDALE, FL 33308"}</p>
+                                <p>{data.user.address || "4025 NE 34TH AVE FT LAUDERDALE, FL 33308"}</p>
                                 <p><span className='font-medium'>Phone Number: </span>{data.user.phoneNumber || "(954) 647-6569"}</p>
                                 <p><span className='font-medium'>Email: </span>{data.user.email || "seanfjones@aol.com"}</p>
                             </div>

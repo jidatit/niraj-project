@@ -15,7 +15,7 @@ import axiosInstance from '../../utils/axiosConfig';
 import { JsonView, allExpanded, darkStyles } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
 
-const CustomTable = ({ QSR, tableData }) => {
+const CustomTable = ({ QSR, tableData, user }) => {
 
     const homeCarriers = [
         "All Risks", "Allstate", "American Integrity", "American Traditions", "Bass Underwriters", "Centauri", "Citizens Policy Center", "Edison", "Florida Family", "Florida Peninsula", "GeoVera", "Heritage", "Monarch", "Olympus", "Orchid", "Peoples Trust", "SageSure", "Security First", "Slide", "Southern Oak", "Stillwater", "Tower Hill", "True", "TypTap Home", "Universal North America", "Universal PC", "VYRD", "Western World"
@@ -410,17 +410,29 @@ const CustomTable = ({ QSR, tableData }) => {
             try {
                 const { data } = await axiosInstance.get("/get_quotes");
                 setCmsData(data);
+
                 const homeQuotes = data.filter(quote => homeCarriers.includes(quote.Carrier));
+
                 const filteredData = homeQuotes.map(quote => ({
                     id: quote.id,
+                    email: quote.Email,
+                    address: quote.Address,
                     carrier: quote.Carrier || "",
                     premium: quote.ReturnAmount || 0
                 }));
-                setTableData2(filteredData);
-                tableData(filteredData, 2);
+
+                if (user && user.email && user.address) {
+                    const filteredForUser = filteredData.filter(quote => quote.email.toLowerCase() === user.email.toLowerCase() && quote.address.toLowerCase() === user.address.toLowerCase());
+
+                    setTableData2(filteredForUser);
+                    tableData(filteredForUser, 2);
+                } else {
+                    console.warn("User or user email/address not defined.");
+                }
+
                 setLoading(false);
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         };
 
@@ -436,7 +448,7 @@ const CustomTable = ({ QSR, tableData }) => {
         const interval = setInterval(fetchDataWithDelay, 120000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [user.email, user.address]);
 
     const handleWordRowDelete = (id) => {
         const updatedData = tableData2 && tableData2.filter(row => row.id !== id)
