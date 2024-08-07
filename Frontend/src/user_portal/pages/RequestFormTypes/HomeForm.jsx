@@ -64,7 +64,11 @@ const HomeForm = () => {
     const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
     const checkInspections = () => {
-        if (formData.files.length === 0) {
+        if (formData.ishomebuild === "") {
+            toast.warn("Fill out (is this home built before 2005?)")
+            return;
+        }
+        if (formData.ishomebuild === "yes" && formData.files.length === 0) {
             setConfirmDialogOpen(true)
         }
         else {
@@ -77,7 +81,7 @@ const HomeForm = () => {
             setConfirmDialogOpen(false)
             setbuttonstate("Submitting...")
             if (files.length === 0) {
-                let nofilesformData = { ...formData, status: "pending", status_step: "1" }
+                let nofilesformData = { ...formData, status: formData.ishomebuild === "yes" ? "pending" : "completed", status_step: "1" }
                 await addDoc(collection(db, 'home_quotes'), { ...nofilesformData, inuser: nofilesformData.persons[0] });
                 ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Home")
                 toast.success("Application submitted with success.");
