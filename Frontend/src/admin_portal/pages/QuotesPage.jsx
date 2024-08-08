@@ -20,6 +20,8 @@ import BinderReqPreview from '../components/BinderReqPreview';
 import { getCurrentDate, getType } from '../../utils/helperSnippets';
 import { AdminBindConfirmQuoteMail, AdminSendReminder } from '../../utils/mailingFuncs';
 import CircularProgress from '@mui/material/CircularProgress';
+import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
@@ -366,14 +368,47 @@ const QuotesPage = () => {
 
   const [boundLoader, setBoundLoader] = useState({});
 
+  const GetPolicyDataFromClientDynamics = async (email) => {
+    try {
+      const resp = await axiosInstance.post('/contact_info', {
+        email
+      });
+      if (resp.data.status === 200) {
+        const ContactId = resp.data?.ContactId
+        const policyResp = await axiosInstance.post('/policy_info', {
+          ContactId
+        })
+        if (policyResp.data.status === 200) {
+          return policyResp.data.policyData
+        }
+        else {
+          toast.error(`Client Dynamics Error: No Policy Data found for ContactId: ${ContactId}`)
+          return null;
+        }
+      }
+      else {
+        toast.error(`Client Dynamics Error: No ContactId found for email: ${email}`)
+        return null;
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const handleBoundPolicy = async (data, rowdocid) => {
     try {
       setBoundLoader(prevState => ({ ...prevState, [data.id]: true }));
-      await addDoc(collection(db, 'bound_policies'), { ...data, bound_status: "bounded", bound_date: getCurrentDate("dash") });  // add new record
-      await updateStatusStep(data.qsr_type, data.qid)
-      await updateBoundStatus(rowdocid)
-      AdminBindConfirmQuoteMail(data.user?.name, data.user?.email, data.qsr_type)
-      toast.success('Policy bounded successfully!');
+      const policyData = await GetPolicyDataFromClientDynamics(data.user?.email)
+      if (policyData !== null) {
+        await addDoc(collection(db, 'bound_policies'), { ...data, policyData, bound_status: "bounded", bound_date: getCurrentDate("dash") });  // add new record
+        await updateStatusStep(data.qsr_type, data.qid)
+        await updateBoundStatus(rowdocid)
+        AdminBindConfirmQuoteMail(data.user?.name, data.user?.email, data.qsr_type)
+        toast.success('Policy bounded successfully!');
+      }
+      else {
+        return;
+      }
       getAllBinderRequestedQuotes()
     } catch (error) {
       toast.error('Error bounding policy!');

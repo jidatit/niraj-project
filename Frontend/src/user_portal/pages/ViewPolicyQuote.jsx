@@ -66,7 +66,7 @@ const ViewPolicyQuote = () => {
                 )
             },
             {
-                accessorKey: 'user.mailingAddress',
+                accessorKey: 'mailingAddress',
                 header: 'Quote Address',
                 size: 100,
                 Cell: ({ cell }) => (
@@ -261,6 +261,7 @@ const DropdownPolicy = ({ popup_data }) => {
 
     const viewCoverage = (data) => {
         setviewModal(true)
+        console.log("all data for modal ", { ...data, ...popup_data })
         setviewModalData({ ...data, ...popup_data })
     }
 

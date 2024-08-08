@@ -50,9 +50,14 @@ const FloodForm = () => {
     const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
     const checkInspections = () => {
-        if (formData.files.length === 0) {
+        if (formData.cert_elevation === "") {
+            toast.warn("Do you have an elevation certificate?")
+            return;
+        }
+        if (formData.cert_elevation === "yes" && formData.files.length === 0) {
             setConfirmDialogOpen(true)
-        } else {
+        }
+        else {
             addFormToDb()
         }
     }
@@ -62,7 +67,7 @@ const FloodForm = () => {
             setConfirmDialogOpen(false)
             setbuttonstate("Submitting...")
             if (files.length === 0) {
-                let nofilesformData = { ...formData, status: "pending", status_step: "1" }
+                let nofilesformData = { ...formData, status: formData.cert_elevation === "yes" ? "pending" : "completed", status_step: "1" }
                 await addDoc(collection(db, 'flood_quotes'), { ...nofilesformData, inuser: nofilesformData.persons[0] });
                 ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Flood")
                 toast.success("Application submitted with success.");

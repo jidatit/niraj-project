@@ -65,7 +65,7 @@ const HomeForm = () => {
 
     const checkInspections = () => {
         if (formData.ishomebuild === "") {
-            toast.warn("Fill out (is this home built before 2005?)")
+            toast.warn("is this home built before 2005?")
             return;
         }
         if (formData.ishomebuild === "yes" && formData.files.length === 0) {
