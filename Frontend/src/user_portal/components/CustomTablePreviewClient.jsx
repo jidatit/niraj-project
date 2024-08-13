@@ -197,8 +197,11 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
         }));
     };
 
+    const [bindingDisable, setBindingDisable] = useState(false)
+
     const handleBindQuote = async () => {
         try {
+            setBindingDisable(true)
             await addDoc(collection(db, 'bind_req_quotes'), { ...formData, qid, qsr_type, user: { ...user }, bound_status: "pending" });
             await updateStatusStep(qsr_type, qid)
             onClose()
@@ -209,6 +212,8 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
             }, 2000);
         } catch (error) {
             toast.error("Error Requesting Bind Quote!")
+        } finally {
+            setBindingDisable(false)
         }
     }
 
@@ -233,14 +238,6 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
         <>
             <div className="w-full flex mt-[20px] flex-col justify-center items-start">
                 <ToastContainer />
-                {/* {tableCols1 && table1_data && (<div className="w-full">
-                    <MaterialReactTable
-                        columns={tableCols1}
-                        data={table1_data}
-                        enableBottomToolbar={false}
-                        enableTopToolbar={false}
-                    />
-                </div>)} */}
                 {table_columns_2 && table2_data && (<div className="w-full">
                     <MaterialReactTable
                         columns={table_columns_2}
@@ -376,7 +373,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
 
                             <div className='w-full flex flex-col justify-end items-end'>
                                 <div className="md:w-[30%] relative mt-[30px] mb-[30px] w-full">
-                                    <Button onClickProp={handleBindQuote} text={"Submit"} />
+                                    <Button isDisabled={bindingDisable} onClickProp={handleBindQuote} text={"Submit"} />
                                 </div>
                             </div>
 

@@ -146,8 +146,11 @@ const EditorPage = () => {
         }
     };
 
+    const [subBtnDisabler, setSubBtnDisabler] = useState(false)
+
     const handlePrepQuote = async () => {
         try {
+            setSubBtnDisabler(true)
             if (Object.keys(formData.user).length === 0) {
                 toast.warn("Select a user!")
                 return
@@ -169,6 +172,8 @@ const EditorPage = () => {
             }, 2000);
         } catch (error) {
             toast.error('Error preparing quote!');
+        } finally {
+            setSubBtnDisabler(false)
         }
     }
 
@@ -223,7 +228,7 @@ const EditorPage = () => {
 
                         <div className="w-[90%] mt-[20px] flex flex-col justify-end items-end">
                             <div className="md:w-[30%] w-full pr-0 md:pr-2">
-                                <Button onClickProp={handlePrepQuote} text={buttonText} />
+                                <Button isDisabled={subBtnDisabler} onClickProp={handlePrepQuote} text={buttonText} />
                             </div>
                         </div>
 

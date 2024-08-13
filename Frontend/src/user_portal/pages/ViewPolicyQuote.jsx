@@ -66,7 +66,7 @@ const ViewPolicyQuote = () => {
                 )
             },
             {
-                accessorKey: 'user.mailingAddress',
+                accessorKey: 'mailingAddress',
                 header: 'Quote Address',
                 size: 100,
                 Cell: ({ cell }) => (
@@ -261,6 +261,7 @@ const DropdownPolicy = ({ popup_data }) => {
 
     const viewCoverage = (data) => {
         setviewModal(true)
+        console.log("all data for modal ", { ...data, ...popup_data })
         setviewModalData({ ...data, ...popup_data })
     }
 
@@ -438,9 +439,17 @@ const DropdownPolicy = ({ popup_data }) => {
                                     <p><span className='font-medium'>Wind/ Hurricane: </span>{"“Wind/ hurricane deductible”"}</p>
                                 </div>
 
-                                <div className='w-full flex flex-col justify-center items-start'>
-                                    <p><span className='font-medium'>Premium: </span>{"“Premium Amount”"}</p>
-                                </div>
+                                {viewModalData.policyData && (
+                                    <div className='w-full flex flex-col justify-center items-start'>
+                                        <p><span className='font-medium'>Premium Amount Sent: </span>{viewModalData.policyData[0]?.premium_sent ? viewModalData.policyData[0]?.premium_sent : "“Premium Amount”"}</p>
+                                        <p><span className='font-medium'>Carrier: </span>{viewModalData.policyData[0]?.carrier ? viewModalData.policyData[0]?.carrier : "“Carrier"}</p>
+                                        <p><span className='font-medium'>Bind Date: </span>{viewModalData.policyData[0]?.bind_date ? viewModalData.policyData[0]?.bind_date : "Bind Date"}</p>
+                                        <p><span className='font-medium'>Contact Id: </span>{viewModalData.policyData[0]?.ContactId ? viewModalData.policyData[0]?.ContactId : "Contact Id"}</p>
+                                        <p><span className='font-medium'>Policy Id: </span>{viewModalData.policyData[0]?.PolicyId ? viewModalData.policyData[0]?.PolicyId : "Policy Id"}</p>
+                                        <p><span className='font-medium'>Effective Date: </span>{viewModalData.policyData[0]?.effective_date ? viewModalData.policyData[0]?.effective_date : "Effective Date"}</p>
+                                        <p><span className='font-medium'>Expiry Date: </span>{viewModalData.policyData[0]?.exp_date ? viewModalData.policyData[0]?.exp_date : "Expiry Date"}</p>
+                                    </div>
+                                )}
 
                             </div>
                         </Slide>
