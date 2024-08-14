@@ -400,7 +400,7 @@ const DropdownPolicy = ({ popup_data }) => {
                             style={{ transition: "transform 2s ease-in-out" }}
                         >
                             <div className='w-[95%] overflow-y-auto max-h-[80vh] lg:w-[50%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md gap-y-10'>
-                                <div className='w-full flex flex-col justify-center items-start'>
+                                {/* <div className='w-full flex flex-col justify-center items-start'>
                                     {viewModalData.company_name && (<p><span className='font-medium'>Company Name: </span>{viewModalData.company_name || "Name of the company"}</p>)}
                                     <p><span className='font-medium'>Effective Dates: </span>{`${viewModalData.bound_date} - ${viewModalData.effective_date}` || "Dates From - To"}</p>
                                     <p><span className='font-medium'>Policy Number: </span>{viewModalData.policy_id || "Policy Id"}</p>
@@ -410,13 +410,13 @@ const DropdownPolicy = ({ popup_data }) => {
                                     {viewModalData.persons && viewModalData.persons?.map((person, index) => (
                                         <p key={index}><span className='font-medium'>Name Insured: </span>{person.name || "Name of the Insured Person"}</p>
                                     ))}
-                                </div>
+                                </div> */}
                                 <div className='w-full flex flex-col justify-center items-start'>
                                     <p><span className='font-medium'>Property Insured: </span>{viewModalData.address ? viewModalData.address : viewModalData.garaging_address
                                         || "Name of the company"}</p>
                                 </div>
 
-                                {prepData && (<div className='w-full flex flex-col justify-center items-start'>
+                                {/* {prepData && (<div className='w-full flex flex-col justify-center items-start'>
                                     <p className='font-medium'>Coverage: </p>
                                     <div className='w-full flex flex-col justify-center items-start'>
                                         {prepData?.map((item, index) => (
@@ -437,11 +437,13 @@ const DropdownPolicy = ({ popup_data }) => {
                                     <p className='font-medium'>Deductibles: </p>
                                     <p><span className='font-medium'>AOP: </span>{"“AOP deductible”"}</p>
                                     <p><span className='font-medium'>Wind/ Hurricane: </span>{"“Wind/ hurricane deductible”"}</p>
-                                </div>
+                                </div> */}
 
                                 {viewModalData.policyData && (
                                     <div className='w-full flex flex-col justify-center items-start'>
-                                        <p><span className='font-medium'>Premium Amount Sent: </span>{viewModalData.policyData[0]?.premium_sent ? viewModalData.policyData[0]?.premium_sent : "“Premium Amount”"}</p>
+                                        <p><span className='font-medium'>Name  of Insured: </span>{viewModalData.policyData[0]?.named_insured ? viewModalData.policyData[0]?.named_insured : "Name of Insured"}</p>
+
+                                        <p><span className='font-medium'>Premium Amount: </span>{viewModalData.policyData[0]?.premium_sent ? viewModalData.policyData[0]?.policy_premium : "“Premium Amount”"}</p>
                                         <p><span className='font-medium'>Carrier: </span>{viewModalData.policyData[0]?.carrier ? viewModalData.policyData[0]?.carrier : "“Carrier"}</p>
                                         <p><span className='font-medium'>Bind Date: </span>{viewModalData.policyData[0]?.bind_date ? viewModalData.policyData[0]?.bind_date : "Bind Date"}</p>
                                         <p><span className='font-medium'>Contact Id: </span>{viewModalData.policyData[0]?.ContactId ? viewModalData.policyData[0]?.ContactId : "Contact Id"}</p>
