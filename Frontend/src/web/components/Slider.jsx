@@ -32,7 +32,7 @@ function TestimonialSlider() {
 
   var settings = {
     infinite: true,
-    autoplay: false,
+    autoplay: true,
     speed: 2000,
     slidesToShow: 2,
     slidesToScroll: 1,

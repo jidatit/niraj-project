@@ -44,11 +44,11 @@ const Homepage = () => {
           backgroundRepeat: 'no-repeat'
         }}
       >
-        <div className='w-[90%] md:w-[60%] z-[10] md:absolute left-5 md:ml-[60px] gap-5 flex flex-col justify-center items-start'>
-          <h1 className='font-bold text-[27px] md:text-[50px] text-start md:text-left'>
+        <div className='w-[90%] md:w-[60%] md:p-0 p-2 z-[10] md:absolute left-5 md:ml-[60px] gap-5 flex flex-col justify-center items-start md:bg-transparent bg-white/30 md:backdrop-blur-none backdrop-blur-lg md:border-none border border-white/20 md:shadow-none shadow-lg md:rounded-none rounded-lg'>
+          <h1 className='font-bold text-[27px] md:text-[50px] text-center md:text-left'>
             Trustworthy insurance experts standing by for you
           </h1>
-          <p className='text-[17px] md:text-[28px] text-start md:text-left'>
+          <p className='text-[17px] md:text-[28px] text-center md:text-left'>
             Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
           </p>
           <div className='w-full flex flex-col md:flex-row justify-center md:justify-start items-center gap-5'>

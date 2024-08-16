@@ -6,13 +6,12 @@ import { getAnalytics } from "firebase/analytics";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA6Ot4n9CLzQpRcfNo34HN2IiTDf4A-gl8",
-  authDomain: "niraj-project-b09c8.firebaseapp.com",
-  projectId: "niraj-project-b09c8",
-  storageBucket: "niraj-project-b09c8.appspot.com",
-  messagingSenderId: "87355456997",
-  appId: "1:87355456997:web:6aae5b8351635675eb030c",
-  measurementId: "G-QJ3HHDKSZJ"
+  apiKey: "AIzaSyAW7VXYV2g4ZM55oCcZjvKcqtCvWjJgxcc",
+  authDomain: "niraj-project-ab004.firebaseapp.com",
+  projectId: "niraj-project-ab004",
+  storageBucket: "niraj-project-ab004.appspot.com",
+  messagingSenderId: "558528427507",
+  appId: "1:558528427507:web:37d0c0cab53b5e8b664e86"
 };
 
 export const app = initializeApp(firebaseConfig);
