@@ -93,7 +93,7 @@ const AutoForm = () => {
             setFormData({
                 policyType: "Auto",
                 mailingAddress: '',
-                drivers: [{ name: '', dob: '', LN: '', email: '', phoneNumber: '' }],
+                drivers: [{ name: '', dob: '', LN: '', email: '', phoneNumber: '', zipCode: '' }],
                 garaging_address: '',
                 mailing: false,
                 vehicles: [{ vin: false, vin_number: '', v_make: '', v_model: '', v_year: '', current_insurance: '', expiration_date: '', v_garaging_address: '', v_garaging_address_input: '' }],
@@ -122,7 +122,7 @@ const AutoForm = () => {
     const [formData, setFormData] = useState({
         policyType: "Auto",
         mailingAddress: '',
-        drivers: [{ name: '', dob: '', LN: '', email: '', phoneNumber: '' }],
+        drivers: [{ name: '', dob: '', LN: '', email: '', phoneNumber: '', zipCode: ''  }],
         garaging_address: '',
         mailing: false,
         vehicles: [{ vin: false, vin_number: '', v_make: '', v_model: '', v_year: '', current_insurance: '', expiration_date: '', v_garaging_address: '', v_garaging_address_input: '' }],
@@ -155,7 +155,7 @@ const AutoForm = () => {
     const handleAddDriver = () => {
         setFormData((prevData) => ({
             ...prevData,
-            drivers: [...prevData.drivers, { name: '', dob: '', LN: '', email: '', phoneNumber: '' }]
+            drivers: [...prevData.drivers, { name: '', dob: '', LN: '', email: '', phoneNumber: '', zipCode: ''  }]
         }));
     };
     const handleAddVehicle = () => {
@@ -242,6 +242,16 @@ const AutoForm = () => {
                                 type='phoneNumber'
                                 value={driver.phoneNumber}
                                 onChange={(e) => handleDriverChange(index, 'phoneNumber', e.target.value)}
+                            />
+                        </div>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`zipCode-${index}`}>Zip Code</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`zipCode-${index}`}
+                                type='number'
+                                value={driver.zipCode}
+                                onChange={(e) => handleDriverChange(index, 'zipCode', e.target.value)}
                             />
                         </div>
                     </div>

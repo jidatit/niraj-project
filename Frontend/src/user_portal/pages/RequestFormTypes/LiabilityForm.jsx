@@ -35,7 +35,7 @@ const LiabilityForm = () => {
         rented_address_num: '',
         coverageAmount: '',
         mailingAddress: '',
-        persons: [{ name: '', dob: '', email: '', phoneNumber: '' }],
+        persons: [{ name: '', dob: '', email: '', phoneNumber: '', zipCode: '' }],
         addresses: [{ address: '' }],
         autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' },
         user: { ...currentUser.data, id: currentUser.uid }
@@ -56,7 +56,7 @@ const LiabilityForm = () => {
                 rented_address_num: '',
                 coverageAmount: '',
                 mailingAddress: '',
-                persons: [{ name: '', dob: '', email: '', phoneNumber: '' }],
+                persons: [{ name: '', dob: '', email: '', phoneNumber: '', zipCode: '' }],
                 addresses: [{ address: '' }],
                 autos: { cars: '', boats: '', motorcycles: '', golf_carts: '' },
                 user: { ...currentUser.data, id: currentUser.uid },
@@ -114,7 +114,7 @@ const LiabilityForm = () => {
     const handleAddPerson = () => {
         setFormData((prevData) => ({
             ...prevData,
-            persons: [...prevData.persons, { name: '', dob: '', email: '', phoneNumber: '' }]
+            persons: [...prevData.persons, { name: '', dob: '', email: '', phoneNumber: '', zipCode: '' }]
         }));
     };
 
@@ -188,6 +188,16 @@ const LiabilityForm = () => {
                                 type='phoneNumber'
                                 value={person.phoneNumber}
                                 onChange={(e) => handlePersonChange(index, 'phoneNumber', e.target.value)}
+                            />
+                        </div>
+                        <div className='flex w-full flex-col justify-center items-start gap-2'>
+                            <InputLabel htmlFor={`zipCode-${index}`}>Zip Code</InputLabel>
+                            <TextField
+                                className='w-full'
+                                id={`zipCode-${index}`}
+                                type='number'
+                                value={person.zipCode}
+                                onChange={(e) => handlePersonChange(index, 'zipCode', e.target.value)}
                             />
                         </div>
                     </div>

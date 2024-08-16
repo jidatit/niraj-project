@@ -316,6 +316,11 @@ const CustomTable = ({ QSR, tableData, user }) => {
                 accessorKey: 'premium',
                 header: 'Premium',
                 size: 200,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue() == 0.00 ? "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations." : cell.getValue()}
+                    </Box>
+                )
             },
         ],
         [],
@@ -417,12 +422,13 @@ const CustomTable = ({ QSR, tableData, user }) => {
                     id: quote.id,
                     email: quote.Email,
                     address: quote.Address,
+                    zipCode: quote.zipCode ? quote.zipCode : "",
                     carrier: quote.Carrier || "",
                     premium: quote.ReturnAmount || 0
                 }));
 
-                if (user && user.email && user.address) {
-                    const filteredForUser = filteredData.filter(quote => quote.email.toLowerCase() === user.email.toLowerCase() && quote.address.toLowerCase() === user.address.toLowerCase());
+                if (user && user.email && user.zipCode) {
+                    const filteredForUser = filteredData.filter(quote => quote.email.toLowerCase() === user.email.toLowerCase() && quote.zipCode.toLowerCase() === user.zipCode.toLowerCase());
 
                     setTableData2(filteredForUser);
                     tableData(filteredForUser, 2);
@@ -430,9 +436,10 @@ const CustomTable = ({ QSR, tableData, user }) => {
                     console.warn("User or user email/address not defined.");
                 }
 
-                setLoading(false);
             } catch (error) {
                 console.error(error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -448,7 +455,7 @@ const CustomTable = ({ QSR, tableData, user }) => {
         const interval = setInterval(fetchDataWithDelay, 120000);
 
         return () => clearInterval(interval);
-    }, [user.email, user.address]);
+    }, [user.email, user.zipCode]);
 
     const handleWordRowDelete = (id) => {
         const updatedData = tableData2 && tableData2.filter(row => row.id !== id)
@@ -473,7 +480,7 @@ const CustomTable = ({ QSR, tableData, user }) => {
                     <div className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
                         <span className="font-medium">(Data reloads after every 2 minutes)</span> More data may come in a while!
                     </div>
-                    {CmsData && (
+                    {/* {CmsData && (
                         <div className='relative custom'>
                             {loading && (
                                 <div className="absolute inset-0 flex items-center gap-1 justify-center bg-gray-100 bg-opacity-50 z-50">
@@ -484,7 +491,7 @@ const CustomTable = ({ QSR, tableData, user }) => {
                             )}
                             <JsonView data={CmsData} shouldExpandNode={allExpanded} style={darkStyles} />
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 {tableCols1 && tableData1 && (<div className="w-full">
@@ -501,6 +508,8 @@ const CustomTable = ({ QSR, tableData, user }) => {
                     <MaterialReactTable
                         columns={tableCols2}
                         data={tableData2}
+                        // state={{ isLoading: { loading } }}
+                        initialState={{ density: "compact" }}
                         enableBottomToolbar={false}
                         // enableTopToolbar={false}
                         enableTableHead={true}
