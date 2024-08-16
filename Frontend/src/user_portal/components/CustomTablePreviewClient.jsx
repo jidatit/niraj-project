@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { MaterialReactTable } from 'material-react-table';
 import Button from "./Button"
-import { Modal, Slide, TextField, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Modal, Slide, TextField, FormControl, InputLabel, MenuItem, Select, Box } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { db } from '../../../db';
@@ -184,6 +184,11 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
                 accessorKey: 'premium',
                 header: 'Premium',
                 size: 800,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue() == 0.00 ? "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations." : cell.getValue()}
+                    </Box>
+                )
             },
         ],
         [],

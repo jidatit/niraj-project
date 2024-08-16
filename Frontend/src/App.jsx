@@ -27,6 +27,7 @@ import PolicyChanges from './admin_portal/pages/PolicyChanges'
 import ReferFriend from './user_portal/pages/ReferFriend'
 import UploadInspections from './user_portal/pages/UploadInspections'
 import ScrollToHashElement from './ScrollToSection'
+import ChangePassword from './user_portal/pages/ChangePassword'
 
 function App() {
   return (
@@ -64,6 +65,7 @@ function App() {
             <Route path='pq_progress' element={<PolicyQuoteProgess />} />
             <Route path='pq_results' element={<PolicyQuoteResults />} />
             <Route path='upload_inspections' element={<UploadInspections />} />
+            <Route path='auth/change_password' element={<ChangePassword />} />
             <Route path='logout' element={<Logout />} />
           </Route>
 

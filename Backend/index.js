@@ -4,7 +4,7 @@ const CORS = require('cors')
 const config = require("./config.js")
 const PORT = config.port || 10000;
 const HOSTURL = config.hostUrl
-const { getDocs, addDoc, collection } = require('firebase/firestore');
+const { getDocs, addDoc, collection, query, where } = require('firebase/firestore');
 const { db } = require('./firebase.js');
 const fetch = require('node-fetch');
 
@@ -26,26 +26,41 @@ app.post('/webhook', async (req, res) => {
 
 app.get('/get_quotes', async (req, res) => {
     try {
-        const quotes = await getDocs(collection(db, 'cms_quotes'));
-        const QuotesList = [];
+        const { email, zipCode } = req.query;
+        if (email && zipCode) {
 
-        if (quotes.empty) {
-            res.status(400).send('No Quotes found');
-        } else {
-            quotes.forEach((doc) => {
-                const quoteData = {
-                    id: doc.id,
-                    ...doc.data()
-                }
-                QuotesList.push(quoteData);
-            });
+            const quotesList = [];
 
-            res.status(200).send(QuotesList);
+            const CmsQuotesRef = collection(db, "cms_quotes");
+            const queryResults = query(
+                CmsQuotesRef,
+                where("Email", "==", email),
+                where("zipCode", "==", zipCode)
+            );
+
+            const querySnapshot = await getDocs(queryResults);
+
+            if (querySnapshot.empty) {
+                res.status(200).json({ success: false, status: 404, message: `No Quotes from Client Dynamics Found for email: ${email} and zipCode: ${zipCode}` });
+            } else {
+                querySnapshot.forEach((doc) => {
+                    const quoteData = {
+                        id: doc.id,
+                        ...doc.data()
+                    }
+                    quotesList.push(quoteData);
+                });
+
+                res.status(200).json({ success: true, status: 200, quotesList });
+            }
+        }
+        else {
+            res.status(200).json({ success: false, status: 401, message: `Email and zipCode are required.` });
         }
     } catch (error) {
-        res.send(400).send(error.message)
+        res.status(400).send(error.message);
     }
-})
+});
 
 app.post('/contact_info', async (req, res) => {
     try {
@@ -67,9 +82,10 @@ app.post('/contact_info', async (req, res) => {
         const data = await response.json();
 
         const ContactId = data.results[0]?.ContactId || null
+        const address = data.results[0]?.address || null
 
         if (ContactId !== null) {
-            res.status(200).json({ status: 200, "ContactId": ContactId });
+            res.status(200).json({ status: 200, "address": address, "ContactId": ContactId });
         }
         else {
             res.status(200).json({ status: 400, message: "No ContactId found." })

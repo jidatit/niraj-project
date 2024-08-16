@@ -13,7 +13,7 @@ const Testimonials = ({ text, person }) => {
                     </div>
                 </div>
                 <div className="ml-3 mr-3 bg-gradient-to-r from-[#006397] via-green-400 to-[#D62828] h-1"></div>
-                <div className="p-4 h-[190px] overflow-auto">
+                <div className="p-4 h-[195px] overflow-auto">
                     <p className="text-start text-sm md:text-base lg:text-lg">{text || "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu."}</p>
                 </div>
             </div>

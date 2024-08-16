@@ -16,6 +16,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Button from "../components/Button"
 import LineGraph from '../components/LineGraph';
 import { ClientQuotePolicyCancelMail, ClientQuotePolicyChangeMail } from '../../utils/mailingFuncs';
+import newlogo from "../../assets/newlogo.png"
 
 const ViewPolicyQuote = () => {
     const [AllQuotes, setAllQuotes] = useState([]);
@@ -261,7 +262,7 @@ const DropdownPolicy = ({ popup_data }) => {
 
     const viewCoverage = (data) => {
         setviewModal(true)
-        console.log("all data for modal ", { ...data, ...popup_data })
+        // console.log("all data for modal ", { ...data, ...popup_data })
         setviewModalData({ ...data, ...popup_data })
     }
 
@@ -400,21 +401,6 @@ const DropdownPolicy = ({ popup_data }) => {
                             style={{ transition: "transform 2s ease-in-out" }}
                         >
                             <div className='w-[95%] overflow-y-auto max-h-[80vh] lg:w-[50%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md gap-y-10'>
-                                {/* <div className='w-full flex flex-col justify-center items-start'>
-                                    {viewModalData.company_name && (<p><span className='font-medium'>Company Name: </span>{viewModalData.company_name || "Name of the company"}</p>)}
-                                    <p><span className='font-medium'>Effective Dates: </span>{`${viewModalData.bound_date} - ${viewModalData.effective_date}` || "Dates From - To"}</p>
-                                    <p><span className='font-medium'>Policy Number: </span>{viewModalData.policy_id || "Policy Id"}</p>
-                                    <p><span className='font-medium'>Policy Type: </span>{viewModalData.qsr_type || "Policy Type"}</p>
-                                </div>
-                                <div className='w-full flex flex-col justify-center items-start'>
-                                    {viewModalData.persons && viewModalData.persons?.map((person, index) => (
-                                        <p key={index}><span className='font-medium'>Name Insured: </span>{person.name || "Name of the Insured Person"}</p>
-                                    ))}
-                                </div> */}
-                                <div className='w-full flex flex-col justify-center items-start'>
-                                    <p><span className='font-medium'>Property Insured: </span>{viewModalData.address ? viewModalData.address : viewModalData.garaging_address
-                                        || "Name of the company"}</p>
-                                </div>
 
                                 {/* {prepData && (<div className='w-full flex flex-col justify-center items-start'>
                                     <p className='font-medium'>Coverage: </p>
@@ -432,24 +418,26 @@ const DropdownPolicy = ({ popup_data }) => {
                                         ))}
                                     </div>
                                 </div>)}
-
-                                <div className='w-full flex flex-col justify-center items-start'>
-                                    <p className='font-medium'>Deductibles: </p>
-                                    <p><span className='font-medium'>AOP: </span>{"“AOP deductible”"}</p>
-                                    <p><span className='font-medium'>Wind/ Hurricane: </span>{"“Wind/ hurricane deductible”"}</p>
-                                </div> */}
+                                */}
 
                                 {viewModalData.policyData && (
-                                    <div className='w-full flex flex-col justify-center items-start'>
-                                        <p><span className='font-medium'>Name  of Insured: </span>{viewModalData.policyData[0]?.named_insured ? viewModalData.policyData[0]?.named_insured : "Name of Insured"}</p>
+                                    <div className='w-full flex flex-col items-center'>
+                                        {/* Top Centered Image */}
+                                        <img src={newlogo} alt='Policy Image' className='w-full object-cover mb-6' />
 
-                                        <p><span className='font-medium'>Premium Amount: </span>{viewModalData.policyData[0]?.premium_sent ? viewModalData.policyData[0]?.policy_premium : "“Premium Amount”"}</p>
-                                        <p><span className='font-medium'>Carrier: </span>{viewModalData.policyData[0]?.carrier ? viewModalData.policyData[0]?.carrier : "“Carrier"}</p>
-                                        <p><span className='font-medium'>Bind Date: </span>{viewModalData.policyData[0]?.bind_date ? viewModalData.policyData[0]?.bind_date : "Bind Date"}</p>
-                                        <p><span className='font-medium'>Contact Id: </span>{viewModalData.policyData[0]?.ContactId ? viewModalData.policyData[0]?.ContactId : "Contact Id"}</p>
-                                        <p><span className='font-medium'>Policy Id: </span>{viewModalData.policyData[0]?.PolicyId ? viewModalData.policyData[0]?.PolicyId : "Policy Id"}</p>
-                                        <p><span className='font-medium'>Effective Date: </span>{viewModalData.policyData[0]?.effective_date ? viewModalData.policyData[0]?.effective_date : "Effective Date"}</p>
-                                        <p><span className='font-medium'>Expiry Date: </span>{viewModalData.policyData[0]?.exp_date ? viewModalData.policyData[0]?.exp_date : "Expiry Date"}</p>
+                                        {/* Policy Details */}
+                                        <div className='w-full max-w-lg bg-gray-100 p-6 rounded-lg shadow-lg'>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Property Insured: </span>{viewModalData.address ? viewModalData.address : viewModalData.garaging_address || "Name of the company"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Name of Insured: </span>{viewModalData.policyData?.named_insured || "Name of Insured"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Premium Amount: </span>{viewModalData.policyData?.policy_premium || "Premium Amount"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Carrier: </span>{viewModalData.policyData?.carrier || "Carrier"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Bind Date: </span>{viewModalData.policyData?.bind_date || "Bind Date"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Contact Id: </span>{viewModalData.policyData?.ContactId || "Contact Id"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Contact Address: </span>{viewModalData.policyData?.ContactAddress || "Contact Address"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Policy Id: </span>{viewModalData.policyData?.PolicyId || "Policy Id"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Effective Date: </span>{viewModalData.policyData?.effective_date || "Effective Date"}</p>
+                                            <p className='text-md md:text-lg font-medium'><span className='font-semibold'>Expiry Date: </span>{viewModalData.policyData?.exp_date || "Expiry Date"}</p>
+                                        </div>
                                     </div>
                                 )}
 

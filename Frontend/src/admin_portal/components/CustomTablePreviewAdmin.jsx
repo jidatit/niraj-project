@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { MaterialReactTable } from 'material-react-table';
+import { Box } from '@mui/material';
 
 const CustomTablePreviewAdmin = ({ qsr_type, table2_data }) => {
 
@@ -158,6 +159,11 @@ const CustomTablePreviewAdmin = ({ qsr_type, table2_data }) => {
                 accessorKey: 'premium',
                 header: 'Premium',
                 size: 800,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue() == 0.00 ? "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations." : cell.getValue()}
+                    </Box>
+                )
             },
         ],
         [],

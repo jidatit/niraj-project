@@ -12,8 +12,8 @@ import {
     Box
 } from '@mui/material';
 import axiosInstance from '../../utils/axiosConfig';
-import { JsonView, allExpanded, darkStyles } from 'react-json-view-lite';
-import 'react-json-view-lite/dist/index.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CustomTable = ({ QSR, tableData, user }) => {
 
@@ -413,29 +413,33 @@ const CustomTable = ({ QSR, tableData, user }) => {
     useEffect(() => {
         const fetchCmsData = async () => {
             try {
-                const { data } = await axiosInstance.get("/get_quotes");
-                setCmsData(data);
+                const { data } = await axiosInstance.get(`/get_quotes?email=${user.email.toLowerCase()}&zipCode=${user.zipCode.toLowerCase()}`);
 
-                const homeQuotes = data.filter(quote => homeCarriers.includes(quote.Carrier));
-
-                const filteredData = homeQuotes.map(quote => ({
-                    id: quote.id,
-                    email: quote.Email,
-                    address: quote.Address,
-                    zipCode: quote.zipCode ? quote.zipCode : "",
-                    carrier: quote.Carrier || "",
-                    premium: quote.ReturnAmount || 0
-                }));
-
-                if (user && user.email && user.zipCode) {
-                    const filteredForUser = filteredData.filter(quote => quote.email.toLowerCase() === user.email.toLowerCase() && quote.zipCode.toLowerCase() === user.zipCode.toLowerCase());
-
-                    setTableData2(filteredForUser);
-                    tableData(filteredForUser, 2);
-                } else {
-                    console.warn("User or user email/address not defined.");
+                if (data.status === 404) {
+                    toast.warn("Quote Data Not Found for User.")
+                    return;
+                }
+                if (data.status === 401) {
+                    toast.warn("Email and zipCode of user is required to get quotes.")
+                    return;
                 }
 
+                if (data.status === 200) {
+
+                    setCmsData(data.quotesList);
+                    const homeQuotes = data.quotesList?.filter(quote => homeCarriers.includes(quote.Carrier));
+
+                    const filteredData = homeQuotes.map(quote => ({
+                        id: quote.id,
+                        email: quote.Email,
+                        address: quote.Address,
+                        zipCode: quote.zipCode ? quote.zipCode : "",
+                        carrier: quote.Carrier || "",
+                        premium: quote.ReturnAmount || 0
+                    }));
+                    setTableData2(filteredData);
+                    tableData(filteredData, 2);
+                }
             } catch (error) {
                 console.error(error);
             } finally {
@@ -471,7 +475,7 @@ const CustomTable = ({ QSR, tableData, user }) => {
     return (
         <>
             <div className="w-[90%] flex mt-[20px] flex-col justify-center items-start">
-
+                <ToastContainer />
                 <div className="mt-5 mb-5 w-full">
                     <SubOptButton actionType={handleActionChange} />
                 </div>

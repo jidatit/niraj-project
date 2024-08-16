@@ -375,11 +375,17 @@ const QuotesPage = () => {
       });
       if (resp.data.status === 200) {
         const ContactId = resp.data?.ContactId
+        const ContactAddress = resp.data?.address
+
         const policyResp = await axiosInstance.post('/policy_info', {
           ContactId
         })
         if (policyResp.data.status === 200) {
-          return policyResp.data.policyData
+          const PolicyData = {
+            ...policyResp.data.policyData[0],
+            ContactAddress: ContactAddress
+          }
+          return PolicyData
         }
         else {
           toast.error(`Client Dynamics Error: No Policy Data found for ContactId: ${ContactId}`)
