@@ -10,14 +10,13 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../db';
 import TestimonialSlider from '../components/Slider'
 import BigButton from '../components/dropdown_button/bigButton';
+import { FaqsData } from './data/faqs';
 
 const Homepage = () => {
   const [blogs, setBlogs] = useState([]);
 
-  const faqs = new Array(8).fill(null);
-
-  const faqComponents = faqs.map((_, index) => (
-    <Faq key={index} question={`Question ${index + 1}`} answer={`Answer ${index + 1}`} />
+  const faqComponents = FaqsData.map((faq, index) => (
+    <Faq key={index} ques={faq.ques} ans={faq.ans} />
   ));
 
   useEffect(() => {
@@ -69,10 +68,14 @@ const Homepage = () => {
         <img src={personimg} alt="" />
         <div className='w-full lg:w-[50%] flex flex-col justify-start items-start gap-10'>
           <h2 className='font-bold text-[25px] xl:text-[40px] text-black'>
-            Lorem Ipsum dolor sit amet consectetuer
+            Our mission
           </h2>
           <p className='text-start text-[20px] xl:text-[28px]'>
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
+            Our mission is to empower homeowners by providing them with the tools
+            and knowledge to take control of their insurance costs. We believe that clear,
+            effective communication is the key to achieving this goal. That's why we
+            created this platform with your needs in mind, ensuring that you can easily
+            connect with us and get the support you need, when you need it.
           </p>
           <BigButton GFQ={true} text="Get Free Quote" />
         </div>
