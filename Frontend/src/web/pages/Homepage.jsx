@@ -37,7 +37,7 @@ const Homepage = () => {
   return (
     <div >
 
-      <div className='w-full relative pb-[70px] h-[80vh] md:h-[90vh] lg:h-[100vh] flex flex-col md:flex-row justify-end md:justify-center items-center gap-5'
+      <div className='w-full relative pb-[70px] h-[170vh] md:h-[110vh] lg:h-[100vh] flex flex-col md:flex-row justify-end md:justify-center items-center gap-5'
         style={{
           backgroundImage: `url(${bg})`,
           backgroundSize: 'cover',
@@ -45,11 +45,13 @@ const Homepage = () => {
         }}
       >
         <div className='w-[90%] md:w-[60%] md:p-0 p-2 z-[10] md:absolute left-5 md:ml-[60px] gap-5 flex flex-col justify-center items-start md:bg-transparent bg-white/30 md:backdrop-blur-none backdrop-blur-lg md:border-none border border-white/20 md:shadow-none shadow-lg md:rounded-none rounded-lg'>
-          <h1 className='font-bold text-[27px] md:text-[50px] text-center md:text-left'>
-            Trustworthy insurance experts standing by for you
+          <h1 className='font-bold text-[18px] md:text-[25px] text-center md:text-left'>
+            Insurance Done with the Convenience of Modern Technology, and the Customer Service of a Real Person
           </h1>
-          <p className='text-[17px] md:text-[28px] text-center md:text-left'>
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
+          <p className='text-[15px] md:text-[15px] text-center md:text-left'>
+            The Thaker Insurance team at John Galt is offering transparency and control back to our clients. We want you to have information about your policies and quotes at your fingertips, but still have the ability to reach your agent by phone or email.
+            On our new website, you will be able to submit requests for quotes and have progress updates until they are delivered. Other features include: submitting requests for documents, binders, checking policy information, and premium history. All of this without having to pick up the phone, but while still having access to a live agent when you need one.
+            With the insurance companies in Florida having unexpected increases in premium and non-renewing policies, we have implemented a feature on our site that will automatically send you quotes for your homeowner’s policies, starting in 2025. This should help our clients keep their expenses as low as possible, by being able to know if there is a better rate available or if they currently have the best one. It also will ensure that if your policy is being non-renewed at the end of the term, that there is another option available and avoid a lapse in coverage.
           </p>
           <div className='w-full flex flex-col md:flex-row justify-center md:justify-start items-center gap-5'>
 
