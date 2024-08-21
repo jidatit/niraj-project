@@ -186,7 +186,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
                 size: 800,
                 Cell: ({ cell }) => (
                     <Box >
-                        {cell.getValue() == 0.00 ? "QB VIP HO3: Risk does not meet underwriting guidelines. See Messages for full list of underwriting violations." : cell.getValue()}
+                        {cell.getValue() == 0.00 ? "Risk does not meet underwriting guidelines." : cell.getValue()}
                     </Box>
                 )
             },

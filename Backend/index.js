@@ -14,6 +14,9 @@ app.use(express.json());
 app.post('/webhook', async (req, res) => {
     try {
         let payload = req.body;
+        const timestamp = new Date().toISOString();
+        console.log("New Record:");
+        console.log(`[${timestamp}] Received webhook payload`);
         if (payload.Email) {
             payload.Email = payload.Email.toLowerCase();
         }
