@@ -13,10 +13,13 @@ app.use(express.json());
 
 app.post('/webhook', async (req, res) => {
     try {
-        const payload = req.body;
+        let payload = req.body;
         const timestamp = new Date().toISOString();
         console.log("New Record:");
         console.log(`[${timestamp}] Received webhook payload:`, payload);
+        if (payload.Email) {
+            payload.Email = payload.Email.toLowerCase();
+        }
         await addDoc(collection(db, 'cms_quotes'), payload);
         res.status(201).send('Quote from CMS added into db successfully!');
     } catch (error) {
