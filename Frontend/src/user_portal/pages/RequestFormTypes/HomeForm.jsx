@@ -256,11 +256,11 @@ const HomeForm = () => {
                         <TextField value={formData.address}
                             onChange={(e) => handleChange(e)} name="address" className='w-full' id="address" label="Type your Address here......" variant="outlined" />
                     </div>
-                    <div className='flex w-full flex-row pt-5 gap-2 justify-start items-center'>
+                    {/* <div className='flex w-full flex-row pt-5 gap-2 justify-start items-center'>
                         <input value={formData.mailing} checked={formData.mailing} name="mailing"
                             onChange={handleChange} className='w-[20px] h-[20px]' type="checkbox" id="mailing" />
                         <InputLabel htmlFor="mailing">Same as Mailing Address</InputLabel>
-                    </div>
+                    </div> */}
                 </div>
 
 

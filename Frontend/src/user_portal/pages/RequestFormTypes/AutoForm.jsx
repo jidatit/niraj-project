@@ -277,11 +277,11 @@ const AutoForm = () => {
                         <TextField value={formData.garaging_address}
                             onChange={(e) => handleChange(e)} name="garaging_address" className='w-full' id="garaging_address" label="Type your Address here......" variant="outlined" />
                     </div>
-                    <div className='flex w-full lg:w-[50%] flex-row pt-5 gap-2 justify-start items-center'>
+                    {/* <div className='flex w-full lg:w-[50%] flex-row pt-5 gap-2 justify-start items-center'>
                         <input value={formData.mailing} checked={formData.mailing} name="mailing"
                             onChange={(e) => handleChange(e)} className='w-[20px] h-[20px]' type="checkbox" id="mailing" />
                         <InputLabel htmlFor="mailing">Same as Mailing Address</InputLabel>
-                    </div>
+                    </div> */}
                 </div>
 
                 {formData.vehicles.map((vehicle, index) => (
