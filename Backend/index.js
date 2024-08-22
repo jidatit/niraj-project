@@ -37,7 +37,7 @@ app.get('/get_quotes', async (req, res) => {
             const CmsQuotesRef = collection(db, "cms_quotes");
             const queryResults = query(
                 CmsQuotesRef,
-                where("Email", "==", email),
+                where("Email", "==", email.toLowerCase()),
                 where("zipCode", "==", zipCode)
             );
 
@@ -69,7 +69,7 @@ app.post('/contact_info', async (req, res) => {
     try {
         const { email } = req.body;
 
-        const response = await fetch(`https://jgi-holdings.clientdynamics.com/api/Contacts/list?search_criteria=email&search_value=${email}`, {
+        const response = await fetch(`https://jgi-holdings.clientdynamics.com/api/Contacts/list?search_criteria=email&search_value=${email.toLowerCase()}`, {
             method: 'GET',
             headers: {
                 'X-API-Key': '8ee0c18932f2b248f9ef43879ee54b665d82409b',

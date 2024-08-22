@@ -37,7 +37,7 @@ const Homepage = () => {
   return (
     <div >
 
-      <div className='w-full relative pb-[70px] h-[170vh] md:h-[110vh] lg:h-[100vh] flex flex-col md:flex-row justify-end md:justify-center items-center gap-5'
+      <div className='w-full relative pb-[70px] pt-5 sm:h-[100vh] md:h-[110vh] lg:h-[100vh] flex flex-col md:flex-row justify-end md:justify-center items-center gap-5'
         style={{
           backgroundImage: `url(${bg})`,
           backgroundSize: 'cover',
