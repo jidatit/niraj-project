@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { MaterialReactTable } from 'material-react-table';
 import Button from "./Button"
-import { Modal, Slide, TextField, FormControl, InputLabel, MenuItem, Select, Box } from '@mui/material';
+import { Modal, Slide, TextField, FormControl, InputLabel, MenuItem, Select, Box, FilledInput, InputAdornment, IconButton } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { db } from '../../../db';
@@ -10,6 +10,7 @@ import { getType } from "../../utils/helperSnippets"
 import { useAuth } from "../../AuthContext"
 import { ClientQuoteBindMail } from '../../utils/mailingFuncs';
 import { useNavigate } from 'react-router-dom';
+import { FaSearch } from "react-icons/fa";
 
 const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
     const navigate = useNavigate()
@@ -239,6 +240,15 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
         }
     }
 
+    const [FilteredSearchCarriers, setFilteredSearchCarriers] = useState(table2_data);
+
+    const SearchCarriersFilter = (value) => {
+        const filteredData = table2_data.filter((carrier) =>
+            carrier.carrier.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredSearchCarriers(filteredData);
+    };
+
     return (
         <>
             <div className="w-full flex mt-[20px] flex-col justify-center items-start">
@@ -258,19 +268,59 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
                         <Button onClickProp={() => setopenbindoptions(!openbindoptions)} text={"BIND"} icon={true} />
                     </div>
                     {openbindoptions &&
-                        (<div className='mt-1 divide-y divide-solid w-full rounded-md bg-[#e0e0e0]'>
-                            {table2_data && table2_data?.map((row, index) => (
-                                <div key={index} onClick={() => {
-                                    setFormData((prevData) => ({
-                                        ...prevData,
-                                        carrier: row.carrier
-                                    }));
-                                    setSlideModal(true);
-                                }} className='w-full hover:bg-slate-200 rounded-md cursor-pointer pl-[20px] py-2 flex flex-col justify-center items-start'>
-                                    <p className='font-semibold'>{row.carrier}</p>
-                                </div>
-                            ))}
-                        </div>)}
+                        (<div className='mt-1 divide-y divide-solid w-full rounded-md bg-[#ffffff] border-black border-[1px] shadow-lg'>
+
+                            <div
+                                className='w-full hover:bg-slate-200 rounded-md cursor-pointer pl-[20px] py-2 flex flex-col justify-center items-start'
+                            >
+                                <p className='font-normal italic'>
+                                    ({table2_data && table2_data.filter(row => row.premium != 0.00).length}) <span>Carriers available to bind</span>
+                                </p>
+                            </div>
+
+                            <FormControl fullWidth variant="filled">
+                                <InputLabel htmlFor="filled-adornment-search">Type to search carriers...</InputLabel>
+                                <FilledInput
+                                    onChange={(e) => SearchCarriersFilter(e.target.value)}
+                                    endAdornment={
+                                        <InputAdornment position="end">
+                                            <IconButton edge="start">
+                                                <FaSearch />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    }
+                                />
+                            </FormControl>
+
+                            {FilteredSearchCarriers &&
+                                FilteredSearchCarriers
+                                    .filter(row => row.premium != 0.00)
+                                    .map((row, index) => (
+                                        <div key={index} onClick={() => {
+                                            setFormData((prevData) => ({
+                                                ...prevData,
+                                                carrier: row.carrier
+                                            }));
+                                            setSlideModal(true);
+                                        }} className='w-full hover:bg-slate-200 rounded-md cursor-pointer pl-[20px] py-2 flex flex-col justify-center items-start'>
+                                            <p className='font-semibold'>{row.carrier} <span className='font-normal ml-5'>{row.premium == 0.00 ? "Risk does not meet underwriting guidelines." : row.premium}</span> </p>
+                                        </div>
+                                    ))}
+                            {FilteredSearchCarriers.length === 0 &&
+                                (
+                                    <div
+                                        className='w-full hover:bg-slate-200 rounded-md cursor-pointer pl-[20px] py-2 flex flex-col justify-center items-center'
+                                    >
+                                        <p
+                                            className='font-semibold'
+                                        >
+                                            No carriers found.
+                                        </p>
+                                    </div>
+                                )
+                            }
+                        </div>
+                        )}
                 </div>
 
                 <Modal
@@ -386,7 +436,6 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
 
                     </Slide>
                 </Modal>
-
 
             </div >
         </>

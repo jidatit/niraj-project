@@ -430,14 +430,19 @@ const CustomTable = ({ QSR, tableData, user }) => {
                 setCmsData(data.quotesList);
                 const homeQuotes = data.quotesList?.filter(quote => homeCarriers.includes(quote.Carrier));
 
-                const filteredData = homeQuotes.map(quote => ({
-                    id: quote.id,
-                    email: quote.Email,
-                    address: quote.Address,
-                    zipCode: quote.zipCode ? quote.zipCode : "",
-                    carrier: quote.Carrier || "",
-                    premium: quote.ReturnAmount || 0
-                }));
+                const filteredData = homeQuotes && homeQuotes
+                    .map(quote => ({
+                        id: quote.id,
+                        email: quote.Email,
+                        address: quote.Address,
+                        zipCode: quote.zipCode ? quote.zipCode : "",
+                        carrier: quote.Carrier || "",
+                        premium: quote.ReturnAmount || 0
+                    }))
+                    .filter((quote, index, self) =>
+                        index === self.findIndex(q => q.carrier == quote.carrier && q.premium == quote.premium)
+                    );
+
                 setTableData2(filteredData);
                 tableData(filteredData, 2);
             }
