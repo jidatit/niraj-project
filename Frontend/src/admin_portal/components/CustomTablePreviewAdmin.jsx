@@ -176,7 +176,7 @@ const CustomTablePreviewAdmin = ({ qsr_type, table2_data }) => {
                     <MaterialReactTable
                         columns={table_columns_2}
                         data={table2_data}
-                        enableBottomToolbar={false}
+                        enableBottomToolbar={true}
                         enableTopToolbar={false}
                         enableTableHead={true}
                     />

@@ -247,30 +247,30 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
                     <MaterialReactTable
                         columns={table_columns_2}
                         data={table2_data}
-                        enableBottomToolbar={false}
+                        enableBottomToolbar={true}
                         enableTopToolbar={false}
                         enableTableHead={false}
                     />
                 </div>)}
 
                 <div className="w-full mb-5 flex flex-col justify-end items-end">
-                    <div className="md:w-[30%] relative mt-[30px] mb-[30px] w-full">
+                    <div className="md:w-[30%] mt-[30px] mb-[30px] w-full">
                         <Button onClickProp={() => setopenbindoptions(!openbindoptions)} text={"BIND"} icon={true} />
-                        {openbindoptions &&
-                            (<div className='absolute mt-1 divide-y divide-solid w-full rounded-md bg-[#e0e0e0]'>
-                                {table2_data && table2_data?.map((row, index) => (
-                                    <div key={index} onClick={() => {
-                                        setFormData((prevData) => ({
-                                            ...prevData,
-                                            carrier: row.carrier
-                                        }));
-                                        setSlideModal(true);
-                                    }} className='w-full hover:bg-slate-200 rounded-md cursor-pointer pl-[20px] py-2 flex flex-col justify-center items-start'>
-                                        <p className='font-semibold'>{row.carrier}</p>
-                                    </div>
-                                ))}
-                            </div>)}
                     </div>
+                    {openbindoptions &&
+                        (<div className='mt-1 divide-y divide-solid w-full rounded-md bg-[#e0e0e0]'>
+                            {table2_data && table2_data?.map((row, index) => (
+                                <div key={index} onClick={() => {
+                                    setFormData((prevData) => ({
+                                        ...prevData,
+                                        carrier: row.carrier
+                                    }));
+                                    setSlideModal(true);
+                                }} className='w-full hover:bg-slate-200 rounded-md cursor-pointer pl-[20px] py-2 flex flex-col justify-center items-start'>
+                                    <p className='font-semibold'>{row.carrier}</p>
+                                </div>
+                            ))}
+                        </div>)}
                 </div>
 
                 <Modal

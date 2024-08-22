@@ -9,7 +9,8 @@ import {
     DialogTitle,
     Stack,
     TextField,
-    Box
+    Box,
+    CircularProgress
 } from '@mui/material';
 import axiosInstance from '../../utils/axiosConfig';
 import { toast, ToastContainer } from 'react-toastify';
@@ -23,7 +24,7 @@ const CustomTable = ({ QSR, tableData, user }) => {
 
     const [CmsData, setCmsData] = useState([]);
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const [tableCols1, setTableCols1] = useState(null);
     const [tableData1, setTableData1] = useState(null);
@@ -410,55 +411,47 @@ const CustomTable = ({ QSR, tableData, user }) => {
         tableData(tableData2, 2);
     };
 
-    useEffect(() => {
-        const fetchCmsData = async () => {
-            try {
-                const { data } = await axiosInstance.get(`/get_quotes?email=${user.email.toLowerCase()}&zipCode=${user.zipCode.toLowerCase()}`);
-
-                if (data.status === 404) {
-                    toast.warn("Quote Data Not Found for User.")
-                    return;
-                }
-                if (data.status === 401) {
-                    toast.warn("Email and zipCode of user is required to get quotes.")
-                    return;
-                }
-
-                if (data.status === 200) {
-
-                    setCmsData(data.quotesList);
-                    const homeQuotes = data.quotesList?.filter(quote => homeCarriers.includes(quote.Carrier));
-
-                    const filteredData = homeQuotes.map(quote => ({
-                        id: quote.id,
-                        email: quote.Email,
-                        address: quote.Address,
-                        zipCode: quote.zipCode ? quote.zipCode : "",
-                        carrier: quote.Carrier || "",
-                        premium: quote.ReturnAmount || 0
-                    }));
-                    setTableData2(filteredData);
-                    tableData(filteredData, 2);
-                }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        const fetchDataWithDelay = () => {
+    const fetchCmsData = async (email, zipCode) => {
+        try {
             setLoading(true);
-            setTimeout(() => {
-                fetchCmsData();
-            }, 2000);
-        };
+            const { data } = await axiosInstance.get(`/get_quotes?email=${email}&zipCode=${zipCode}`);
 
-        fetchDataWithDelay();
+            if (data.status === 404) {
+                toast.warn("Quote Data Not Found for User.")
+                return;
+            }
+            if (data.status === 401) {
+                toast.warn("Email and zipCode of user is required to get quotes.")
+                return;
+            }
 
-        const interval = setInterval(fetchDataWithDelay, 120000);
+            if (data.status === 200) {
 
-        return () => clearInterval(interval);
+                setCmsData(data.quotesList);
+                const homeQuotes = data.quotesList?.filter(quote => homeCarriers.includes(quote.Carrier));
+
+                const filteredData = homeQuotes.map(quote => ({
+                    id: quote.id,
+                    email: quote.Email,
+                    address: quote.Address,
+                    zipCode: quote.zipCode ? quote.zipCode : "",
+                    carrier: quote.Carrier || "",
+                    premium: quote.ReturnAmount || 0
+                }));
+                setTableData2(filteredData);
+                tableData(filteredData, 2);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (user.email, user.zipCode) {
+            fetchCmsData(user.email.toLowerCase(), user.zipCode.toLowerCase())
+        }
     }, [user.email, user.zipCode]);
 
     const handleWordRowDelete = (id) => {
@@ -476,26 +469,16 @@ const CustomTable = ({ QSR, tableData, user }) => {
         <>
             <div className="w-[90%] flex mt-[20px] flex-col justify-center items-start">
                 <ToastContainer />
-                <div className="mt-5 mb-5 w-full">
+                <div className="mt-5 mb-5 flex flex-row justify-between items-center w-full">
                     <SubOptButton actionType={handleActionChange} />
-                </div>
-
-                <div className="mt-5 mb-5 w-full">
-                    <div className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-                        <span className="font-medium">(Data reloads after every 2 minutes)</span> More data may come in a while!
-                    </div>
-                    {/* {CmsData && (
-                        <div className='relative custom'>
-                            {loading && (
-                                <div className="absolute inset-0 flex items-center gap-1 justify-center bg-gray-100 bg-opacity-50 z-50">
-                                    <div className='h-6 w-6 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                                    <div className='h-6 w-6 bg-black rounded-full animate-bounce [animation-delay:-0.20s]'></div>
-                                    <div className='h-6 w-6 bg-black rounded-full animate-bounce'></div>
-                                </div>
-                            )}
-                            <JsonView data={CmsData} shouldExpandNode={allExpanded} style={darkStyles} />
-                        </div>
-                    )} */}
+                    <Button onClick={() => fetchCmsData(user.email.toLowerCase(), user.zipCode.toLowerCase())} variant="contained" color="success">
+                        {loading ? (
+                            <>
+                                <CircularProgress color='inherit' size={15} />
+                                <span className='ml-2'>Fetching</span>
+                            </>
+                        ) : "Fetch Latest Data"}
+                    </Button>
                 </div>
 
                 {tableCols1 && tableData1 && (<div className="w-full">
@@ -514,7 +497,7 @@ const CustomTable = ({ QSR, tableData, user }) => {
                         data={tableData2}
                         // state={{ isLoading: { loading } }}
                         initialState={{ density: "compact" }}
-                        enableBottomToolbar={false}
+                        enableBottomToolbar={true}
                         // enableTopToolbar={false}
                         enableTableHead={true}
                         enableEditing={true}
@@ -556,7 +539,6 @@ const CustomTable = ({ QSR, tableData, user }) => {
                 onClose={() => setCreateModalOpen2(false)}
                 onSubmit={handleNewWordRow}
             />)}
-
 
         </>
     )
