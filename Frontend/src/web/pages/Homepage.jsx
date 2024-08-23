@@ -44,7 +44,7 @@ const Homepage = () => {
           backgroundRepeat: 'no-repeat'
         }}
       >
-        <div className='w-[90%] md:w-[55%] md:p-0 p-2 z-[10] md:absolute left-5 md:ml-[60px] gap-5 flex flex-col justify-center items-start md:bg-transparent bg-white/30 md:backdrop-blur-none backdrop-blur-lg md:border-none border border-white/20 md:shadow-none shadow-lg md:rounded-none rounded-lg'>
+        <div className='w-[90%] md:w-[55%] md:p-0 p-[30px] z-[10] md:absolute left-5 md:ml-[60px] gap-5 flex flex-col justify-center items-start md:bg-transparent bg-white/30 md:backdrop-blur-none backdrop-blur-lg md:border-none border border-white/20 md:shadow-none shadow-lg md:rounded-none rounded-lg'>
           <h1 className='font-bold text-[18px] md:text-[25px] text-center md:text-left'>
             Insurance Done with the Convenience of Modern Technology, and the Customer Service of a Real Person
           </h1>
