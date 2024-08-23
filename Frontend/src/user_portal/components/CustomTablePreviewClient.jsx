@@ -11,6 +11,7 @@ import { useAuth } from "../../AuthContext"
 import { ClientQuoteBindMail } from '../../utils/mailingFuncs';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch } from "react-icons/fa";
+import { ImCross } from "react-icons/im";
 
 const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
     const navigate = useNavigate()
@@ -241,8 +242,9 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
     }
 
     const [FilteredSearchCarriers, setFilteredSearchCarriers] = useState(table2_data);
-
+    const [SearchValueForCarriers, setSearchValueForCarriers] = useState("")
     const SearchCarriersFilter = (value) => {
+        setSearchValueForCarriers(value)
         const filteredData = table2_data.filter((carrier) =>
             carrier.carrier.toLowerCase().includes(value.toLowerCase())
         );
@@ -281,11 +283,12 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
                             <FormControl fullWidth variant="filled">
                                 <InputLabel htmlFor="filled-adornment-search">Type to search carriers...</InputLabel>
                                 <FilledInput
+                                    value={SearchValueForCarriers}
                                     onChange={(e) => SearchCarriersFilter(e.target.value)}
                                     endAdornment={
-                                        <InputAdornment position="end">
+                                        <InputAdornment onClick={() => { setSearchValueForCarriers(""); setFilteredSearchCarriers(table2_data); }} position="end">
                                             <IconButton edge="start">
-                                                <FaSearch />
+                                                {SearchValueForCarriers.length > 0 ? (<ImCross />) : (<FaSearch />)}
                                             </IconButton>
                                         </InputAdornment>
                                     }
