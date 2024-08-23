@@ -71,6 +71,7 @@ const ChangePassword = () => {
                         placeholder="Old Password"
                         onChange={handleChange}
                         className="w-full"
+                        required
                     />
                     <TextField
                         type="password"
@@ -83,6 +84,7 @@ const ChangePassword = () => {
                         placeholder="New Password"
                         onChange={handleChange}
                         className="w-full"
+                        required
                     />
                     <TextField
                         type="password"
@@ -95,6 +97,7 @@ const ChangePassword = () => {
                         placeholder="Confirm New Password"
                         onChange={handleChange}
                         className="w-full"
+                        required
                     />
                     <Button
                         type="submit"

@@ -22,6 +22,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { RiDeleteBin5Fill } from "react-icons/ri";
+import { IconButton, InputAdornment, Tooltip } from '@mui/material';
 
 const AutoForm = () => {
 
@@ -122,7 +124,7 @@ const AutoForm = () => {
     const [formData, setFormData] = useState({
         policyType: "Auto",
         mailingAddress: '',
-        drivers: [{ name: '', dob: '', LN: '', email: '', phoneNumber: '', zipCode: ''  }],
+        drivers: [{ name: '', dob: '', LN: '', email: '', phoneNumber: '', zipCode: '' }],
         garaging_address: '',
         mailing: false,
         vehicles: [{ vin: false, vin_number: '', v_make: '', v_model: '', v_year: '', current_insurance: '', expiration_date: '', v_garaging_address: '', v_garaging_address_input: '' }],
@@ -155,13 +157,20 @@ const AutoForm = () => {
     const handleAddDriver = () => {
         setFormData((prevData) => ({
             ...prevData,
-            drivers: [...prevData.drivers, { name: '', dob: '', LN: '', email: '', phoneNumber: '', zipCode: ''  }]
+            drivers: [...prevData.drivers, { name: '', dob: '', LN: '', email: '', phoneNumber: '', zipCode: '' }]
         }));
     };
     const handleAddVehicle = () => {
         setFormData((prevData) => ({
             ...prevData,
             vehicles: [...prevData.vehicles, { vin: false, vin_number: '', v_make: '', v_model: '', v_year: '', current_insurance: '', expiration_date: '', v_garaging_address: '', v_garaging_address_input: '' }]
+        }));
+    };
+
+    const handleRemoveDriver = (index) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            drivers: prevData.drivers.filter((_, i) => i !== index)
         }));
     };
 
@@ -192,69 +201,82 @@ const AutoForm = () => {
                 </div>
 
                 {formData.drivers.map((driver, index) => (
-                    <div key={index} className='w-full grid grid-cols-1 md:grid-cols-2 justify-center items-center gap-5'>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`name-${index}`}>Name to be Insured</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`name-${index}`}
-                                label="Type your name here......"
-                                variant="outlined"
-                                value={driver.name}
-                                onChange={(e) => handleDriverChange(index, 'name', e.target.value)}
-                            />
+                    <>
+                        <div key={index} className='w-full grid grid-cols-1 md:grid-cols-2 justify-center items-center gap-5'>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`name-${index}`}>Name to be Insured</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`name-${index}`}
+                                    label="Type your name here......"
+                                    variant="outlined"
+                                    value={driver.name}
+                                    onChange={(e) => handleDriverChange(index, 'name', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`date-${index}`}>Date of Birth</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`date-${index}`}
+                                    type='date'
+                                    value={driver.dob}
+                                    onChange={(e) => handleDriverChange(index, 'dob', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`LN-${index}`}>Drivers License</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`LN-${index}`}
+                                    type='text'
+                                    value={driver.LN}
+                                    onChange={(e) => handleDriverChange(index, 'LN', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`email-${index}`}>Email</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`email-${index}`}
+                                    type='email'
+                                    value={driver.email}
+                                    onChange={(e) => handleDriverChange(index, 'email', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`phoneNumber-${index}`}>Phone Number</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`phoneNumber-${index}`}
+                                    type='phoneNumber'
+                                    value={driver.phoneNumber}
+                                    onChange={(e) => handleDriverChange(index, 'phoneNumber', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`zipCode-${index}`}>Zip Code</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`zipCode-${index}`}
+                                    type='number'
+                                    value={driver.zipCode}
+                                    onChange={(e) => handleDriverChange(index, 'zipCode', e.target.value)}
+                                />
+                            </div>
                         </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`date-${index}`}>Date of Birth</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`date-${index}`}
-                                type='date'
-                                value={driver.dob}
-                                onChange={(e) => handleDriverChange(index, 'dob', e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`LN-${index}`}>Drivers License</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`LN-${index}`}
-                                type='text'
-                                value={driver.LN}
-                                onChange={(e) => handleDriverChange(index, 'LN', e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`email-${index}`}>Email</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`email-${index}`}
-                                type='email'
-                                value={driver.email}
-                                onChange={(e) => handleDriverChange(index, 'email', e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`phoneNumber-${index}`}>Phone Number</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`phoneNumber-${index}`}
-                                type='phoneNumber'
-                                value={driver.phoneNumber}
-                                onChange={(e) => handleDriverChange(index, 'phoneNumber', e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`zipCode-${index}`}>Zip Code</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`zipCode-${index}`}
-                                type='number'
-                                value={driver.zipCode}
-                                onChange={(e) => handleDriverChange(index, 'zipCode', e.target.value)}
-                            />
-                        </div>
-                    </div>
+                        {index > 0 && (
+                            <div key={index + 1} className='w-full flex flex-col mt-[20px] mb-[20px] justify-center items-center'>
+                                <Tooltip title={`Delete ${driver.email}`}>
+                                    <InputAdornment onClick={() => handleRemoveDriver(index)}>
+                                        <IconButton>
+                                            <RiDeleteBin5Fill size={20} />
+                                        </IconButton>
+                                    </InputAdornment>
+                                </Tooltip>
+                            </div>
+                        )}
+                    </>
                 ))}
 
                 <div className='w-full flex flex-col justify-center items-center'>

@@ -440,6 +440,14 @@ const DropdownPolicy = ({ popup_data }) => {
                                         </div>
                                     </div>
                                 )}
+                                {!viewModalData.policyData && (
+                                    <div className='w-full flex flex-col items-center'>
+                                        <img src={newlogo} alt='Policy Image' className='w-full object-cover mb-6' />
+                                        <div className='w-full max-w-lg bg-gray-100 p-6 rounded-lg shadow-lg'>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>No Policy Data Available.</span></p>
+                                        </div>
+                                    </div>
+                                )}
 
                             </div>
                         </Slide>

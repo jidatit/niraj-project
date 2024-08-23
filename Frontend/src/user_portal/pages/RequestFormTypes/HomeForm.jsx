@@ -22,6 +22,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { RiDeleteBin5Fill } from "react-icons/ri";
+import { IconButton, InputAdornment, Tooltip } from '@mui/material';
 
 const HomeForm = () => {
     const navigate = useNavigate()
@@ -162,6 +164,13 @@ const HomeForm = () => {
         }));
     };
 
+    const handleRemovePerson = (index) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            persons: prevData.persons.filter((_, i) => i !== index)
+        }));
+    };
+
     const handlePersonChange = (index, field, value) => {
         const updatedPersons = [...formData.persons];
         updatedPersons[index][field] = value;
@@ -180,59 +189,70 @@ const HomeForm = () => {
                 </div>
 
                 {formData.persons.map((person, index) => (
-                    <div key={index} className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`name-${index}`}>Name to be Insured</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`name-${index}`}
-                                label="Type your name here......"
-                                variant="outlined"
-                                value={person.name}
-                                onChange={(e) => handlePersonChange(index, 'name', e.target.value)}
-                            />
+                    <>
+                        <div key={index} className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`name-${index}`}>Name to be Insured</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`name-${index}`}
+                                    label="Type your name here......"
+                                    variant="outlined"
+                                    value={person.name}
+                                    onChange={(e) => handlePersonChange(index, 'name', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`date-${index}`}>Date of Birth</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`date-${index}`}
+                                    type='date'
+                                    value={person.dob}
+                                    onChange={(e) => handlePersonChange(index, 'dob', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`email-${index}`}>Email</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`email-${index}`}
+                                    type='email'
+                                    value={person.email}
+                                    onChange={(e) => handlePersonChange(index, 'email', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`phoneNumber-${index}`}>Phone Number</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`phoneNumber-${index}`}
+                                    type='phoneNumber'
+                                    value={person.phoneNumber}
+                                    onChange={(e) => handlePersonChange(index, 'phoneNumber', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`zipCode-${index}`}>Zip Code</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`zipCode-${index}`}
+                                    type='number'
+                                    value={person.zipCode}
+                                    onChange={(e) => handlePersonChange(index, 'zipCode', e.target.value)}
+                                />
+                            </div>
                         </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`date-${index}`}>Date of Birth</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`date-${index}`}
-                                type='date'
-                                value={person.dob}
-                                onChange={(e) => handlePersonChange(index, 'dob', e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`email-${index}`}>Email</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`email-${index}`}
-                                type='email'
-                                value={person.email}
-                                onChange={(e) => handlePersonChange(index, 'email', e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`phoneNumber-${index}`}>Phone Number</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`phoneNumber-${index}`}
-                                type='phoneNumber'
-                                value={person.phoneNumber}
-                                onChange={(e) => handlePersonChange(index, 'phoneNumber', e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`zipCode-${index}`}>Zip Code</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`zipCode-${index}`}
-                                type='number'
-                                value={person.zipCode}
-                                onChange={(e) => handlePersonChange(index, 'zipCode', e.target.value)}
-                            />
-                        </div>
-                    </div>
+                        {index > 0 && (<div key={index + 1} className='w-full flex flex-col mt-[20px] mb-[20px] justify-center items-center'>
+                            <Tooltip title={`Delete ${person.email}`}>
+                                <InputAdornment onClick={() => handleRemovePerson(index)}>
+                                    <IconButton>
+                                        <RiDeleteBin5Fill size={20} />
+                                    </IconButton>
+                                </InputAdornment>
+                            </Tooltip>
+                        </div>)}
+                    </>
                 ))}
 
 
