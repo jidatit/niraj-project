@@ -21,7 +21,7 @@ export function hasEmptyValue(userDataWithoutPasswords) {
   return false;
 }
 
-export function formatDate(dateString){
+export function formatDate(dateString) {
   const [year, month, day] = dateString.split('-');
   return `${day}-${month}-${year}`;
 };
@@ -73,6 +73,12 @@ export function formatKey(key) {
   return words.join(' ');
 }
 
-export function formatTimeSince(date){
+export function formatTimeSince(date) {
   return formatDistanceToNow(new Date(date), { addSuffix: true });
 };
+
+export function areKeysFilled(arr) {
+  return arr.every(item => {
+    return Object.values(item).every(value => value !== "");
+  });
+}

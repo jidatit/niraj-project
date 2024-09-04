@@ -7,7 +7,7 @@ import Button from "../components/Button"
 import { useLocation } from 'react-router-dom';
 import { addDoc, collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from "../../../db"
-import { getCurrentDate, getType } from '../../utils/helperSnippets';
+import { areKeysFilled, getCurrentDate, getType } from '../../utils/helperSnippets';
 import { AdminPrepareQuoteMail } from '../../utils/mailingFuncs';
 import { useNavigate } from 'react-router-dom';
 import { CircularProgress } from '@mui/material';
@@ -157,6 +157,10 @@ const EditorPage = () => {
             }
             if (Object.keys(formData.agent).length === 0) {
                 toast.warn("Select a agent!")
+                return
+            }
+            if (areKeysFilled(formData.tablesData.table_1) === false) {
+                toast.warn("Table 1 has empty value(s)")
                 return
             }
             setButtonText("Submitting Quote");
