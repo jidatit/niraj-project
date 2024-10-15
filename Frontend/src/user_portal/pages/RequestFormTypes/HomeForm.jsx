@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from "react";
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import plusicon from "../../../assets/dash/plus.png"
@@ -8,7 +8,7 @@ import Select from '@mui/material/Select';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import { db, storage } from "../../../../db"
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, getDocs, getFirestore } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from '@firebase/storage';
 import { useDropzone } from 'react-dropzone';
 import { toast, ToastContainer } from 'react-toastify';
@@ -52,6 +52,28 @@ const HomeForm = () => {
     const [buttonstate, setbuttonstate] = useState("Submit")
     const [fileModal, setfileModal] = useState(false);
     const [files, setFiles] = useState([]);
+    const [adminEmail, setAdminEmail] = useState("");
+
+				useEffect(() => {
+					const fetchAdminEmail = async () => {
+						const db = getFirestore();
+						try {
+							const adminCollection = collection(db, "admins");
+							const adminSnapshot = await getDocs(adminCollection);
+							const adminData = adminSnapshot.docs.map((doc) => doc.data());
+
+							// Assuming the admin collection has only one document with the email
+							if (adminData.length > 0) {
+								setAdminEmail(adminData[0].email); // Adjust this based on your data structure
+							}
+						} catch (err) {
+							console.error(err);
+						} finally {
+						}
+					};
+
+					fetchAdminEmail();
+				}, []);
 
     const onDrop = (acceptedFiles) => {
         setFiles(acceptedFiles);
@@ -76,16 +98,16 @@ const HomeForm = () => {
         try {
             setConfirmDialogOpen(false)
             setbuttonstate("Submitting...")
-            console.log("ishom",formData.ishomebuild);
+            
             const status = formData.ishomebuild === "yes" ? "completed" : "pending";
             const status_step = formData.ishomebuild === "no" ? "1" : "0";
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: status, status_step: "1" }
                 await addDoc(collection(db, 'home_quotes'), nofilesformData);
-                ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Home")
+                ClientQuoteReqMail(currentUser.data.name, adminEmail, "Home");
                 toast.success("Application submitted with success.");
                 setbuttonstate("Submit")
-                redirectFunc("/user_portal/view_policy_quote")
+                redirectFunc("/user_portal");
                 return;
             }
 
@@ -124,11 +146,11 @@ const HomeForm = () => {
             });
             setFiles([]);
 
-            ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Home")
+            ClientQuoteReqMail(currentUser.data.name, adminEmail, "Home");
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")
-            redirectFunc("/user_portal/view_policy_quote")
+            redirectFunc("/user_portal");
         } catch (error) {
             console.error("Error submitting application:", error);
             toast.error("Error submitting application.");

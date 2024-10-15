@@ -7,6 +7,7 @@ export function ClientQuoteReqMail(user_name, user_email, policy_type) {
         type: policy_type,
         email: user_email
     };
+
     emailjs
         .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_QR_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
         .then((response) => {

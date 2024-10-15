@@ -193,7 +193,7 @@ const UploadInspections = () => {
                     <>
                         <div className='w-full flex-col flex justify-center items-center'>
                             <p className='font-semibold'>Inspections already uploaded.</p>
-                            <Link to={"/user_portal"}>
+                            <Link to={"/user_portal/requests"}>
                                 <p className='underline'>Click to go back</p>
                             </Link>
                         </div>

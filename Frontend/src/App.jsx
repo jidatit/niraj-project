@@ -58,8 +58,8 @@ function App() {
           </Route>
 
           <Route path='/user_portal' element={<UserLayout />}>
-            <Route index element={<RequestPage />} />
-            <Route path='view_policy_quote' element={<ViewPolicyQuote />} />
+            <Route index element={<ViewPolicyQuote />} />
+            <Route path='requests' element={<RequestPage />} />
             <Route path='refer_friend' element={<ReferFriend />} />
             <Route path='pq_progress' element={<PolicyQuoteProgess />} />
             <Route path='pq_results' element={<PolicyQuoteResults />} />

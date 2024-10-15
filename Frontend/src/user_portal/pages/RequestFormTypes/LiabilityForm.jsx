@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import plusicon from "../../../assets/dash/plus.png"
@@ -9,7 +9,7 @@ import infoicon from "../../../assets/dash/info.png"
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { db } from "../../../../db"
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, getDocs, getFirestore } from 'firebase/firestore';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '../../../AuthContext';
@@ -19,6 +19,28 @@ import { useNavigate } from 'react-router-dom';
 const LiabilityForm = () => {
 
     const navigate = useNavigate()
+    const [adminEmail, setAdminEmail] = useState("");
+
+				useEffect(() => {
+					const fetchAdminEmail = async () => {
+						const db = getFirestore();
+						try {
+							const adminCollection = collection(db, "admins");
+							const adminSnapshot = await getDocs(adminCollection);
+							const adminData = adminSnapshot.docs.map((doc) => doc.data());
+
+							// Assuming the admin collection has only one document with the email
+							if (adminData.length > 0) {
+								setAdminEmail(adminData[0].email); // Adjust this based on your data structure
+							}
+						} catch (err) {
+							console.error(err);
+						} finally {
+						}
+					};
+
+					fetchAdminEmail();
+				}, []);
 
     const redirectFunc = (path) => {
         setTimeout(() => {
@@ -64,11 +86,11 @@ const LiabilityForm = () => {
                 status_step: "1"
             });
 
-            ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Liability")
+            ClientQuoteReqMail(currentUser.data.name, adminEmail, "Liability");
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")
-            redirectFunc("/user_portal/view_policy_quote")
+            redirectFunc("/user_portal");
         } catch (error) {
             console.error("Error submitting application:", error);
             toast.error("Error submitting application.");

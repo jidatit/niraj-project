@@ -205,7 +205,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
             ClientQuoteBindMail(currentUser.data?.name, currentUser.data?.email, qsr_type)
             toast.success("Quote bind request with success!")
             setTimeout(() => {
-                navigate("/user_portal/view_policy_quote")
+                navigate("/user_portal")
             }, 2000);
         } catch (error) {
             toast.error("Error Requesting Bind Quote!")
