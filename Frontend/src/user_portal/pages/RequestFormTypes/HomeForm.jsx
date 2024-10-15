@@ -76,8 +76,11 @@ const HomeForm = () => {
         try {
             setConfirmDialogOpen(false)
             setbuttonstate("Submitting...")
+            console.log("ishom",formData.ishomebuild);
+            const status = formData.ishomebuild === "yes" ? "completed" : "pending";
+            const status_step = formData.ishomebuild === "no" ? "1" : "0";
             if (files.length === 0) {
-                let nofilesformData = { ...formData, status: "pending", status_step: "1" }
+                let nofilesformData = { ...formData, status: status, status_step: "1" }
                 await addDoc(collection(db, 'home_quotes'), nofilesformData);
                 ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Home")
                 toast.success("Application submitted with success.");

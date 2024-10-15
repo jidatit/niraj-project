@@ -15,6 +15,8 @@ import img4 from "../../assets/dash/user/4.png"
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Button from "../components/Button"
 import LineGraph from '../components/LineGraph';
+import {  Typography, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import { MoreVert as MoreVertIcon,Close as CloseIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import { ClientQuotePolicyCancelMail, ClientQuotePolicyChangeMail } from '../../utils/mailingFuncs';
 
 const ViewPolicyQuote = () => {
@@ -24,6 +26,25 @@ const ViewPolicyQuote = () => {
     const [PopupData, setPopupData] = useState();
     const [openModalPolicy, setopenModalPolicy] = useState(false);
     const [PopupDataPolicy, setPopupDataPolicy] = useState();
+    const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleOpenInspectionModal = (rowData) => {
+    setSelectedRow(rowData);
+    console.log("row data",rowData )
+    setIsInspectionModalOpen(true);
+  };
+
+  const handleCloseInspectionModal = () => {
+    setIsInspectionModalOpen(false);
+    setSelectedRow(null);
+  };
+  const handleUploadInspection = (event) => {
+    // Handle file upload logic here
+    console.log('File uploaded:', event.target.files[0]);
+  };
+
 
     const onClose = () => {
         setopenModal(false)
@@ -36,13 +57,13 @@ const ViewPolicyQuote = () => {
     const handleOpenModalWithData = (data) => {
         setopenModal(true)
         setPopupData(data)
-    }
+    } 
 
     const handleOpenModalWithDataPolicy = (data) => {
         setopenModalPolicy(true)
         setPopupDataPolicy(data)
     }
-
+    
     const columns = useMemo(
         () => [
             {
@@ -78,20 +99,44 @@ const ViewPolicyQuote = () => {
             {
                 header: 'Actions',
                 size: 200,
-                Cell: ({ cell }) => (
+                Cell: ({ row }) => {
+                  const { status_step, files, policyType, ishomebuild, cert_elevation } = row.original;
+              
+                  const showUploadInspectionButton = 
+                    (files && files.length === 0) && 
+                    (
+                      (policyType === 'Home' && ishomebuild === 'yes') ||
+                      (policyType === 'Auto') ||
+                      (policyType === 'Flood' && cert_elevation === 'yes')
+                    ) &&
+                    (policyType !== 'Liability');
+              
+                  return (
                     <Box display="flex" alignItems="center" gap="18px">
+                      <button
+                        disabled={status_step !== "4"}
+                        onClick={() => handleOpenModalWithDataPolicy(row.original)}
+                        className={`${status_step !== "4" ? 'bg-[#d2ccc4]' : 'bg-[#F77F00]'} rounded-[18px] px-[16px] py-[4px] text-white text-[10px] lg:text-[14px] lg:font-bold`}
+                      >
+                        View Policy
+                      </button>
+                      <button
+                        onClick={() => handleOpenModalWithData(row.original)}
+                        className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px] lg:text-[14px] lg:font-bold'
+                      >
+                        View Quote
+                      </button>
+                      {showUploadInspectionButton && (
                         <button
-                            disabled={cell.row.original.status_step === "4" ? false : true}
-                            onClick={() => { handleOpenModalWithDataPolicy(cell.row.original) }}
-                            className={` ${cell.row.original.status_step !== "4" ? 'bg-[#d2ccc4]' : 'bg-[#F77F00]'} rounded-[18px] px-[16px] py-[4px] text-white text-[10px] lg:text-[14px] lg:font-bold`}>
-                            View Policy
+                          onClick={() => handleOpenInspectionModal(row.original)}
+                          className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px] lg:text-[14px] lg:font-bold'
+                        >
+                          Upload Inspection
                         </button>
-                        <button
-                            onClick={() => { handleOpenModalWithData(cell.row.original) }}
-                            className='bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px] lg:text-[14px] lg:font-bold'>
-                            View Quote
-                        </button>
-                    </Box>)
+                      )}
+                    </Box>
+                  );
+                }
             }
         ],
         [],
@@ -123,11 +168,13 @@ const ViewPolicyQuote = () => {
                 const allQts = [...filteredhomeQuotesData, ...filteredautoQuotesData, ...filteredliabilityQuotesData, ...filteredfloodQuotesData];
 
                 setAllQuotes(allQts)
+                console.log("allqts",allQts)
             } catch (error) {
                 toast.error("Error fetching quotes!")
             }
         }
         getUserQuotes()
+        
     }, []);
 
     return (
@@ -139,6 +186,64 @@ const ViewPolicyQuote = () => {
                         columns={columns}
                         data={AllQuotes} />
                 </div>)}
+                <Modal
+        open={isInspectionModalOpen}
+        onClose={handleCloseInspectionModal}
+        aria-labelledby="inspection-modal-title"
+        aria-describedby="inspection-modal-description"
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}>
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseInspectionModal}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <Typography id="inspection-modal-title" variant="h6" component="h2" gutterBottom>
+            Inspection for {selectedRow?.policyType}
+          </Typography>
+          <Typography id="inspection-modal-description" sx={{ mt: 2 }}>
+            Uploaded Inspections:
+          </Typography>
+          <List>
+            {/* Replace this with actual inspection data */}
+            <ListItem>
+              <ListItemText primary="Inspection_001.pdf" secondary="Uploaded on: 2023-05-15" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Inspection_002.pdf" secondary="Uploaded on: 2023-05-20" />
+            </ListItem>
+          </List>
+          <Button
+            variant="contained"
+            component="label"
+            startIcon={<CloudUploadIcon />}
+            sx={{ mt: 2 }}
+          >
+            Upload New Inspection
+            <input
+              type="file"
+              hidden
+              onChange={handleUploadInspection}
+            />
+          </Button>
+        </Box>
+      </Modal>
 
                 <Modal
                     open={openModal}
