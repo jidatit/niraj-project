@@ -277,9 +277,9 @@ const ViewPolicyQuote = () => {
                 onClick={() => handleOpenInspectionModal(row.original)}
                 className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px] lg:text-[14px] lg:font-bold"
               >
-                <span className="mr-2 ">
+                {/* <span className="mr-2 ">
                   <CancelOutlined />
-                </span>
+                </span> */}
                 Upload Now
               </button>
             </div>
