@@ -243,7 +243,7 @@ const ViewPolicyQuote = () => {
       },
       {
         accessorKey: "address",
-        header: "Address",
+        header: "Insured Address",
         size: 100,
         Cell: ({ cell }) => (
           <Tooltip title={cell.getValue()} arrow>
