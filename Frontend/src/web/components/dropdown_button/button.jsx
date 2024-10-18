@@ -76,7 +76,7 @@ function DropdownMenu({ L, S, GFQ }) {
                         {S && (
                             <>
                                 <li className="border-b border-black">
-                                    <Link to="/auth/signup_referral"><p className="block px-4 py-2 text-black">
+                                    <Link to="/auth/signup_referral"><p className="block px-[14.7px] py-2 text-black">
                                         Sign up as referral
                                     </p></Link>
                                 </li>

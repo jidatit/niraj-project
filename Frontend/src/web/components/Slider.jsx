@@ -3,6 +3,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Testimonials from "./cards/Testimonials";
+import { testimonialsData } from "../pages/data/testimonials";
 
 import left from "../../assets/icons/left-arrow.png"
 import right from "../../assets/icons/right-arrow.png"
@@ -31,7 +32,7 @@ function TestimonialSlider() {
 
   var settings = {
     infinite: true,
-    autoplay: false,
+    autoplay: true,
     speed: 2000,
     slidesToShow: 2,
     slidesToScroll: 1,
@@ -68,21 +69,11 @@ function TestimonialSlider() {
   return (
     <div className="slider-container !max-w-[360px] sm:!max-w-[360px] md:!max-w-[700px] lg:!max-w-[1000px] xl:!max-w-[1140px]">
       <Slider {...settings}>
-        <div>
-          <Testimonials />
-        </div>
-        <div>
-          <Testimonials />
-        </div>
-        <div>
-          <Testimonials />
-        </div>
-        <div>
-          <Testimonials />
-        </div>
-        <div>
-          <Testimonials />
-        </div>
+        {testimonialsData && testimonialsData.map((testimonial, index) => (
+          <div key={index}>
+            <Testimonials text={testimonial.text} person={testimonial.person} />
+          </div>
+        ))}
       </Slider>
     </div>
   );

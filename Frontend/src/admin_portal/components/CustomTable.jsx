@@ -9,13 +9,14 @@ import {
     DialogTitle,
     Stack,
     TextField,
-    Box
+    Box,
+    CircularProgress
 } from '@mui/material';
 import axiosInstance from '../../utils/axiosConfig';
-import { JsonView, allExpanded, darkStyles } from 'react-json-view-lite';
-import 'react-json-view-lite/dist/index.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const CustomTable = ({ QSR, tableData }) => {
+const CustomTable = ({ QSR, tableData, user }) => {
 
     const homeCarriers = [
         "All Risks", "Allstate", "American Integrity", "American Traditions", "Bass Underwriters", "Centauri", "Citizens Policy Center", "Edison", "Florida Family", "Florida Peninsula", "GeoVera", "Heritage", "Monarch", "Olympus", "Orchid", "Peoples Trust", "SageSure", "Security First", "Slide", "Southern Oak", "Stillwater", "Tower Hill", "True", "TypTap Home", "Universal North America", "Universal PC", "VYRD", "Western World"
@@ -23,7 +24,7 @@ const CustomTable = ({ QSR, tableData }) => {
 
     const [CmsData, setCmsData] = useState([]);
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const [tableCols1, setTableCols1] = useState(null);
     const [tableData1, setTableData1] = useState(null);
@@ -316,6 +317,11 @@ const CustomTable = ({ QSR, tableData }) => {
                 accessorKey: 'premium',
                 header: 'Premium',
                 size: 200,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue() == 0.00 ? "Risk does not meet underwriting guidelines." : cell.getValue()}
+                    </Box>
+                )
             },
         ],
         [],
@@ -405,38 +411,53 @@ const CustomTable = ({ QSR, tableData }) => {
         tableData(tableData2, 2);
     };
 
-    useEffect(() => {
-        const fetchCmsData = async () => {
-            try {
-                const { data } = await axiosInstance.get("/get_quotes");
-                setCmsData(data);
-                const homeQuotes = data.filter(quote => homeCarriers.includes(quote.Carrier));
-                const filteredData = homeQuotes.map(quote => ({
-                    id: quote.id,
-                    carrier: quote.Carrier || "",
-                    premium: quote.ReturnAmount || 0
-                }));
+    const fetchCmsData = async (email, zipCode) => {
+        try {
+            setLoading(true);
+            const { data } = await axiosInstance.get(`/get_quotes?email=${email}&zipCode=${zipCode}`);
+
+            if (data.status === 404) {
+                toast.warn("Quote Data Not Found for User.")
+                return;
+            }
+            if (data.status === 401) {
+                toast.warn("Email and zipCode of user is required to get quotes.")
+                return;
+            }
+
+            if (data.status === 200) {
+
+                setCmsData(data.quotesList);
+                const homeQuotes = data.quotesList?.filter(quote => homeCarriers.includes(quote.Carrier));
+
+                const filteredData = homeQuotes && homeQuotes
+                    .map(quote => ({
+                        id: quote.id,
+                        email: quote.Email,
+                        address: quote.Address,
+                        zipCode: quote.zipCode ? quote.zipCode : "",
+                        carrier: quote.Carrier || "",
+                        premium: quote.ReturnAmount || 0
+                    }))
+                    .filter((quote, index, self) =>
+                        index === self.findIndex(q => q.carrier == quote.carrier && q.premium == quote.premium)
+                    );
+
                 setTableData2(filteredData);
                 tableData(filteredData, 2);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
             }
-        };
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        const fetchDataWithDelay = () => {
-            setLoading(true);
-            setTimeout(() => {
-                fetchCmsData();
-            }, 2000);
-        };
-
-        fetchDataWithDelay();
-
-        const interval = setInterval(fetchDataWithDelay, 120000);
-
-        return () => clearInterval(interval);
-    }, []);
+    useEffect(() => {
+        if (user.email, user.zipCode) {
+            fetchCmsData(user.email.toLowerCase(), user.zipCode.toLowerCase())
+        }
+    }, [user.email, user.zipCode]);
 
     const handleWordRowDelete = (id) => {
         const updatedData = tableData2 && tableData2.filter(row => row.id !== id)
@@ -452,27 +473,17 @@ const CustomTable = ({ QSR, tableData }) => {
     return (
         <>
             <div className="w-[90%] flex mt-[20px] flex-col justify-center items-start">
-
-                <div className="mt-5 mb-5 w-full">
+                <ToastContainer />
+                <div className="mt-5 mb-5 flex flex-row justify-between items-center w-full">
                     <SubOptButton actionType={handleActionChange} />
-                </div>
-
-                <div className="mt-5 mb-5 w-full">
-                    <div className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-                        <span className="font-medium">(Data reloads after every 2 minutes)</span> More data may come in a while!
-                    </div>
-                    {CmsData && (
-                        <div className='relative custom'>
-                            {loading && (
-                                <div className="absolute inset-0 flex items-center gap-1 justify-center bg-gray-100 bg-opacity-50 z-50">
-                                    <div className='h-6 w-6 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                                    <div className='h-6 w-6 bg-black rounded-full animate-bounce [animation-delay:-0.20s]'></div>
-                                    <div className='h-6 w-6 bg-black rounded-full animate-bounce'></div>
-                                </div>
-                            )}
-                            <JsonView data={CmsData} shouldExpandNode={allExpanded} style={darkStyles} />
-                        </div>
-                    )}
+                    <Button onClick={() => fetchCmsData(user.email.toLowerCase(), user.zipCode.toLowerCase())} variant="contained" color="success">
+                        {loading ? (
+                            <>
+                                <CircularProgress color='inherit' size={15} />
+                                <span className='ml-2'>Fetching</span>
+                            </>
+                        ) : "Fetch Latest Data"}
+                    </Button>
                 </div>
 
                 {tableCols1 && tableData1 && (<div className="w-full">
@@ -489,7 +500,9 @@ const CustomTable = ({ QSR, tableData }) => {
                     <MaterialReactTable
                         columns={tableCols2}
                         data={tableData2}
-                        enableBottomToolbar={false}
+                        // state={{ isLoading: { loading } }}
+                        initialState={{ density: "compact" }}
+                        enableBottomToolbar={true}
                         // enableTopToolbar={false}
                         enableTableHead={true}
                         enableEditing={true}
@@ -531,7 +544,6 @@ const CustomTable = ({ QSR, tableData }) => {
                 onClose={() => setCreateModalOpen2(false)}
                 onSubmit={handleNewWordRow}
             />)}
-
 
         </>
     )

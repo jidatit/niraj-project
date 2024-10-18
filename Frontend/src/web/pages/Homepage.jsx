@@ -10,14 +10,13 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../db';
 import TestimonialSlider from '../components/Slider'
 import BigButton from '../components/dropdown_button/bigButton';
+import { FaqsData } from './data/faqs';
 
 const Homepage = () => {
   const [blogs, setBlogs] = useState([]);
 
-  const faqs = new Array(8).fill(null);
-
-  const faqComponents = faqs.map((_, index) => (
-    <Faq key={index} question={`Question ${index + 1}`} answer={`Answer ${index + 1}`} />
+  const faqComponents = FaqsData.map((faq, index) => (
+    <Faq key={index} ques={faq.ques} ans={faq.ans} />
   ));
 
   useEffect(() => {
@@ -45,12 +44,14 @@ const Homepage = () => {
           backgroundRepeat: 'no-repeat'
         }}
       >
-        <div className='w-[90%] md:w-[60%] z-[10] md:absolute left-5 md:ml-[60px] gap-5 flex flex-col justify-center items-start'>
-          <h1 className='font-bold text-[27px] md:text-[50px] text-start md:text-left'>
-            Trustworthy insurance experts standing by for you
+        <div className='w-[90%] md:w-[55%] md:p-0 p-[30px] z-[10] md:absolute left-5 md:ml-[60px] gap-5 flex flex-col justify-center items-start md:bg-transparent bg-white/30 md:backdrop-blur-none backdrop-blur-lg md:border-none border border-white/20 md:shadow-none shadow-lg md:rounded-none rounded-lg'>
+          <h1 className='font-bold text-[18px] md:text-[25px] text-center md:text-left'>
+            Insurance Done with the Convenience of Modern Technology, and the Customer Service of a Real Person
           </h1>
-          <p className='text-[17px] md:text-[28px] text-start md:text-left'>
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
+          <p className='text-[15px] md:text-[15px] text-center md:text-left'>
+            The Thaker Insurance team at John Galt is offering transparency and control back to our clients. We want you to have information about your policies and quotes at your fingertips, but still have the ability to reach your agent by phone or email.
+            On our new website, you will be able to submit requests for quotes and have progress updates until they are delivered. Other features include: submitting requests for documents, binders, checking policy information, and premium history. All of this without having to pick up the phone, but while still having access to a live agent when you need one.
+            With the insurance companies in Florida having unexpected increases in premium and non-renewing policies, we have implemented a feature on our site that will automatically send you quotes for your homeowner’s policies, starting in 2025. This should help our clients keep their expenses as low as possible, by being able to know if there is a better rate available or if they currently have the best one. It also will ensure that if your policy is being non-renewed at the end of the term, that there is another option available and avoid a lapse in coverage.
           </p>
           <div className='w-full flex flex-col md:flex-row justify-center md:justify-start items-center gap-5'>
 
@@ -99,10 +100,14 @@ const Homepage = () => {
         <img src={personimg} alt="" />
         <div className='w-full lg:w-[50%] flex flex-col justify-start items-start gap-10'>
           <h2 className='font-bold text-[25px] xl:text-[40px] text-black'>
-            Lorem Ipsum dolor sit amet consectetuer
+            Our mission
           </h2>
           <p className='text-start text-[20px] xl:text-[28px]'>
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
+            Our mission is to empower homeowners by providing them with the tools
+            and knowledge to take control of their insurance costs. We believe that clear,
+            effective communication is the key to achieving this goal. That's why we
+            created this platform with your needs in mind, ensuring that you can easily
+            connect with us and get the support you need, when you need it.
           </p>
           <BigButton GFQ={true} text="Get Free Quote" />
         </div>

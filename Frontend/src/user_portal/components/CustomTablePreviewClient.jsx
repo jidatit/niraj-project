@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { MaterialReactTable } from 'material-react-table';
 import Button from "./Button"
-import { Modal, Slide, TextField, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Modal, Slide, TextField, FormControl, InputLabel, MenuItem, Select, Box, FilledInput, InputAdornment, IconButton } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { db } from '../../../db';
@@ -10,8 +10,10 @@ import { getType } from "../../utils/helperSnippets"
 import { useAuth } from "../../AuthContext"
 import { ClientQuoteBindMail } from '../../utils/mailingFuncs';
 import { useNavigate } from 'react-router-dom';
+import { FaSearch } from "react-icons/fa";
+import { ImCross } from "react-icons/im";
 
-const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
+const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
     const navigate = useNavigate()
     const { currentUser } = useAuth()
     const [tableCols1, setTableCols1] = useState(null);
@@ -184,6 +186,11 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
                 accessorKey: 'premium',
                 header: 'Premium',
                 size: 800,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue() == 0.00 ? "Risk does not meet underwriting guidelines." : cell.getValue()}
+                    </Box>
+                )
             },
         ],
         [],
@@ -197,9 +204,12 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
         }));
     };
 
+    const [bindingDisable, setBindingDisable] = useState(false)
+
     const handleBindQuote = async () => {
         try {
-            await addDoc(collection(db, 'bind_req_quotes'), { ...formData, qid, qsr_type, user: { ...currentUser?.data }, bound_status: "pending" });
+            setBindingDisable(true)
+            await addDoc(collection(db, 'bind_req_quotes'), { ...formData, qid, qsr_type, user: { ...user }, bound_status: "pending" });
             await updateStatusStep(qsr_type, qid)
             onClose()
             ClientQuoteBindMail(currentUser.data?.name, currentUser.data?.email, qsr_type)
@@ -209,6 +219,8 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
             }, 2000);
         } catch (error) {
             toast.error("Error Requesting Bind Quote!")
+        } finally {
+            setBindingDisable(false)
         }
     }
 
@@ -229,46 +241,89 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
         }
     }
 
+    const [FilteredSearchCarriers, setFilteredSearchCarriers] = useState(table2_data);
+    const [SearchValueForCarriers, setSearchValueForCarriers] = useState("")
+    const SearchCarriersFilter = (value) => {
+        setSearchValueForCarriers(value)
+        const filteredData = table2_data.filter((carrier) =>
+            carrier.carrier.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredSearchCarriers(filteredData);
+    };
+
     return (
         <>
             <div className="w-full flex mt-[20px] flex-col justify-center items-start">
                 <ToastContainer />
-                {/* {tableCols1 && table1_data && (<div className="w-full">
-                    <MaterialReactTable
-                        columns={tableCols1}
-                        data={table1_data}
-                        enableBottomToolbar={false}
-                        enableTopToolbar={false}
-                    />
-                </div>)} */}
                 {table_columns_2 && table2_data && (<div className="w-full">
                     <MaterialReactTable
                         columns={table_columns_2}
                         data={table2_data}
-                        enableBottomToolbar={false}
+                        enableBottomToolbar={true}
                         enableTopToolbar={false}
                         enableTableHead={false}
                     />
                 </div>)}
 
                 <div className="w-full mb-5 flex flex-col justify-end items-end">
-                    <div className="md:w-[30%] relative mt-[30px] mb-[30px] w-full">
+                    <div className="md:w-[30%] mt-[30px] mb-[30px] w-full">
                         <Button onClickProp={() => setopenbindoptions(!openbindoptions)} text={"BIND"} icon={true} />
-                        {openbindoptions &&
-                            (<div className='absolute mt-1 divide-y divide-solid w-full rounded-md bg-[#e0e0e0]'>
-                                {table2_data && table2_data?.map((row, index) => (
-                                    <div key={index} onClick={() => {
-                                        setFormData((prevData) => ({
-                                            ...prevData,
-                                            carrier: row.carrier
-                                        }));
-                                        setSlideModal(true);
-                                    }} className='w-full hover:bg-slate-200 rounded-md cursor-pointer pl-[20px] py-2 flex flex-col justify-center items-start'>
-                                        <p className='font-semibold'>{row.carrier}</p>
-                                    </div>
-                                ))}
-                            </div>)}
                     </div>
+                    {openbindoptions &&
+                        (<div className='mt-1 divide-y divide-solid w-full rounded-md bg-[#ffffff] border-black border-[1px] shadow-lg'>
+
+                            <div
+                                className='w-full hover:bg-slate-200 rounded-md cursor-pointer pl-[20px] py-2 flex flex-col justify-center items-start'
+                            >
+                                <p className='font-normal italic'>
+                                    ({table2_data && table2_data.filter(row => row.premium != 0.00).length}) <span>Carriers available to bind</span>
+                                </p>
+                            </div>
+
+                            <FormControl fullWidth variant="filled">
+                                <InputLabel htmlFor="filled-adornment-search">Type to search carriers...</InputLabel>
+                                <FilledInput
+                                    value={SearchValueForCarriers}
+                                    onChange={(e) => SearchCarriersFilter(e.target.value)}
+                                    endAdornment={
+                                        <InputAdornment onClick={() => { setSearchValueForCarriers(""); setFilteredSearchCarriers(table2_data); }} position="end">
+                                            <IconButton edge="start">
+                                                {SearchValueForCarriers.length > 0 ? (<ImCross />) : (<FaSearch />)}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    }
+                                />
+                            </FormControl>
+
+                            {FilteredSearchCarriers &&
+                                FilteredSearchCarriers
+                                    .filter(row => row.premium != 0.00)
+                                    .map((row, index) => (
+                                        <div key={index} onClick={() => {
+                                            setFormData((prevData) => ({
+                                                ...prevData,
+                                                carrier: row.carrier
+                                            }));
+                                            setSlideModal(true);
+                                        }} className='w-full hover:bg-slate-200 rounded-md cursor-pointer pl-[20px] py-2 flex flex-col justify-center items-start'>
+                                            <p className='font-semibold'>{row.carrier} <span className='font-normal ml-5'>{row.premium == 0.00 ? "Risk does not meet underwriting guidelines." : row.premium}</span> </p>
+                                        </div>
+                                    ))}
+                            {FilteredSearchCarriers.length === 0 &&
+                                (
+                                    <div
+                                        className='w-full hover:bg-slate-200 rounded-md cursor-pointer pl-[20px] py-2 flex flex-col justify-center items-center'
+                                    >
+                                        <p
+                                            className='font-semibold'
+                                        >
+                                            No carriers found.
+                                        </p>
+                                    </div>
+                                )
+                            }
+                        </div>
+                        )}
                 </div>
 
                 <Modal
@@ -376,7 +431,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
 
                             <div className='w-full flex flex-col justify-end items-end'>
                                 <div className="md:w-[30%] relative mt-[30px] mb-[30px] w-full">
-                                    <Button onClickProp={handleBindQuote} text={"Submit"} />
+                                    <Button isDisabled={bindingDisable} onClickProp={handleBindQuote} text={"Submit"} />
                                 </div>
                             </div>
 
@@ -384,7 +439,6 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data }) => {
 
                     </Slide>
                 </Modal>
-
 
             </div >
         </>

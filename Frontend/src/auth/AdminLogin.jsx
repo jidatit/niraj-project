@@ -3,26 +3,32 @@ import logo from "../assets/newlogo.png";
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../../db';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { CircularProgress } from '@mui/material';
 
 const AdminLogin = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [Loader, setLoader] = useState(false)
 
     const handleLogin = async (e) => {
         e.preventDefault(); // Prevent the default form submission
         try {
+            setLoader(true)
             const q = query(collection(db, "admins"), where("email", "==", email));
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) {
                 await signInWithEmailAndPassword(auth, email, password);
                 setError(""); // Clear any previous errors
+                setLoader(false)
             } else {
+                setLoader(false)
                 setError("You are not authorized to access this page. An Admin with these credentials not found!");
             }
         } catch (error) {
             console.log(error);
             setError("Failed to log in. Please check your credentials and try again.");
+            setLoader(false)
         }
     }
 
@@ -68,7 +74,11 @@ const AdminLogin = () => {
                                 type="submit"
                                 className="w-full py-2.5 px-4 text-sm rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
                             >
-                                Log in
+                                {Loader ? (
+                                    <CircularProgress size={20} color='inherit' />
+                                ) : (
+                                    "Log in"
+                                )}
                             </button>
                         </div>
 

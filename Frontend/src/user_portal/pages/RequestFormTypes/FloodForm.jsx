@@ -22,6 +22,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { RiDeleteBin5Fill } from "react-icons/ri";
+import { IconButton, InputAdornment, Tooltip } from '@mui/material';
 
 const FloodForm = () => {
 
@@ -72,9 +74,14 @@ const FloodForm = () => {
     const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
     const checkInspections = () => {
-        if (formData.files.length === 0) {
+        if (formData.cert_elevation === "") {
+            toast.warn("Do you have an elevation certificate?")
+            return;
+        }
+        if (formData.cert_elevation === "yes" && formData.files.length === 0) {
             setConfirmDialogOpen(true)
-        } else {
+        }
+        else {
             addFormToDb()
         }
     }
@@ -84,8 +91,8 @@ const FloodForm = () => {
             setConfirmDialogOpen(false)
             setbuttonstate("Submitting...")
             if (files.length === 0) {
-                let nofilesformData = { ...formData, status: "pending", status_step: "1" }
-                await addDoc(collection(db, 'flood_quotes'), nofilesformData);
+                let nofilesformData = { ...formData, status: formData.cert_elevation === "yes" ? "pending" : "completed", status_step: "1" }
+                await addDoc(collection(db, 'flood_quotes'), { ...nofilesformData, inuser: nofilesformData.persons[0] });
                 ClientQuoteReqMail(currentUser.data.name, adminEmail, "Flood");
                 toast.success("Application submitted with success.");
                 setbuttonstate("Submit")
@@ -110,12 +117,12 @@ const FloodForm = () => {
             };
 
             let statusformData = { ...formDataWithUrls, status: "completed", status_step: "1" }
-            await addDoc(collection(db, 'flood_quotes'), statusformData);
+            await addDoc(collection(db, 'flood_quotes'), { ...statusformData, inuser: formDataWithUrls.persons[0] });
 
             setFormData({
                 policyType: "Flood",
                 mailingAddress: '',
-                persons: [{ name: '', dob: '', email: '', phoneNumber: '' }],
+                persons: [{ name: '', dob: '', email: '', phoneNumber: '', zipCode: '' }],
                 address: "",
                 mailing: false,
                 cert_elevation: "",
@@ -143,7 +150,7 @@ const FloodForm = () => {
     const [formData, setFormData] = useState({
         policyType: "Flood",
         mailingAddress: '',
-        persons: [{ name: '', dob: '', email: '', phoneNumber: '' }],
+        persons: [{ name: '', dob: '', email: '', phoneNumber: '', zipCode: '' }],
         address: "",
         mailing: false,
         cert_elevation: "",
@@ -175,7 +182,14 @@ const FloodForm = () => {
     const handleAddPerson = () => {
         setFormData((prevData) => ({
             ...prevData,
-            persons: [...prevData.persons, { name: '', dob: '', email: '', phoneNumber: '' }]
+            persons: [...prevData.persons, { name: '', dob: '', email: '', phoneNumber: '', zipCode: '' }]
+        }));
+    };
+
+    const handleRemovePerson = (index) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            persons: prevData.persons.filter((_, i) => i !== index)
         }));
     };
 
@@ -197,49 +211,70 @@ const FloodForm = () => {
                 </div>
 
                 {formData.persons.map((person, index) => (
-                    <div key={index} className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`name-${index}`}>Name to be Insured</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`name-${index}`}
-                                label="Type your name here......"
-                                variant="outlined"
-                                value={person.name}
-                                onChange={(e) => handlePersonChange(index, 'name', e.target.value)}
-                            />
+                    <>
+                        <div key={index} className='w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center'>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`name-${index}`}>Name to be Insured</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`name-${index}`}
+                                    label="Type your name here......"
+                                    variant="outlined"
+                                    value={person.name}
+                                    onChange={(e) => handlePersonChange(index, 'name', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`date-${index}`}>Date of Birth</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`date-${index}`}
+                                    type='date'
+                                    value={person.dob}
+                                    onChange={(e) => handlePersonChange(index, 'dob', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`email-${index}`}>Email</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`email-${index}`}
+                                    type='email'
+                                    value={person.email}
+                                    onChange={(e) => handlePersonChange(index, 'email', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`phoneNumber-${index}`}>Phone Number</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`phoneNumber-${index}`}
+                                    type='phoneNumber'
+                                    value={person.phoneNumber}
+                                    onChange={(e) => handlePersonChange(index, 'phoneNumber', e.target.value)}
+                                />
+                            </div>
+                            <div className='flex w-full flex-col justify-center items-start gap-2'>
+                                <InputLabel htmlFor={`zipCode-${index}`}>Zip Code</InputLabel>
+                                <TextField
+                                    className='w-full'
+                                    id={`zipCode-${index}`}
+                                    type='number'
+                                    value={person.zipCode}
+                                    onChange={(e) => handlePersonChange(index, 'zipCode', e.target.value)}
+                                />
+                            </div>
                         </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`date-${index}`}>Date of Birth</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`date-${index}`}
-                                type='date'
-                                value={person.dob}
-                                onChange={(e) => handlePersonChange(index, 'dob', e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`email-${index}`}>Email</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`email-${index}`}
-                                type='email'
-                                value={person.email}
-                                onChange={(e) => handlePersonChange(index, 'email', e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full flex-col justify-center items-start gap-2'>
-                            <InputLabel htmlFor={`phoneNumber-${index}`}>Phone Number</InputLabel>
-                            <TextField
-                                className='w-full'
-                                id={`phoneNumber-${index}`}
-                                type='phoneNumber'
-                                value={person.phoneNumber}
-                                onChange={(e) => handlePersonChange(index, 'phoneNumber', e.target.value)}
-                            />
-                        </div>
-                    </div>
+                        {index > 0 && (<div key={index + 1} className='w-full flex flex-col mt-[20px] mb-[20px] justify-center items-center'>
+                            <Tooltip title={`Delete ${person.email}`}>
+                                <InputAdornment onClick={() => handleRemovePerson(index)}>
+                                    <IconButton>
+                                        <RiDeleteBin5Fill size={20} />
+                                    </IconButton>
+                                </InputAdornment>
+                            </Tooltip>
+                        </div>)}
+                    </>
                 ))}
 
 
@@ -263,11 +298,11 @@ const FloodForm = () => {
                         <TextField value={formData.address}
                             onChange={(e) => handleChange(e)} name="address" className='w-full' id="address" label="Type your Address here......" variant="outlined" />
                     </div>
-                    <div className='flex w-full flex-row pt-5 gap-2 justify-start items-center'>
+                    {/* <div className='flex w-full flex-row pt-5 gap-2 justify-start items-center'>
                         <input value={formData.mailing} checked={formData.mailing} name="mailing"
                             onChange={(e) => handleChange(e)} className='w-[20px] h-[20px]' type="checkbox" id="mailing" />
                         <InputLabel htmlFor="mailing">Same as Mailing Address</InputLabel>
-                    </div>
+                    </div> */}
                 </div>
 
 

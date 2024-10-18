@@ -32,6 +32,18 @@ const BinderReqPreview = ({ data, isSlideModalOpen, onClose }) => {
                         {data && (
                             <>
                                 <div className='w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start'>
+                                    <p className='lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]'>Selected Carrier</p>
+                                    <TextField
+                                        className='w-full'
+                                        id="carrier"
+                                        type='text'
+                                        disabled
+                                        value={data.carrier}
+                                        name="carrier"
+                                    />
+                                </div>
+
+                                <div className='w-full flex mb-[20px] gap-2 flex-col justify-center items-start'>
                                     <p className='lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]'>Confirm the effective date of the policy</p>
                                     <TextField
                                         className='w-full'

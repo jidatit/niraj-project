@@ -1,8 +1,6 @@
-import detailimg from "../../assets/homepage/detail.png"
-import userimg from "../../assets/homepage/user.png"
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { collection, doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../db';
 
 const BlogDetailspage = () => {
@@ -12,11 +10,11 @@ const BlogDetailspage = () => {
     useEffect(() => {
         const fetchBlogDetails = async () => {
             try {
-                const blogRef = doc(db, 'blogs', id); // Reference to the specific blog document
+                const blogRef = doc(db, 'blogs', id);
                 const blogSnapshot = await getDoc(blogRef);
                 if (blogSnapshot.exists()) {
                     const data = blogSnapshot.data();
-                    setBlogData(data); // Set the fetched blog data to state
+                    setBlogData(data);
                 } else {
                     console.log('Blog not found');
                 }

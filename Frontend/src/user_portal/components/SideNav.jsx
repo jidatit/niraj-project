@@ -3,6 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import LOGO from "../../assets/newlogo.png"
 import { FiLogOut } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
+import { MdRequestQuote, MdPolicy } from "react-icons/md";
+import { GiThreeFriends } from "react-icons/gi";
 
 const SideNav = () => {
 

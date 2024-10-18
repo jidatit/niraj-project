@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { MaterialReactTable } from 'material-react-table';
+import { Box } from '@mui/material';
 
 const CustomTablePreviewAdmin = ({ qsr_type, table2_data }) => {
 
@@ -158,6 +159,11 @@ const CustomTablePreviewAdmin = ({ qsr_type, table2_data }) => {
                 accessorKey: 'premium',
                 header: 'Premium',
                 size: 800,
+                Cell: ({ cell }) => (
+                    <Box >
+                        {cell.getValue() == 0.00 ? "Risk does not meet underwriting guidelines." : cell.getValue()}
+                    </Box>
+                )
             },
         ],
         [],
@@ -166,19 +172,11 @@ const CustomTablePreviewAdmin = ({ qsr_type, table2_data }) => {
     return (
         <>
             <div className="w-full flex mt-[20px] flex-col justify-center items-start">
-                {/* {tableCols1 && table1_data && (<div className="w-full">
-                    <MaterialReactTable
-                        columns={tableCols1}
-                        data={table1_data}
-                        enableBottomToolbar={false}
-                        enableTopToolbar={false}
-                    />
-                </div>)} */}
                 {table_columns_2 && table2_data && (<div className="w-full">
                     <MaterialReactTable
                         columns={table_columns_2}
                         data={table2_data}
-                        enableBottomToolbar={false}
+                        enableBottomToolbar={true}
                         enableTopToolbar={false}
                         enableTableHead={true}
                     />

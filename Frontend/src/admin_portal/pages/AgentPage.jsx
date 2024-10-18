@@ -15,18 +15,18 @@ const AgentPage = () => {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    useEffect(() => {
-        const fetchAgents = async () => {
-            try {
-                const AgentsCollection = collection(db, 'agents');
-                const snapshot = await getDocs(AgentsCollection);
-                const AgentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setAgents(AgentsData);
-            } catch (error) {
-                console.error('Error fetching agents:', error);
-            }
-        };
+    const fetchAgents = async () => {
+        try {
+            const AgentsCollection = collection(db, 'agents');
+            const snapshot = await getDocs(AgentsCollection);
+            const AgentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setAgents(AgentsData);
+        } catch (error) {
+            console.error('Error fetching agents:', error);
+        }
+    };
 
+    useEffect(() => {
         fetchAgents();
     }, []);
 
@@ -49,14 +49,24 @@ const AgentPage = () => {
 
     const addpreparertodb = async () => {
         try {
-            if (!formData.name || !formData.email) {
+            if (!formData.name && !formData.email && !formData.phone_1 && !formData.company_name && !formData.company_address) {
                 toast.warn("Fill Details")
                 return
             }
             setButtonText("Creating");
             await addDoc(collection(db, 'agents'), formData);
             toast.success('Agent added successfully!');
+            setFormData({
+                name: '',
+                email: '',
+                phone_1: '',
+                phone_2: '',
+                company_name: '',
+                company_address: '',
+            });
             setButtonText("Create");
+            handleClose();
+            fetchAgents();
         } catch (error) {
             toast.error('Error occurred');
         }
@@ -134,7 +144,7 @@ const AgentPage = () => {
                         <TextField required label="Enter Agent Name" type="text" onChange={handleChange} name="name" value={formData.name} className="w-[70%]" />
                         <TextField required label="Enter Agent Email" type="email" onChange={handleChange} name="email" value={formData.email} className="w-[70%]" />
                         <TextField required label="Agent Phone 1" type="text" onChange={handleChange} name="phone_1" value={formData.phone_1} className="w-[70%]" />
-                        <TextField required label="Agent Phone 2" type="text" onChange={handleChange} name="phone_2" value={formData.phone_2} className="w-[70%]" />
+                        <TextField label="Agent Phone 2" type="text" onChange={handleChange} name="phone_2" value={formData.phone_2} className="w-[70%]" />
                         <TextField required label="Company Name" type="text" onChange={handleChange} name="company_name" value={formData.company_name} className="w-[70%]" />
                         <TextField required label="Company Address" type="text" multiline rows={5} onChange={handleChange} name="company_address" value={formData.company_address} className="w-[70%]" />
 

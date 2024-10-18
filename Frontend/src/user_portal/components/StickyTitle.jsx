@@ -10,8 +10,9 @@ import { styled } from '@mui/material/styles';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { formatTimeSince } from '../../utils/helperSnippets';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { getDocs, collection, where, query,onSnapshot } from 'firebase/firestore';
+import { getDocs, collection, where, query, onSnapshot } from 'firebase/firestore';
 import { db } from '../../../db';
+import LockResetIcon from '@mui/icons-material/LockReset';
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -49,6 +50,7 @@ function StickyTitle() {
   const [Reminders, setReminders] = useState([])
   const { currentUser } = useAuth()
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl2, setAnchorEl2] = useState(null);
 
   useEffect(() => {
     if (currentUser) {
@@ -81,6 +83,14 @@ function StickyTitle() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+  const handleSettingsMenuOpen = (event) => {
+    setAnchorEl2(event.currentTarget);
+  };
+
+  const handleSettingsMenuClose = () => {
+    setAnchorEl2(null);
+  };
+  
   return (
     <>
       <div className="flex-grow text-gray-800">
@@ -89,7 +99,7 @@ function StickyTitle() {
             <button className="inline-flex items-center p-2 hover:bg-gray-100 focus:bg-gray-100 rounded-lg">
               <span className="sr-only">User Menu</span>
 
-              <div className="hidden md:flex md:flex-col md:items-end md:leading-tight">
+              <div onClick={handleSettingsMenuOpen} className="hidden md:flex md:flex-col md:items-end md:leading-tight">
                 {currentUser.data ? (
                   <>
                     <span className="font-semibold">{currentUser.data.name || "Grace Simmons"}</span>
@@ -109,6 +119,21 @@ function StickyTitle() {
                 )}
               </div>
             </button>
+            <StyledMenu
+              id="notifications-menu"
+              anchorEl={anchorEl2}
+              open={Boolean(anchorEl2)}
+              onClose={handleSettingsMenuClose}
+            >
+              <Link className='w-full' to={`/user_portal/auth/change_password?uid=${currentUser.uid}`}>
+                <StyledMenuItem sx={{ display: 'flex', flexDirection: "column", justifyContent: "start", gap: "10px" }} onClick={handleSettingsMenuClose}>
+                  <div className='flex w-full flex-row justify-start items-center gap-[10px] relative'>
+                    <LockResetIcon />
+                    Change password
+                  </div>
+                </StyledMenuItem>
+              </Link>
+            </StyledMenu>
             <div className="ml-3 space-x-1">
               <IconButton
                 aria-label="show notifications"

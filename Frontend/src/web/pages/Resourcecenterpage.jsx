@@ -4,10 +4,10 @@ import ResourceCenter from '../components/cards/ResourceCenter';
 import { Link } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../db';
+import { FaqsData } from './data/faqs';
 
 const Resourcecenterpage = () => {
     const [blogs, setBlogs] = useState([]);
-    const [faqs, setFaqs] = useState(new Array(8).fill(null));
 
     useEffect(() => {
         // Fetch blogs data from Firestore
@@ -25,9 +25,9 @@ const Resourcecenterpage = () => {
         fetchBlogs();
     }, []);
 
-    const faqComponents = faqs.map((_, index) => (
-        <Faq key={index} question={`Question ${index + 1}`} answer={`Answer ${index + 1}`} />
-    ));
+    const faqComponents = FaqsData.map((faq, index) => (
+        <Faq key={index} ques={faq.ques} ans={faq.ans} />
+      ));
 
     return (
         <>

@@ -42,6 +42,7 @@ import {
 	ClientQuoteReqMail,
 } from "../../utils/mailingFuncs";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import newlogo from "../../assets/newlogo.png"
 
 const ViewPolicyQuote = () => {
 	const [AllQuotes, setAllQuotes] = useState([]);
@@ -903,142 +904,111 @@ const DropdownPolicy = ({ popup_data }) => {
 									</div>
 								)}
 
-								<div className="w-full flex flex-col justify-center items-start">
-									<p className="font-medium">Deductibles: </p>
-									<p>
-										<span className="font-medium">AOP: </span>
-										{"“AOP deductible”"}
-									</p>
-									<p>
-										<span className="font-medium">Wind/ Hurricane: </span>
-										{"“Wind/ hurricane deductible”"}
-									</p>
-								</div>
+                {viewModalData && (
+                    <Modal
+                        open={viewModal}
+                        onClose={closeviewModal}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Slide
+                            direction="right"
+                            in={viewModal}
+                            mountOnEnter
+                            unmountOnExit
+                            style={{ transition: "transform 2s ease-in-out" }}
+                        >
+                            <div className='w-[95%] overflow-y-auto max-h-[80vh] lg:w-[50%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md gap-y-10'>
 
-								<div className="w-full flex flex-col justify-center items-start">
-									<p>
-										<span className="font-medium">Premium: </span>
-										{"“Premium Amount”"}
-									</p>
-								</div>
-							</div>
-						</Slide>
-					</Modal>
-				)}
+                                {/* {prepData && (<div className='w-full flex flex-col justify-center items-start'>
+                                    <p className='font-medium'>Coverage: </p>
+                                    <div className='w-full flex flex-col justify-center items-start'>
+                                        {prepData?.map((item, index) => (
+                                            <div key={index} className='w-full flex flex-col text-[16px] font-normal justify-start items-start gap-1'>
+                                                {Object.keys(item).map((key) => (
+                                                    key !== 'id' &&
+                                                    <p key={key}>
+                                                        <span className='font-medium'>{key}: </span>
+                                                        {item[key]}
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>)}
+                                */}
 
-				{changeData && (
-					<Modal
-						open={changeModal}
-						onClose={closechangeModal}
-						aria-labelledby="modal-modal-title"
-						aria-describedby="modal-modal-description"
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-						}}
-					>
-						<Slide
-							direction="right"
-							in={changeModal}
-							mountOnEnter
-							unmountOnExit
-							style={{ transition: "transform 2s ease-in-out" }}
-						>
-							<div className="w-[95%] overflow-y-auto max-h-[80vh] lg:w-[50%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md gap-y-10">
-								<div className="w-full flex flex-col gap-5 justify-center items-start">
-									<h2 className="font-semibold">
-										Description of the changes required
-									</h2>
-									<TextField
-										onChange={(e) => setchangesAnswer(e.target.value)}
-										placeholder="Type your answer here......"
-										className="w-full"
-										multiline
-										minRows={10}
-									/>
-								</div>
-								<div className="w-full flex flex-col justify-center items-end">
-									<Button
-										text="Send"
-										onClickProp={handlechangePolicy}
-										icon={false}
-									/>
-								</div>
-							</div>
-						</Slide>
-					</Modal>
-				)}
+                                {viewModalData.policyData && (
+                                    <div className='w-full flex flex-col items-center'>
+                                        {/* Top Centered Image */}
+                                        <img src={newlogo} alt='Policy Image' className='w-full object-cover mb-6' />
 
-				{cancelModalData && (
-					<Modal
-						open={cancelModal}
-						onClose={closecancelModal}
-						aria-labelledby="modal-modal-title"
-						aria-describedby="modal-modal-description"
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-						}}
-					>
-						<Slide
-							direction="right"
-							in={cancelModal}
-							mountOnEnter
-							unmountOnExit
-							style={{ transition: "transform 2s ease-in-out" }}
-						>
-							<div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-[#1F2634] bg-opacity-75">
-								<div className="w-[654px] h-[310px] rounded-lg mt-[40px] flex flex-col gap-[23px] justify-center items-center bg-white">
-									<p className="font-bold text-black text-3xl text-center">
-										Are you sure you want to cancel your Policy?
-									</p>
-									<div className="w-[540px] h-[70px] flex flex-row gap-6 justify-center">
-										<button
-											onClick={closecancelModal}
-											className="bg-[#BB000E] rounded-md w-[229px] h-[56px] font-bold text-white"
+                                        {/* Policy Details */}
+                                        <div className='w-full max-w-lg bg-gray-100 p-6 rounded-lg shadow-lg'>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Property Insured: </span>{viewModalData.address ? viewModalData.address : viewModalData.garaging_address || "Name of the company"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Name of Insured: </span>{viewModalData.policyData?.named_insured || "Name of Insured"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Premium Amount: </span>{viewModalData.policyData?.policy_premium || "Premium Amount"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Carrier: </span>{viewModalData.policyData?.carrier || "Carrier"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Bind Date: </span>{viewModalData.policyData?.bind_date || "Bind Date"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Contact Id: </span>{viewModalData.policyData?.ContactId || "Contact Id"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Contact Address: </span>{viewModalData.policyData?.ContactAddress || "Contact Address"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Policy Id: </span>{viewModalData.policyData?.PolicyId || "Policy Id"}</p>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>Effective Date: </span>{viewModalData.policyData?.effective_date || "Effective Date"}</p>
+                                            <p className='text-md md:text-lg font-medium'><span className='font-semibold'>Expiry Date: </span>{viewModalData.policyData?.exp_date || "Expiry Date"}</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {!viewModalData.policyData && (
+                                    <div className='w-full flex flex-col items-center'>
+                                        <img src={newlogo} alt='Policy Image' className='w-full object-cover mb-6' />
+                                        <div className='w-full max-w-lg bg-gray-100 p-6 rounded-lg shadow-lg'>
+                                            <p className='text-md md:text-lg font-medium mb-2'><span className='font-semibold'>No Policy Data Available.</span></p>
+                                        </div>
+                                    </div>
+                                )}
+
+														</div>
+													</Slide>
+
+													</Modal>
+								)}
+
+
+
+								{premiumHistoryModalData && (
+									<Modal
+										open={premiumHistoryModal}
+										onClose={closePremiumHistoryModal}
+										aria-labelledby="modal-modal-title"
+										aria-describedby="modal-modal-description"
+										sx={{
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "center",
+										}}
+									>
+										<Slide
+											direction="right"
+											in={premiumHistoryModal}
+											mountOnEnter
+											unmountOnExit
+											style={{ transition: "transform 2s ease-in-out" }}
 										>
-											Cancel
-										</button>
-										<button
-											onClick={handlecancelPolicy}
-											className="bg-[#059C4B] rounded-md w-[229px] h-[56px] font-bold text-white"
-										>
-											Confirm
-										</button>
-									</div>
-								</div>
-							</div>
-						</Slide>
-					</Modal>
-				)}
-
-				{premiumHistoryModalData && (
-					<Modal
-						open={premiumHistoryModal}
-						onClose={closePremiumHistoryModal}
-						aria-labelledby="modal-modal-title"
-						aria-describedby="modal-modal-description"
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-						}}
-					>
-						<Slide
-							direction="right"
-							in={premiumHistoryModal}
-							mountOnEnter
-							unmountOnExit
-							style={{ transition: "transform 2s ease-in-out" }}
-						>
-							<div className="w-[95%] overflow-y-auto max-h-[90vh] lg:w-[50%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md gap-y-10">
-								<LineGraph
-								// years={years}
-								// premiumPrices1={premiumPrices1}
-								// premiumPrices2={premiumPrices2}
-								/>
+											<div className="w-[95%] overflow-y-auto max-h-[90vh] lg:w-[50%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md gap-y-10">
+												<LineGraph
+												// years={years}
+												// premiumPrices1={premiumPrices1}
+												// premiumPrices2={premiumPrices2}
+												/>
+											</div>
+										</Slide>
+									</Modal>
+								)}
 							</div>
 						</Slide>
 					</Modal>

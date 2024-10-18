@@ -94,6 +94,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
                 {driver.LN && renderTextField(`License Number ${index + 1}`, driver.LN)}
                 {driver.email && renderTextField(`Email ${index + 1}`, driver.email)}
                 {driver.phoneNumber && renderTextField(`Phone Number ${index + 1}`, driver.phoneNumber)}
+                {driver.zipCode && renderTextField(`Zip Code ${index + 1}`, driver.zipCode)}
               </div>
             </>
           ))}

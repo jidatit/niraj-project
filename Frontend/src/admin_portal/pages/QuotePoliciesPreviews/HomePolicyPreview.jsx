@@ -91,6 +91,7 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
                 {person.dob && renderDateField(`Date of Birth ${index + 1}`, person.dob)}
                 {person.email && renderTextField(`Email ${index + 1}`, person.email)}
                 {person.phoneNumber && renderTextField(`Phone Number ${index + 1}`, person.phoneNumber)}
+                {person.zipCode && renderTextField(`Zip Code ${index + 1}`, person.zipCode)}
               </div>
             </>
           ))}
