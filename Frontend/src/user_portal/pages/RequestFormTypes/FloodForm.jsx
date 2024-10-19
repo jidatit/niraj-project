@@ -15,7 +15,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import tickicon from "../../../assets/dash/tick.png"
 import { useAuth } from '../../../AuthContext';
-import { ClientQuoteReqMail } from '../../../utils/mailingFuncs';
+import { ClientQuoteReqMail, ClientQuoteWithoutInspection } from '../../../utils/mailingFuncs';
 import { useNavigate } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -93,7 +93,13 @@ const FloodForm = () => {
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: formData.cert_elevation === "yes" ? "pending" : "completed", status_step: "1" }
                 await addDoc(collection(db, 'flood_quotes'), { ...nofilesformData, inuser: nofilesformData.persons[0] });
-                ClientQuoteReqMail(currentUser.data.name, adminEmail, "Flood");
+                if(formData.cert_elevation==="yes")
+                {
+                    ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Flood");
+                }
+                else{
+                    ClientQuoteReqMail(currentUser.data.name, adminEmail, "Flood");
+                }
                 toast.success("Application submitted with success.");
                 setbuttonstate("Submit")
                 redirectFunc("/user_portal");
@@ -135,7 +141,14 @@ const FloodForm = () => {
             });
             setFiles([]);
 
-            ClientQuoteReqMail(currentUser.data.name, adminEmail, "Flood");
+            if(formData.cert_elevation==="yes")
+            {
+                    ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Flood");
+            }
+            else
+            {
+                    ClientQuoteReqMail(currentUser.data.name, adminEmail, "Flood");
+            }
 
             toast.success("Application submitted with success.");
             setbuttonstate("Submit")

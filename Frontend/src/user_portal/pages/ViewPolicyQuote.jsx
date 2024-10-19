@@ -41,6 +41,7 @@ import {
   CancelOutlined,
 } from "@mui/icons-material";
 import {
+  ClientQuoteInspectionUploaded,
   ClientQuotePolicyCancelMail,
   ClientQuotePolicyChangeMail,
   ClientQuoteReqMail,
@@ -159,7 +160,7 @@ const ViewPolicyQuote = () => {
         getUserQuotes();
         setFiles([]);
         toast.success("Files uploaded and document updated successfully!");
-        ClientQuoteReqMail(currentUser.data.name, adminEmail, policyType);
+        ClientQuoteInspectionUploaded(currentUser.data.name, adminEmail, policyType);
       } catch (error) {
         toast.error(`Error updating document: ${error}`);
         console.error("Error updating document: ", error);

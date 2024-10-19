@@ -15,7 +15,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import tickicon from "../../../assets/dash/tick.png"
 import { useAuth } from '../../../AuthContext';
-import { ClientQuoteReqMail } from '../../../utils/mailingFuncs';
+import { ClientQuoteReqMail, ClientQuoteWithoutInspection } from '../../../utils/mailingFuncs';
 import { useNavigate } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -90,7 +90,7 @@ const AutoForm = () => {
             if (files.length === 0) {
                 let nofilesformData = { ...formData, status: "pending", status_step: "1" }
                 await addDoc(collection(db, 'auto_quotes'), nofilesformData);
-                ClientQuoteReqMail(currentUser.data.name, currentUser.data.email, "Auto")
+                ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Auto")
                 toast.success("Application submitted with success.");
                 setbuttonstate("Submit")
                 redirectFunc("/user_portal");

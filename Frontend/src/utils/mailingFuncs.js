@@ -7,6 +7,7 @@ export function ClientQuoteReqMail(user_name, user_email, policy_type) {
         type: policy_type,
         email: user_email
     };
+ 
 
     emailjs
         .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_QR_TEMPLATE_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
@@ -17,6 +18,43 @@ export function ClientQuoteReqMail(user_name, user_email, policy_type) {
             console.log('FAILED...', err);
         });
 }
+export function ClientQuoteWithoutInspection(user_name, user_email, policy_type) {
+    const templateParams = {
+        from_name: "FL Insurance Hub",
+        name: user_name,
+        type: policy_type,
+        email: user_email
+    };
+    
+
+    emailjs
+        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_QR_WIHTOUT_INSPECTION_ID, templateParams, import.meta.env.VITE_EMAILJS_KEY)
+        .then((response) => {
+            console.log('SUCCESS!', response.status, response.text);
+        })
+        .catch((err) => {
+            console.log('FAILED...', err);
+        });
+}
+export function ClientQuoteInspectionUploaded(user_name, user_email, policy_type) {
+    const templateParams = {
+        from_name: "FL Insurance Hub",
+        name: user_name,
+        type: policy_type,
+        email: user_email
+    };
+    
+
+    emailjs
+        .send(import.meta.env.VITE_EMAILJS_SERVICE_ID, import.meta.env.VITE_EMAILJS_QR_INSPECTION_UPLOAD, templateParams, import.meta.env.VITE_EMAILJS_KEY)
+        .then((response) => {
+            console.log('SUCCESS!', response.status, response.text);
+        })
+        .catch((err) => {
+            console.log('FAILED...', err);
+        });
+}
+
 //done
 export function ClientQuotePolicyCancelMail(user_name, user_email, policy_type) {
     const templateParams = {
