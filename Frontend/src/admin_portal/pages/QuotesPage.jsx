@@ -248,47 +248,28 @@ const QuotesPage = () => {
         accessorKey: "inuser.name",
         header: "Client",
         size: 100,
+        Cell: ({ row }) => (
+          <Box display="flex" alignItems="center">
+            <span>
+              {row?.original?.inuser?.name?.length > 100
+                ? row?.original?.inuser?.name.slice(0, 100) + "..."
+                : row?.original?.inuser?.name}
+            </span>
+          </Box>
+        ),
+      },
+      {
+        accessorKey: "referral",
+        header: "Referral",
+        size: 200,
         Cell: ({ row }) => {
           const isReferral = row?.original?.user?.signupType === "Referral";
-          console.log("row", row);
           return (
-            <Box display="flex" alignItems="center">
-              <span>
-                {row?.original?.inuser?.name?.length > 100
-                  ? row?.original?.inuser?.name.slice(0, 100) + "..."
-                  : row?.original?.inuser?.name}
-              </span>
-
-              {isReferral && (
-                <span
-                  style={{
-                    backgroundColor: "#003049", // Customize color here
-                    color: "#fff",
-                    padding: "2px 6px",
-                    fontSize: "10px",
-                    borderRadius: "12px",
-                    marginLeft: "8px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  R
-                </span>
-              )}
+            <Box>
+              {isReferral ? row?.original?.user?.name || "N/A" : "None"}
             </Box>
           );
         },
-      },
-      {
-        accessorKey: "inuser.phoneNumber",
-        header: "Client Contact no.",
-        size: 200,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue()?.length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
       },
       {
         accessorKey: "inuser.email",

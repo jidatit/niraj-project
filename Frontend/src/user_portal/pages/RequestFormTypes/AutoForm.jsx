@@ -94,7 +94,24 @@ const AutoForm = () => {
           status_step: "1",
         };
         await addDoc(collection(db, "auto_quotes"), nofilesformData);
-        ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Auto");
+        if (currentUser.data.signupType === "Referral") {
+          ClientQuoteWithoutInspection(
+            formData.drivers.map((driver) => driver.name).join(", "),
+            adminEmail,
+            "Auto",
+            currentUser.data.name,
+            currentUser.data.name
+          );
+        } else {
+          ClientQuoteWithoutInspection(
+            formData.drivers.map((driver) => driver.name).join(", "),
+            adminEmail,
+            "Auto",
+            "None",
+            currentUser.data.name
+          );
+        }
+        // ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Auto");
         toast.success("Application submitted with success.");
         setbuttonstate("Submit");
         redirectFunc("/user_portal");
@@ -129,6 +146,23 @@ const AutoForm = () => {
         ...statusformData,
         inuser: formDataWithUrls.drivers[0],
       });
+      if (currentUser.data.signupType === "Referral") {
+        ClientQuoteReqMail(
+          formData.drivers.map((driver) => driver.name).join(", "), // Concatenate all names
+          adminEmail,
+          "Auto",
+          currentUser.data.name,
+          currentUser.data.name
+        );
+      } else {
+        ClientQuoteReqMail(
+          formData.drivers.map((driver) => driver.name).join(", "), // Concatenate all names
+          adminEmail,
+          "Auto",
+          "None",
+          currentUser.data.name
+        );
+      }
 
       setFormData({
         policyType: "Auto",
@@ -147,7 +181,7 @@ const AutoForm = () => {
         mailing: false,
         vehicles: [
           {
-            vin: false,
+            vin: "yes",
             vin_number: "",
             v_make: "",
             v_model: "",
@@ -167,8 +201,6 @@ const AutoForm = () => {
         user: { ...currentUser.data, id: currentUser.uid },
       });
       setFiles([]);
-
-      ClientQuoteReqMail(currentUser.data.name, adminEmail, "Auto");
 
       toast.success("Application submitted with success.");
       setbuttonstate("Submit");
@@ -190,7 +222,7 @@ const AutoForm = () => {
     mailing: false,
     vehicles: [
       {
-        vin: false,
+        vin: "yes",
         vin_number: "",
         v_make: "",
         v_model: "",
@@ -242,7 +274,7 @@ const AutoForm = () => {
       vehicles: [
         ...prevData.vehicles,
         {
-          vin: false,
+          vin: "yes",
           vin_number: "",
           v_make: "",
           v_model: "",

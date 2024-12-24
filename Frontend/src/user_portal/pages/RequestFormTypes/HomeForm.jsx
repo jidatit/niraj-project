@@ -15,7 +15,10 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import tickicon from "../../../assets/dash/tick.png";
 import { useAuth } from "../../../AuthContext";
-import { ClientQuoteReqMail, ClientQuoteWithoutInspection } from "../../../utils/mailingFuncs";
+import {
+  ClientQuoteReqMail,
+  ClientQuoteWithoutInspection,
+} from "../../../utils/mailingFuncs";
 import { useNavigate } from "react-router-dom";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -112,15 +115,48 @@ const HomeForm = () => {
           ...nofilesformData,
           inuser: nofilesformData.persons[0],
         });
-        
-        if(formData.ishomebuild==="yes")
-        {
-          ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Home");
+
+        if (formData.ishomebuild === "yes") {
+          if (currentUser.data.signupType === "Referral") {
+            ClientQuoteWithoutInspection(
+              formData.persons.map((driver) => driver.name).join(", "),
+              adminEmail,
+              "Home",
+              currentUser.data.name,
+              currentUser.data.name
+            );
+          } else {
+            ClientQuoteWithoutInspection(
+              formData.persons.map((driver) => driver.name).join(", "),
+              adminEmail,
+              "Home",
+              "None",
+              currentUser.data.name
+            );
+          }
+          // ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Home");
+        } else {
+          if (currentUser.data.signupType === "Referral") {
+            ClientQuoteReqMail(
+              formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
+              adminEmail,
+              "Home",
+              currentUser.data.name,
+              currentUser.data.name
+            );
+          } else {
+            ClientQuoteReqMail(
+              formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
+              adminEmail,
+              "Home",
+              "None",
+              currentUser.data.name
+            );
+          }
+
+          // ClientQuoteReqMail(currentUser.data.name, adminEmail, "Home");
         }
-        else{
-          ClientQuoteReqMail(currentUser.data.name, adminEmail, "Home");
-        }
-        
+
         toast.success("Application submitted with success.");
         setbuttonstate("Submit");
         redirectFunc("/user_portal");
@@ -155,14 +191,43 @@ const HomeForm = () => {
         ...statusformData,
         inuser: formDataWithUrls.persons[0],
       });
-      if(formData.ishomebuild==="yes")
-      {
-        ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Home");
+      if (formData.ishomebuild === "yes") {
+        if (currentUser.data.signupType === "Referral") {
+          ClientQuoteWithoutInspection(
+            formData.persons.map((driver) => driver.name).join(", "),
+            adminEmail,
+            "Home",
+            currentUser.data.name,
+            currentUser.data.name
+          );
+        } else {
+          ClientQuoteWithoutInspection(
+            formData.persons.map((driver) => driver.name).join(", "),
+            adminEmail,
+            "Home",
+            "None",
+            currentUser.data.name
+          );
+        }
+      } else {
+        if (currentUser.data.signupType === "Referral") {
+          ClientQuoteReqMail(
+            formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
+            adminEmail,
+            "Home",
+            currentUser.data.name,
+            currentUser.data.name
+          );
+        } else {
+          ClientQuoteReqMail(
+            formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
+            adminEmail,
+            "Home",
+            "None",
+            currentUser.data.name
+          );
+        }
       }
-      else{
-        ClientQuoteReqMail(currentUser.data.name, adminEmail, "Home");
-      }
-     
 
       setFormData({
         policyType: "Home",
@@ -181,8 +246,6 @@ const HomeForm = () => {
         user: { ...currentUser.data, id: currentUser.uid },
       });
       setFiles([]);
-
-      
 
       toast.success("Application submitted with success.");
       setbuttonstate("Submit");
