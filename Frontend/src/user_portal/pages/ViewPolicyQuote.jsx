@@ -53,6 +53,7 @@ import PolicyDetailsModal from "../components/PolicyDetailsModal";
 const ViewPolicyQuote = () => {
   const [AllQuotes, setAllQuotes] = useState([]);
   const { currentUser } = useAuth();
+  const isClient = currentUser?.data?.signupType === "Client";
   const [openModal, setopenModal] = useState(false);
   const [PopupData, setPopupData] = useState();
   const [openModalPolicy, setopenModalPolicy] = useState(false);
@@ -160,7 +161,11 @@ const ViewPolicyQuote = () => {
         getUserQuotes();
         setFiles([]);
         toast.success("Files uploaded and document updated successfully!");
-        ClientQuoteInspectionUploaded(currentUser.data.name, adminEmail, policyType);
+        ClientQuoteInspectionUploaded(
+          currentUser.data.name,
+          adminEmail,
+          policyType
+        );
       } catch (error) {
         toast.error(`Error updating document: ${error}`);
         console.error("Error updating document: ", error);
@@ -216,32 +221,63 @@ const ViewPolicyQuote = () => {
           </Box>
         ),
       },
-      {
-        accessorKey: "status",
-        header: "Inspection Status",
-        size: 100,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
-      },
-      {
-        accessorKey: "mailingAddress",
-        header: "Mailing Address",
-        size: 100,
-        Cell: ({ cell }) => (
-          <Tooltip title={cell.getValue()} arrow>
-            <Box>
-              {cell.getValue() && cell.getValue().length > 10
-                ? cell.getValue().slice(0, 10) + "..."
-                : cell.getValue()}
-            </Box>
-          </Tooltip>
-        ),
-      },
+      ...(isClient
+        ? [
+            {
+              accessorKey: "mailingAddress",
+              header: "Mailing Address",
+              size: 100,
+              Cell: ({ cell }) => (
+                <Tooltip title={cell.getValue()} arrow>
+                  <Box>
+                    {cell.getValue() && cell.getValue().length > 10
+                      ? cell.getValue().slice(0, 10) + "..."
+                      : cell.getValue()}
+                  </Box>
+                </Tooltip>
+              ),
+            },
+          ]
+        : [
+            {
+              accessorKey: "persons",
+              header: "Names to be Insured",
+              size: 100,
+              Cell: ({ cell, row }) => {
+                const { policyType } = row.original;
+                let insuredName = "";
+
+                // Check the quote type and extract the name
+                if (policyType === "Home") {
+                  insuredName = row.original.persons
+                    .map((person) => person.name)
+                    .join(", ");
+                } else if (policyType === "Auto") {
+                  insuredName = row.original.drivers
+                    .map((driver) => driver.name)
+                    .join(", ");
+                } else if (
+                  policyType === "Liability" ||
+                  policyType === "Flood"
+                ) {
+                  insuredName = row.original.persons
+                    .map((person) => person.name)
+                    .join(", ");
+                }
+
+                return (
+                  <Tooltip title={insuredName} arrow>
+                    <Box>
+                      {insuredName && insuredName.length > 40
+                        ? insuredName.slice(0, 40) + "..."
+                        : insuredName}
+                    </Box>
+                  </Tooltip>
+                );
+              },
+            },
+          ]),
+
       {
         accessorKey: "address",
         header: "Insured Address",
@@ -381,6 +417,7 @@ const ViewPolicyQuote = () => {
         floodQuotesData &&
         floodQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
 
+      // Combine all quotes
       const allQts = [
         ...filteredhomeQuotesData,
         ...filteredautoQuotesData,
@@ -388,11 +425,21 @@ const ViewPolicyQuote = () => {
         ...filteredfloodQuotesData,
       ];
 
-      setAllQuotes(allQts);
+      // Sort by createdAt, latest first
+      const sortedQuotes = allQts.sort((a, b) => {
+        const dateA = a.createdAt?.toMillis?.() || 0; // Use 0 if createdAt is missing
+        const dateB = b.createdAt?.toMillis?.() || 0;
+
+        // Sort by createdAt descending, pushing missing dates to the bottom
+        return dateB - dateA;
+      });
+
+      setAllQuotes(sortedQuotes);
     } catch (error) {
       toast.error("Error fetching quotes!");
     }
   };
+
   useEffect(() => {
     getUserQuotes();
   }, []);

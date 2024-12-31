@@ -8,7 +8,13 @@ import Select from "@mui/material/Select";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import { db, storage } from "../../../../db";
-import { addDoc, collection, getDocs, getFirestore } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  getFirestore,
+  serverTimestamp,
+} from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import { useDropzone } from "react-dropzone";
 import { toast, ToastContainer } from "react-toastify";
@@ -138,6 +144,8 @@ const FloodForm = () => {
         await addDoc(collection(db, "flood_quotes"), {
           ...nofilesformData,
           inuser: nofilesformData.persons[0],
+          createdAt: serverTimestamp(), // Automatically add the creation timestamp
+          updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
         });
         toast.success("Application submitted with success.");
         setbuttonstate("Submit");
@@ -172,6 +180,8 @@ const FloodForm = () => {
       await addDoc(collection(db, "flood_quotes"), {
         ...statusformData,
         inuser: formDataWithUrls.persons[0],
+        createdAt: serverTimestamp(), // Automatically add the creation timestamp
+        updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
       });
 
       setFormData({

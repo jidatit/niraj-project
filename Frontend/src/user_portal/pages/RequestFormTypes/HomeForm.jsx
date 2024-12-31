@@ -8,7 +8,13 @@ import Select from "@mui/material/Select";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import { db, storage } from "../../../../db";
-import { addDoc, collection, getDocs, getFirestore } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  getFirestore,
+  serverTimestamp,
+} from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import { useDropzone } from "react-dropzone";
 import { toast, ToastContainer } from "react-toastify";
@@ -114,6 +120,8 @@ const HomeForm = () => {
         await addDoc(collection(db, "home_quotes"), {
           ...nofilesformData,
           inuser: nofilesformData.persons[0],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
         });
 
         if (formData.ishomebuild === "yes") {
@@ -190,6 +198,8 @@ const HomeForm = () => {
       await addDoc(collection(db, "home_quotes"), {
         ...statusformData,
         inuser: formDataWithUrls.persons[0],
+        createdAt: serverTimestamp(), // Automatically add the creation timestamp
+        updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
       });
       if (formData.ishomebuild === "yes") {
         if (currentUser.data.signupType === "Referral") {

@@ -8,7 +8,13 @@ import Select from "@mui/material/Select";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import { db, storage } from "../../../../db";
-import { addDoc, collection, getDocs, getFirestore } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  getFirestore,
+  serverTimestamp,
+} from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import { useDropzone } from "react-dropzone";
 import { toast, ToastContainer } from "react-toastify";
@@ -93,7 +99,11 @@ const AutoForm = () => {
           status: "pending",
           status_step: "1",
         };
-        await addDoc(collection(db, "auto_quotes"), nofilesformData);
+        await addDoc(collection(db, "auto_quotes"), {
+          ...nofilesformData, // Include the existing form data
+          createdAt: serverTimestamp(), // Automatically add the creation timestamp
+          updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
+        });
         if (currentUser.data.signupType === "Referral") {
           ClientQuoteWithoutInspection(
             formData.drivers.map((driver) => driver.name).join(", "),
@@ -145,6 +155,8 @@ const AutoForm = () => {
       await addDoc(collection(db, "auto_quotes"), {
         ...statusformData,
         inuser: formDataWithUrls.drivers[0],
+        createdAt: serverTimestamp(), // Automatically add the current timestamp
+        updatedAt: serverTimestamp(), // Set initial updatedAt to the same timestamp
       });
       if (currentUser.data.signupType === "Referral") {
         ClientQuoteReqMail(

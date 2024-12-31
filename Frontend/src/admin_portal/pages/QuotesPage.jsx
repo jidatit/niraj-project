@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import { Box } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import "react-toastify/dist/ReactToastify.css";
 import papericon from "../../assets/dash/quotes/paper.png";
 import boxicon from "../../assets/dash/quotes/box.png";
@@ -142,13 +142,21 @@ const QuotesPage = () => {
         ...floodQuotesData,
       ];
       let allReqQuotes = [];
-      allQuotes &&
-        allQuotes.forEach((quote) => {
-          if (quote.status_step === "1") {
-            allReqQuotes.push(quote);
-          }
-        });
-      setReqQuotes(allReqQuotes);
+      allQuotes?.forEach((quote) => {
+        if (quote.status_step === "1") {
+          allReqQuotes.push(quote);
+        }
+      });
+      // Sort by createdAt, latest first
+      const sortedQuotes = allQuotes.sort((a, b) => {
+        const dateA = a.createdAt?.toMillis?.() || 0; // Use 0 if createdAt is missing
+        const dateB = b.createdAt?.toMillis?.() || 0;
+
+        // Sort by createdAt descending, pushing missing dates to the bottom
+        return dateB - dateA;
+      });
+
+      setReqQuotes(sortedQuotes);
     } catch (error) {
       toast.error("Error Fetching Requested Quotes!");
     }
@@ -157,15 +165,35 @@ const QuotesPage = () => {
     try {
       const DeliveredQuotesCollection = collection(db, "prep_quotes");
       const dqsnapshot = await getDocs(DeliveredQuotesCollection);
-      const DeliveredQuotesData = dqsnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const DeliveredQuotesData = dqsnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const dateParts = data.date?.split("/");
+
+        // Parse the date into a Date object
+        const parsedDate = dateParts
+          ? new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`)
+          : null;
+
+        return {
+          id: doc.id,
+          ...data,
+          parsedDate,
+        };
+      });
+
+      DeliveredQuotesData.sort((a, b) => {
+        if (a.parsedDate && b.parsedDate) {
+          return b.parsedDate - a.parsedDate; // Sort latest first
+        }
+        return 0;
+      });
+
       setDelQuotes(DeliveredQuotesData);
     } catch (error) {
       toast.error("Error Fetching Delivered Quotes!");
     }
   };
+
   const getAllBinderRequestedQuotes = async () => {
     try {
       const BinderReqCollection = collection(db, "bind_req_quotes");
@@ -248,16 +276,31 @@ const QuotesPage = () => {
         accessorKey: "inuser.name",
         header: "Client",
         size: 100,
-        Cell: ({ row }) => (
-          <Box display="flex" alignItems="center">
-            <span>
-              {row?.original?.inuser?.name?.length > 100
-                ? row?.original?.inuser?.name.slice(0, 100) + "..."
-                : row?.original?.inuser?.name}
-            </span>
-          </Box>
-        ),
+        Cell: ({ row }) => {
+          const { policyType, inuser, drivers } = row?.original || {};
+
+          const name =
+            policyType === "Auto" &&
+            Array.isArray(drivers) &&
+            drivers.length > 0 &&
+            drivers[0]?.name
+              ? drivers[0]?.name
+              : inuser?.name;
+
+          return (
+            <Box display="flex" alignItems="center">
+              <Tooltip title={name || "N/A"} arrow>
+                <span>
+                  {name?.length > 15
+                    ? name.slice(0, 15) + "..."
+                    : name || "N/A"}
+                </span>
+              </Tooltip>
+            </Box>
+          );
+        },
       },
+
       {
         accessorKey: "referral",
         header: "Referral",
@@ -275,13 +318,25 @@ const QuotesPage = () => {
         accessorKey: "inuser.email",
         header: "Client Email",
         size: 100,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue()?.length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
+        Cell: ({ row }) => {
+          const { policyType, inuser, drivers } = row?.original || {};
+
+          // Choose the email based on policy type (use email from inuser or drivers)
+          const email =
+            policyType === "Auto" &&
+            Array.isArray(drivers) &&
+            drivers.length > 0
+              ? drivers[0]?.email
+              : inuser?.email;
+
+          return (
+            <Box>
+              {email?.length > 100
+                ? email.slice(0, 100) + "..."
+                : email || "N/A"}
+            </Box>
+          );
+        },
       },
       {
         accessorKey: "policyType",
@@ -395,12 +450,20 @@ const QuotesPage = () => {
         size: 100,
         Cell: ({ cell, row }) => {
           const { persons, drivers } = row.original;
+          // Ensure persons, drivers, or cell.getValue() are valid
           const name =
-            (persons && persons.length > 0 && persons[0].name) ||
-            (drivers && drivers.length > 0 && drivers[0].name) ||
-            cell.getValue();
+            (persons &&
+              Array.isArray(persons) &&
+              persons.length > 0 &&
+              persons[0].name) ||
+            (drivers &&
+              Array.isArray(drivers) &&
+              drivers.length > 0 &&
+              drivers[0].name) ||
+            cell.getValue() ||
+            "N/A"; // Fallback if all are undefined
           return (
-            <Box>{name.length > 100 ? name.slice(0, 100) + "..." : name}</Box>
+            <Box>{name?.length > 100 ? name.slice(0, 100) + "..." : name}</Box>
           );
         },
       },
@@ -408,37 +471,40 @@ const QuotesPage = () => {
         accessorKey: "user.phoneNumber",
         header: "Client Contact no.",
         size: 200,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
+        Cell: ({ cell }) => {
+          const value = cell.getValue() || "N/A"; // Fallback for undefined phoneNumber
+          return (
+            <Box>
+              {value.length > 100 ? value.slice(0, 100) + "..." : value}
+            </Box>
+          );
+        },
       },
       {
         accessorKey: "user.email",
         header: "Client Email",
         size: 100,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
+        Cell: ({ cell }) => {
+          const value = cell.getValue() || "N/A"; // Fallback for undefined email
+          return (
+            <Box>
+              {value.length > 100 ? value.slice(0, 100) + "..." : value}
+            </Box>
+          );
+        },
       },
       {
         accessorKey: "qsr_type",
         header: "Policy Type",
         size: 100,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
+        Cell: ({ cell }) => {
+          const value = cell.getValue() || "N/A"; // Fallback for undefined policy type
+          return (
+            <Box>
+              {value.length > 100 ? value.slice(0, 100) + "..." : value}
+            </Box>
+          );
+        },
       },
       {
         header: "Actions",
@@ -933,7 +999,6 @@ const QuotesPage = () => {
             <img src={historyicon} alt="" />
           </div>
         </div>
-        {console.log("request", req_quotes)}
 
         {selectedButton === "requestedQuotes" && (
           <div className="w-full flex flex-col justify-center items-center mt-[30px]">

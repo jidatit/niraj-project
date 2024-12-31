@@ -9,7 +9,13 @@ import infoicon from "../../../assets/dash/info.png";
 import { styled } from "@mui/material/styles";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import { db } from "../../../../db";
-import { addDoc, collection, getDocs, getFirestore } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  getFirestore,
+  serverTimestamp,
+} from "firebase/firestore";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../../AuthContext";
@@ -75,6 +81,8 @@ const LiabilityForm = () => {
         status: "completed",
         status_step: "1",
         inuser: formData.persons[0],
+        createdAt: serverTimestamp(), // Automatically add the creation timestamp
+        updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
       });
 
       setFormData({
