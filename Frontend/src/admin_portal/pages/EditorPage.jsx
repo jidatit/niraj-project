@@ -14,6 +14,7 @@ import {
   getDoc,
   serverTimestamp,
 } from "firebase/firestore";
+
 import { db } from "../../../db";
 import {
   areKeysFilled,
@@ -23,6 +24,7 @@ import {
 import { AdminPrepareQuoteMail } from "../../utils/mailingFuncs";
 import { useNavigate } from "react-router-dom";
 import { Box, CircularProgress, Typography } from "@mui/material";
+import NotesSection from "../components/NotesSection";
 
 const EditorPage = () => {
   const navigate = useNavigate();
@@ -72,6 +74,7 @@ const EditorPage = () => {
     qsr_type: "",
     date: getCurrentDate("slash"),
     q_id: "",
+    notes: [],
   });
 
   useEffect(() => {
@@ -294,6 +297,9 @@ const EditorPage = () => {
                   <span className="font-semibold">({QSR_Type})</span>
                 </h1>
               )}
+            </div>
+            <div className="w-[90%] flex   flex-col gap-4 justify-center items-start">
+              <NotesSection formData={formData} setFormData={setFormData} />
             </div>
 
             {QSR_Type && formData.user && (
