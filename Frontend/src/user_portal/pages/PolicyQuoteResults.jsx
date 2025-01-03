@@ -5,13 +5,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { db } from "../../../db";
 import { getDocs, collection } from "firebase/firestore";
 import DeliveredQuotePreviewClient from "../components/DeliveredQuotePreviewClient";
+import { Box, CircularProgress } from "@mui/material";
 
 const PolicyQuoteResults = () => {
   const location = useLocation();
   const [QuoteDetails, setQuoteDetails] = useState(null);
   const [id, setId] = useState("");
   const [alreadyBindreq, setalreadyBindreq] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const IdParam = searchParams.get("id");
@@ -39,6 +40,8 @@ const PolicyQuoteResults = () => {
       });
     } catch (error) {
       toast.error("Error Fetching Result For Your Quote!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,8 +73,16 @@ const PolicyQuoteResults = () => {
                 Quote Results
               </h1>
             </div>
-
-            {QuoteDetails && QuoteDetails ? (
+            {loading ? (
+              <Box
+                sx={{
+                  justifyContent: "center",
+                  alignContent: "center",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : QuoteDetails ? (
               <DeliveredQuotePreviewClient data={QuoteDetails} />
             ) : (
               <div className="w-[95%] lg:w-[95%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md">
