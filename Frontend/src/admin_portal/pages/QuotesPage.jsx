@@ -18,6 +18,8 @@ import {
   where,
   query,
   deleteDoc,
+  orderBy,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../../db";
 import HomePolicyPreview from "./QuotePoliciesPreviews/HomePolicyPreview";
@@ -198,12 +200,28 @@ const QuotesPage = () => {
     try {
       const BinderReqCollection = collection(db, "bind_req_quotes");
       const brsnapshot = await getDocs(BinderReqCollection);
-      const BinderReqQuotesData = brsnapshot.docs
+
+      // Get all quotes data
+      const allQuotes = brsnapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .filter((data) => data.bound_status === "pending");
-      setBinderReqQuotes(BinderReqQuotesData);
+
+      // Sort by createdAt, latest first, fallback to 0 if missing
+      const sortedQuotes = allQuotes.sort((a, b) => {
+        const dateA =
+          a.updatedAt?.toMillis?.() || a.createdAt?.toMillis?.() || 0; // Use createdAt if updatedAt is missing
+        const dateB =
+          b.updatedAt?.toMillis?.() || b.createdAt?.toMillis?.() || 0;
+
+        // Sort by the most recent date
+        return dateB - dateA;
+      });
+
+      // Set sorted quotes to the state
+      setBinderReqQuotes(sortedQuotes);
     } catch (error) {
       toast.error("Error Fetching Binder Requested Quotes!");
+      console.error(error);
     }
   };
   const getAllPolicyBoundData = async () => {
@@ -232,8 +250,27 @@ const QuotesPage = () => {
           return effectiveDate < currentDate;
         });
 
-      setpolicy_bound_data(PBData);
-      setpolicy_history(historyData);
+      const sortedPBData = PBData.sort((a, b) => {
+        const dateA =
+          a.updatedAt?.toMillis?.() || a.createdAt?.toMillis?.() || 0; // Use createdAt if updatedAt is missing
+        const dateB =
+          b.updatedAt?.toMillis?.() || b.createdAt?.toMillis?.() || 0;
+
+        // Sort by the most recent date
+        return dateB - dateA;
+      });
+      const sortedhistoryData = historyData.sort((a, b) => {
+        const dateA =
+          a.updatedAt?.toMillis?.() || a.createdAt?.toMillis?.() || 0; // Use createdAt if updatedAt is missing
+        const dateB =
+          b.updatedAt?.toMillis?.() || b.createdAt?.toMillis?.() || 0;
+
+        // Sort by the most recent date
+        return dateB - dateA;
+      });
+
+      setpolicy_bound_data(sortedPBData);
+      setpolicy_history(sortedhistoryData);
     } catch (error) {
       toast.error("Error Fetching Policy Bound Data!");
     }
@@ -604,6 +641,7 @@ const QuotesPage = () => {
       }
       await updateDoc(docRef, {
         bound_status: "bounded",
+        updatedAt: serverTimestamp(),
       });
     } catch (error) {
       toast.error("Error updating bound_status in bind_req_quotes!");
