@@ -470,14 +470,15 @@ const CustomTable = ({ QSR, tableData, user }) => {
               address: quote.Address,
               zipCode: quote.zipCode ? quote.zipCode : "",
               carrier: quote.Carrier || "",
-              premium: quote.ReturnAmount || 0,
+              premium: parseFloat(quote.ReturnAmount) || 0,
             }))
+            .sort((a, b) => (b.premium > 0 ? 1 : -1)) // Sort entries with ReturnAmount to the top
             .filter(
               (quote, index, self) =>
                 index ===
                 self.findIndex(
                   (q) =>
-                    q.carrier == quote.carrier && q.premium == quote.premium
+                    q.carrier === quote.carrier && q.premium === quote.premium
                 )
             );
 

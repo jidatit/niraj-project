@@ -5,6 +5,44 @@ import { formatKey } from "../../utils/helperSnippets";
 import ClientNotesView from "./ClientNotesView";
 
 const DeliveredQuotePreviewClient = ({ data }) => {
+  const getDesiredOrder = (qsrType) => {
+    switch (qsrType) {
+      case "Home":
+        return [
+          "dwelling",
+          "other_structures",
+          "contents",
+          "loss_of_use",
+          "liability",
+          "medical_payments",
+          "aop_deductible",
+          "hurricane_deductible",
+        ];
+      case "Auto":
+        return [
+          "bodily_injury",
+          "property_damage",
+          "u_m",
+          "collision_deductible",
+          "rental",
+          "roadside",
+          "comprehensive_deductible",
+        ];
+      case "Flood":
+        return ["dwelling", "personal_property"];
+      case "Liability":
+        return [
+          "liability_coverage_amount",
+          "u_m_coverage",
+          "cyber_liability",
+          "identity_theft",
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const desiredOrder = getDesiredOrder(data.qsr_type);
   return (
     <>
       <div className="w-[95%] min-h-screen lg:w-[95%] p-10 lg:p-20 bg-white flex flex-col justify-start items-center rounded-lg shadow-md">
@@ -76,9 +114,9 @@ const DeliveredQuotePreviewClient = ({ data }) => {
                     key={index}
                     className="w-full flex flex-col text-[16px] font-normal justify-start items-start gap-1"
                   >
-                    {Object.keys(item).map(
+                    {desiredOrder.map(
                       (key) =>
-                        key !== "id" && (
+                        item[key] !== undefined && (
                           <p key={key}>
                             <span className="font-medium">
                               {formatKey(key)}:{" "}
