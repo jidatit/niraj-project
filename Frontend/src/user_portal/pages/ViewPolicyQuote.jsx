@@ -372,6 +372,75 @@ const ViewPolicyQuote = () => {
     []
   );
 
+  // const getUserQuotes = async () => {
+  //   try {
+  //     const homeQuotesCollection = collection(db, "home_quotes");
+  //     const autoQuotesCollection = collection(db, "auto_quotes");
+  //     const liabilityQuotesCollection = collection(db, "liability_quotes");
+  //     const floodQuotesCollection = collection(db, "flood_quotes");
+
+  //     const hqsnapshot = await getDocs(homeQuotesCollection);
+  //     const aqsnapshot = await getDocs(autoQuotesCollection);
+  //     const lqsnapshot = await getDocs(liabilityQuotesCollection);
+  //     const fqsnapshot = await getDocs(floodQuotesCollection);
+
+  //     const homeQuotesData = hqsnapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+  //     const autoQuotesData = aqsnapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+  //     const liabilityQuotesData = lqsnapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+  //     const floodQuotesData = fqsnapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+
+  //     let filteredhomeQuotesData =
+  //       currentUser &&
+  //       homeQuotesData &&
+  //       homeQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
+  //     let filteredautoQuotesData =
+  //       currentUser &&
+  //       autoQuotesData &&
+  //       autoQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
+  //     let filteredliabilityQuotesData =
+  //       currentUser &&
+  //       liabilityQuotesData &&
+  //       liabilityQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
+  //     let filteredfloodQuotesData =
+  //       currentUser &&
+  //       floodQuotesData &&
+  //       floodQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
+
+  //     // Combine all quotes
+  //     const allQts = [
+  //       ...filteredhomeQuotesData,
+  //       ...filteredautoQuotesData,
+  //       ...filteredliabilityQuotesData,
+  //       ...filteredfloodQuotesData,
+  //     ];
+
+  //     // Sort by createdAt, latest first
+  //     const sortedQuotes = allQts.sort((a, b) => {
+  //       const dateA = a.createdAt?.toMillis?.() || 0; // Use 0 if createdAt is missing
+  //       const dateB = b.createdAt?.toMillis?.() || 0;
+
+  //       // Sort by createdAt descending, pushing missing dates to the bottom
+  //       return dateB - dateA;
+  //     });
+
+  //     setAllQuotes(sortedQuotes);
+  //   } catch (error) {
+  //     toast.error("Error fetching quotes!");
+  //   }
+  // };
+
   const getUserQuotes = async () => {
     try {
       const homeQuotesCollection = collection(db, "home_quotes");
@@ -401,23 +470,41 @@ const ViewPolicyQuote = () => {
         ...doc.data(),
       }));
 
-      let filteredhomeQuotesData =
-        currentUser &&
-        homeQuotesData &&
-        homeQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
-      let filteredautoQuotesData =
-        currentUser &&
-        autoQuotesData &&
-        autoQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
-      let filteredliabilityQuotesData =
-        currentUser &&
-        liabilityQuotesData &&
-        liabilityQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
-      let filteredfloodQuotesData =
-        currentUser &&
-        floodQuotesData &&
-        floodQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
+      const emailMatches = (emailsArray) =>
+        emailsArray.some((person) => person.email === currentUser.email);
 
+      const filterQuotes = (quotes, userKey, userArrayKey) => {
+        return quotes.filter((obj) => {
+          const isUserMatch = obj[userKey]?.id === currentUser.uid;
+          const isReferralMatch = obj.byReferral
+            ? emailMatches(obj[userArrayKey] || [])
+            : false;
+
+          return isUserMatch || isReferralMatch;
+        });
+      };
+
+      let filteredhomeQuotesData = filterQuotes(
+        homeQuotesData,
+        "user",
+        "persons"
+      );
+      let filteredautoQuotesData = filterQuotes(
+        autoQuotesData,
+        "user",
+        "drivers"
+      );
+      let filteredliabilityQuotesData = filterQuotes(
+        liabilityQuotesData,
+        "user",
+        "persons"
+      );
+      let filteredfloodQuotesData = filterQuotes(
+        floodQuotesData,
+        "user",
+        "persons"
+      );
+      console.log("filet home", filteredhomeQuotesData);
       // Combine all quotes
       const allQts = [
         ...filteredhomeQuotesData,

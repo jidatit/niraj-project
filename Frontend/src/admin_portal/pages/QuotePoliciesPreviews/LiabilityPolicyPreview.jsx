@@ -15,8 +15,9 @@ const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
     addresses,
     persons,
     mailingAddress,
+    occupancy,
   } = data;
-  console.log("data", data);
+
   const renderTextField = (label, value) => (
     <div className="flex w-full flex-col justify-center items-start gap-2">
       <InputLabel htmlFor="name">{label}</InputLabel>
@@ -118,6 +119,7 @@ const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
 
           {/* Mailing Address */}
           {mailingAddress && renderTextField("Mailing Address", mailingAddress)}
+          {occupancy && renderTextField("Occuapancy", occupancy)}
 
           {/* Policy Details */}
           <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5 mt-[20px]">

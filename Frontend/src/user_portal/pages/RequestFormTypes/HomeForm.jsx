@@ -123,6 +123,9 @@ const HomeForm = () => {
           inuser: nofilesformData.persons[0],
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
+          ...(currentUser.data.signupType === "Referral" && {
+            byReferral: true,
+          }),
         });
 
         if (formData.ishomebuild === "yes") {
@@ -201,7 +204,9 @@ const HomeForm = () => {
         inuser: formDataWithUrls.persons[0],
         createdAt: serverTimestamp(), // Automatically add the creation timestamp
         updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
+        ...(currentUser.data.signupType === "Referral" && { byReferral: true }),
       });
+
       if (formData.ishomebuild === "yes") {
         if (currentUser.data.signupType === "Referral") {
           ClientQuoteWithoutInspection(

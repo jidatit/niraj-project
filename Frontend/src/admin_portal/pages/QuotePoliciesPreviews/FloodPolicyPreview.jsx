@@ -16,6 +16,7 @@ const FloodPolicyPreview = ({ data, open, handleClose }) => {
     persons,
     files,
     mailingAddress,
+    occupancy,
   } = data;
 
   const renderTextField = (label, value) => (
@@ -163,6 +164,7 @@ const FloodPolicyPreview = ({ data, open, handleClose }) => {
             ))}
 
           {mailingAddress && renderTextField("Mailing Address", mailingAddress)}
+          {occupancy && renderTextField("Occuapancy", occupancy)}
           {address && renderTextField("Address to be insured", address)}
 
           <div className="w-full grid grid-cols-1 mt-[20px] flex-wrap mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">

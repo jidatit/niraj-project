@@ -17,6 +17,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
     vehicles,
     UM,
     mailingAddress,
+    occupancy,
   } = data;
 
   const renderTextField = (label, value) => (
@@ -169,6 +170,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
             ))}
 
           {mailingAddress && renderTextField("Mailing Address", mailingAddress)}
+          {occupancy && renderTextField("Occuapancy", occupancy)}
           {garaging_address &&
             renderTextField("Garaging Address", garaging_address)}
 
