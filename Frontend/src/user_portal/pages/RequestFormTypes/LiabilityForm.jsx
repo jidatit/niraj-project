@@ -68,6 +68,7 @@ const LiabilityForm = () => {
     addresses: [{ address: "" }],
     autos: { cars: "", boats: "", motorcycles: "", golf_carts: "" },
     user: { ...currentUser.data, id: currentUser.uid },
+    occupancy: "Primary",
   });
 
   const [buttonstate, setbuttonstate] = useState("Submit");
@@ -101,6 +102,7 @@ const LiabilityForm = () => {
         user: { ...currentUser.data, id: currentUser.uid },
         status: "completed",
         status_step: "1",
+        occupancy: "Primary",
       });
 
       if (currentUser.data.signupType === "Referral") {
@@ -328,6 +330,24 @@ const LiabilityForm = () => {
               label="Type your Mailing Address here......"
               variant="outlined"
             />
+          </div>
+          <div className="flex w-full flex-col justify-center items-start gap-2">
+            <InputLabel htmlFor="occupancy-select">Occupancy</InputLabel>
+            <FormControl className="w-full" variant="outlined">
+              <Select
+                labelId="occupancy-select-label"
+                id="occupancy-select"
+                value={formData.occupancy}
+                onChange={(e) => handleChange(e)}
+                name="occupancy"
+              >
+                <MenuItem value="Primary">Primary</MenuItem>
+                <MenuItem value="Rental">Rental</MenuItem>
+                <MenuItem value="Seasonal/Secondary">
+                  Seasonal/Secondary
+                </MenuItem>
+              </Select>
+            </FormControl>
           </div>
         </div>
 

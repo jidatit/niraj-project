@@ -211,6 +211,7 @@ const AutoForm = () => {
         collision_deductible: "",
         files: [],
         user: { ...currentUser.data, id: currentUser.uid },
+        occupancy: "Primary",
       });
       setFiles([]);
 
@@ -252,6 +253,7 @@ const AutoForm = () => {
     collision_deductible: "",
     files: [],
     user: { ...currentUser.data, id: currentUser.uid },
+    occupancy: "Primary",
   });
 
   const handleChange = (event) => {
@@ -460,6 +462,24 @@ const AutoForm = () => {
               label="Type your Mailing Address here......"
               variant="outlined"
             />
+          </div>
+          <div className="flex w-full flex-col justify-center items-start gap-2">
+            <InputLabel htmlFor="occupancy-select">Occupancy</InputLabel>
+            <FormControl className="w-full" variant="outlined">
+              <Select
+                labelId="occupancy-select-label"
+                id="occupancy-select"
+                value={formData.occupancy}
+                onChange={(e) => handleChange(e)}
+                name="occupancy"
+              >
+                <MenuItem value="Primary">Primary</MenuItem>
+                <MenuItem value="Rental">Rental</MenuItem>
+                <MenuItem value="Seasonal/Secondary">
+                  Seasonal/Secondary
+                </MenuItem>
+              </Select>
+            </FormControl>
           </div>
         </div>
 

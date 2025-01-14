@@ -199,6 +199,7 @@ const FloodForm = () => {
         expiryDate: "",
         user: { ...currentUser.data, id: currentUser.uid },
         files: [],
+        occupancy: "Primary",
       });
       setFiles([]);
 
@@ -263,6 +264,7 @@ const FloodForm = () => {
     expiryDate: "",
     files: [],
     user: { ...currentUser.data, id: currentUser.uid },
+    occupancy: "Primary",
   });
 
   const handleChange = (event) => {
@@ -446,6 +448,24 @@ const FloodForm = () => {
               label="Type your Address here......"
               variant="outlined"
             />
+          </div>
+          <div className="flex w-full flex-col justify-center items-start gap-2">
+            <InputLabel htmlFor="occupancy-select">Occupancy</InputLabel>
+            <FormControl className="w-full" variant="outlined">
+              <Select
+                labelId="occupancy-select-label"
+                id="occupancy-select"
+                value={formData.occupancy}
+                onChange={(e) => handleChange(e)}
+                name="occupancy"
+              >
+                <MenuItem value="Primary">Primary</MenuItem>
+                <MenuItem value="Rental">Rental</MenuItem>
+                <MenuItem value="Seasonal/Secondary">
+                  Seasonal/Secondary
+                </MenuItem>
+              </Select>
+            </FormControl>
           </div>
           {/* <div className='flex w-full flex-row pt-5 gap-2 justify-start items-center'>
                         <input value={formData.mailing} checked={formData.mailing} name="mailing"

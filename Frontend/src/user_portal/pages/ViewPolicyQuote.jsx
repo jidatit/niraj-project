@@ -190,6 +190,7 @@ const ViewPolicyQuote = () => {
   };
 
   const handleOpenModalWithData = (data) => {
+    console.log("data", data);
     setSelectedRowData(data);
     setopenModal(true);
     setPopupData(data);

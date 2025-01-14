@@ -134,6 +134,9 @@ const PolicyDetailsModal = ({ open, onClose, selectedRow }) => {
         {selectedRow?.mailingAddress &&
           renderTextField("Mailing Address", selectedRow.mailingAddress)}
 
+        {selectedRow?.occupancy &&
+          renderTextField("Occuapancy", selectedRow.occupancy)}
+
         {/* Auto-specific fields */}
         {selectedRow?.policyType === "Auto" && (
           <>
