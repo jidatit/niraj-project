@@ -254,7 +254,15 @@ const FloodForm = () => {
   const [formData, setFormData] = useState({
     policyType: "Flood",
     mailingAddress: "",
-    persons: [{ name: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
+    persons: [
+      {
+        name: currentUser?.data?.name || "",
+        dob: currentUser?.data?.dateOfBirth || "",
+        email: currentUser?.data?.email || "",
+        phoneNumber: currentUser?.data?.phoneNumber || "",
+        zipCode: currentUser?.data?.zipCode || "",
+      },
+    ],
     address: "",
     mailing: false,
     cert_elevation: "",

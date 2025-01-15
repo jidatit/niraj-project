@@ -164,7 +164,6 @@ const LiabilityPolicyPreview = ({ data, open, handleClose }) => {
               onClick={handleClose}
               className="w-full"
               to={`/admin_portal/editor?qsr_type=${data.policyType}&q_id=${data.id}&qu_id=${data.user.id}`}
-              target="_blank"
             >
               <button
                 className="text-white w-full justify-center bg-[#F77F00] outline-none md:text-[15px] font-semibold rounded-lg text-[12px] px-5 py-4 text-center inline-flex items-center shadow-md"

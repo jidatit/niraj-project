@@ -442,6 +442,7 @@ const ViewPolicyQuote = () => {
   // };
 
   const getUserQuotes = async () => {
+    setLoading(true);
     try {
       const homeQuotesCollection = collection(db, "home_quotes");
       const autoQuotesCollection = collection(db, "auto_quotes");
@@ -504,7 +505,7 @@ const ViewPolicyQuote = () => {
         "user",
         "persons"
       );
-      console.log("filet home", filteredhomeQuotesData);
+
       // Combine all quotes
       const allQts = [
         ...filteredhomeQuotesData,
@@ -525,6 +526,8 @@ const ViewPolicyQuote = () => {
       setAllQuotes(sortedQuotes);
     } catch (error) {
       toast.error("Error fetching quotes!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -550,6 +553,7 @@ const ViewPolicyQuote = () => {
               <MaterialReactTable
                 columns={columns}
                 data={AllQuotes}
+                state={{ isLoading: loading }}
                 initialState={{
                   density: "compact",
                   columnOrder: [
@@ -586,7 +590,6 @@ const ViewPolicyQuote = () => {
               {PopupData && (
                 <Link
                   to={`/user_portal/pq_results?type=${PopupData.policyType}&id=${PopupData.id}`}
-                  target="_blank"
                 >
                   <div className="w-full border-r-[1px] group py-[30px] cursor-pointer rounded-md hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5">
                     <img
@@ -603,7 +606,6 @@ const ViewPolicyQuote = () => {
               {PopupData && (
                 <Link
                   to={`/user_portal/pq_progress?type=${PopupData.policyType}&id=${PopupData.id}`}
-                  target="_blank"
                 >
                   <div className="w-full group py-[30px] rounded-md cursor-pointer hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5">
                     <img

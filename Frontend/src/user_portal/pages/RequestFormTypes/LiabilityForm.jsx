@@ -64,7 +64,15 @@ const LiabilityForm = () => {
     rented_address_num: "",
     coverageAmount: "",
     mailingAddress: "",
-    persons: [{ name: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
+    persons: [
+      {
+        name: currentUser?.data?.name || "",
+        dob: currentUser?.data?.dateOfBirth || "",
+        email: currentUser?.data?.email || "",
+        phoneNumber: currentUser?.data?.phoneNumber || "",
+        zipCode: currentUser?.data?.zipCode || "",
+      },
+    ],
     addresses: [{ address: "" }],
     autos: { cars: "", boats: "", motorcycles: "", golf_carts: "" },
     user: { ...currentUser.data, id: currentUser.uid },

@@ -431,7 +431,6 @@ const QuotesPage = () => {
 
             <Link
               to={`/admin_portal/editor?qsr_type=${cell.row.original.policyType}&q_id=${cell.row.original.id}&qu_id=${cell.row.original.user.id}`}
-              target="_blank"
             >
               <button
                 disabled={cell.row.original.status === "pending" ? true : false}

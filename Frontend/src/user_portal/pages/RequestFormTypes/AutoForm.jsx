@@ -229,7 +229,14 @@ const AutoForm = () => {
     policyType: "Auto",
     mailingAddress: "",
     drivers: [
-      { name: "", dob: "", LN: "", email: "", phoneNumber: "", zipCode: "" },
+      {
+        name: currentUser?.data?.name || "",
+        dob: currentUser?.data?.dateOfBirth || "",
+        email: currentUser?.data?.email || "",
+        phoneNumber: currentUser?.data?.phoneNumber || "",
+        zipCode: currentUser?.data?.zipCode || "",
+        LN: currentUser?.data?.driversLicense || "",
+      },
     ],
     garaging_address: "",
     mailing: false,

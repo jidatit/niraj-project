@@ -31,6 +31,7 @@ import ChangePassword from "./user_portal/pages/ChangePassword";
 
 import ForgotPasswordClient from "./auth/ForgotPasswordClient";
 import ForgotPasswordReferral from "./auth/ForgotPasswordReferral";
+import ProfilePage from "./user_portal/pages/ProfilePage";
 function App() {
   return (
     <>
@@ -70,15 +71,17 @@ function App() {
             <Route path="logout" element={<Logout />} />
           </Route>
 
-          <Route path='/user_portal' element={<UserLayout />}>
+          <Route path="/user_portal" element={<UserLayout />}>
             <Route index element={<ViewPolicyQuote />} />
-            <Route path='requests' element={<RequestPage />} />
-            <Route path='refer_friend' element={<ReferFriend />} />
-            <Route path='pq_progress' element={<PolicyQuoteProgess />} />
-            <Route path='pq_results' element={<PolicyQuoteResults />} />
-            <Route path='upload_inspections' element={<UploadInspections />} />
+            <Route path="requests" element={<RequestPage />} />
+            <Route path="refer_friend" element={<ReferFriend />} />
+            <Route path="pq_progress" element={<PolicyQuoteProgess />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="pq_results" element={<PolicyQuoteResults />} />
+            <Route path="upload_inspections" element={<UploadInspections />} />
             <Route path="auth/change_password" element={<ChangePassword />} />
-            <Route path='logout' element={<Logout />} />
+
+            <Route path="logout" element={<Logout />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
