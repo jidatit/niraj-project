@@ -45,6 +45,7 @@ const AutoForm = () => {
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { currentUser } = useAuth();
+  const isClient = currentUser?.data?.signupType === "Client";
   const [buttonstate, setbuttonstate] = useState("Submit");
   const [fileModal, setfileModal] = useState(false);
   const [files, setFiles] = useState([]);
@@ -227,17 +228,28 @@ const AutoForm = () => {
 
   const [formData, setFormData] = useState({
     policyType: "Auto",
-    mailingAddress: "",
-    drivers: [
-      {
-        name: currentUser?.data?.name || "",
-        dob: currentUser?.data?.dateOfBirth || "",
-        email: currentUser?.data?.email || "",
-        phoneNumber: currentUser?.data?.phoneNumber || "",
-        zipCode: currentUser?.data?.zipCode || "",
-        LN: currentUser?.data?.driversLicense || "",
-      },
-    ],
+    mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
+    drivers: isClient
+      ? [
+          {
+            name: currentUser?.data?.name || "",
+            dob: currentUser?.data?.dateOfBirth || "",
+            email: currentUser?.data?.email || "",
+            phoneNumber: currentUser?.data?.phoneNumber || "",
+            zipCode: currentUser?.data?.zipCode || "",
+            LN: currentUser?.data?.driversLicense || "",
+          },
+        ]
+      : [
+          {
+            name: "",
+            dob: "",
+            email: "",
+            phoneNumber: "",
+            zipCode: "",
+            LN: "",
+          },
+        ],
     garaging_address: "",
     mailing: false,
     vehicles: [
@@ -259,7 +271,9 @@ const AutoForm = () => {
     comprehensive_deductible: "",
     collision_deductible: "",
     files: [],
-    user: { ...currentUser.data, id: currentUser.uid },
+    user: isClient
+      ? { ...currentUser.data, id: currentUser.uid }
+      : { id: currentUser?.uid },
     occupancy: "Primary",
   });
 

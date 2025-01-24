@@ -45,7 +45,8 @@ const HomeForm = () => {
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { currentUser } = useAuth();
-  console.log("currentuser", currentUser);
+  const isClient = currentUser?.data?.signupType === "Client";
+
   const [formData, setFormData] = useState({
     policyType: "Home",
     address: "",
@@ -55,18 +56,20 @@ const HomeForm = () => {
     closingDate: "",
     currentInsurance: "",
     expiryDate: "",
-    mailingAddress: "",
-    persons: [
-      {
-        name: currentUser?.data?.name || "",
-        dob: currentUser?.data?.dateOfBirth || "",
-        email: currentUser?.data?.email || "",
-        phoneNumber: currentUser?.data?.phoneNumber || "",
-        zipCode: currentUser?.data?.zipCode || "",
-      },
-    ],
+    mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
+    persons: isClient
+      ? [
+          {
+            name: currentUser?.data?.name || "",
+            dob: currentUser?.data?.dateOfBirth || "",
+            email: currentUser?.data?.email || "",
+            phoneNumber: currentUser?.data?.phoneNumber || "",
+            zipCode: currentUser?.data?.zipCode || "",
+          },
+        ]
+      : [{ name: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
     files: [],
-    user: { ...currentUser.data, id: currentUser.uid },
+    user: { ...(isClient ? currentUser.data : {}), id: currentUser?.uid },
     occupancy: "Primary",
   });
 

@@ -56,6 +56,7 @@ const LiabilityForm = () => {
   };
 
   const { currentUser } = useAuth();
+  const isClient = currentUser?.data?.signupType === "Client";
   const [formData, setFormData] = useState({
     policyType: "Liability",
     application_policy: "",
@@ -63,19 +64,31 @@ const LiabilityForm = () => {
     owner_occupied_num: "",
     rented_address_num: "",
     coverageAmount: "",
-    mailingAddress: "",
-    persons: [
-      {
-        name: currentUser?.data?.name || "",
-        dob: currentUser?.data?.dateOfBirth || "",
-        email: currentUser?.data?.email || "",
-        phoneNumber: currentUser?.data?.phoneNumber || "",
-        zipCode: currentUser?.data?.zipCode || "",
-      },
-    ],
+    mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
+    persons: isClient
+      ? [
+          {
+            name: currentUser?.data?.name || "",
+            dob: currentUser?.data?.dateOfBirth || "",
+            email: currentUser?.data?.email || "",
+            phoneNumber: currentUser?.data?.phoneNumber || "",
+            zipCode: currentUser?.data?.zipCode || "",
+          },
+        ]
+      : [
+          {
+            name: "",
+            dob: "",
+            email: "",
+            phoneNumber: "",
+            zipCode: "",
+          },
+        ],
     addresses: [{ address: "" }],
     autos: { cars: "", boats: "", motorcycles: "", golf_carts: "" },
-    user: { ...currentUser.data, id: currentUser.uid },
+    user: isClient
+      ? { ...currentUser.data, id: currentUser.uid }
+      : { id: currentUser?.uid },
     occupancy: "Primary",
   });
 

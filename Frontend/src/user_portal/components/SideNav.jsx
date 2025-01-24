@@ -16,7 +16,7 @@ import {
   FaUserCircle,
 } from "react-icons/fa";
 
-const SideNav = () => {
+const SideNav = ({ isClient }) => {
   const menus = [
     { name: "Back to website", link: "/", icon: FaFileAlt },
     {
@@ -30,7 +30,9 @@ const SideNav = () => {
       link: "/user_portal/refer_friend",
       icon: FaUserFriends,
     },
-    { name: "Profile", link: "/user_portal/profile", icon: FaUserCircle },
+    ...(isClient
+      ? [{ name: "Profile", link: "/user_portal/profile", icon: FaUserCircle }]
+      : []),
     { name: "Logout", link: "/user_portal/logout", icon: FiLogOut },
   ];
 

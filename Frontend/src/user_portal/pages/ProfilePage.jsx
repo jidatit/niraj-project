@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
+
+import { TextField } from "@mui/material";
 import { useAuth } from "../../AuthContext";
 import { db } from "../../../db";
-import { TextField } from "@mui/material";
 
 const ProfilePage = () => {
-  const { currentUser } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { currentUser, setCurrentUser } = useAuth();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -20,24 +21,8 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-        if (userDoc.exists()) {
-          setFormData(userDoc.data());
-        } else {
-          toast.error("User profile not found!");
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        toast.error("Error loading profile data!");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (currentUser?.uid) {
-      fetchUserData();
+    if (currentUser?.data) {
+      setFormData(currentUser.data);
     }
   }, [currentUser]);
 
@@ -57,6 +42,12 @@ const ProfilePage = () => {
       const userRef = doc(db, "users", currentUser.uid);
       await updateDoc(userRef, formData);
 
+      // Update the currentUser state with new data
+      setCurrentUser({
+        ...currentUser,
+        data: formData,
+      });
+
       toast.success("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -65,7 +56,6 @@ const ProfilePage = () => {
       setLoading(false);
     }
   };
-
   const Loader = () => {
     return (
       <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-200 opacity-75 z-50">

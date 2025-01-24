@@ -45,6 +45,7 @@ const FloodForm = () => {
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { currentUser } = useAuth();
+  const isClient = currentUser?.data?.signupType === "Client";
   const [buttonstate, setbuttonstate] = useState("Submit");
   const [fileModal, setfileModal] = useState(false);
   const [files, setFiles] = useState([]);
@@ -253,16 +254,26 @@ const FloodForm = () => {
 
   const [formData, setFormData] = useState({
     policyType: "Flood",
-    mailingAddress: "",
-    persons: [
-      {
-        name: currentUser?.data?.name || "",
-        dob: currentUser?.data?.dateOfBirth || "",
-        email: currentUser?.data?.email || "",
-        phoneNumber: currentUser?.data?.phoneNumber || "",
-        zipCode: currentUser?.data?.zipCode || "",
-      },
-    ],
+    mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
+    persons: isClient
+      ? [
+          {
+            name: currentUser?.data?.name || "",
+            dob: currentUser?.data?.dateOfBirth || "",
+            email: currentUser?.data?.email || "",
+            phoneNumber: currentUser?.data?.phoneNumber || "",
+            zipCode: currentUser?.data?.zipCode || "",
+          },
+        ]
+      : [
+          {
+            name: "",
+            dob: "",
+            email: "",
+            phoneNumber: "",
+            zipCode: "",
+          },
+        ],
     address: "",
     mailing: false,
     cert_elevation: "",
@@ -271,7 +282,9 @@ const FloodForm = () => {
     haveCurrentPolicy: "",
     expiryDate: "",
     files: [],
-    user: { ...currentUser.data, id: currentUser.uid },
+    user: isClient
+      ? { ...currentUser.data, id: currentUser.uid }
+      : { id: currentUser?.uid },
     occupancy: "Primary",
   });
 
