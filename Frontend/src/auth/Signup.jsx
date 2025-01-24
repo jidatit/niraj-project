@@ -39,7 +39,7 @@ const Signup = () => {
     e.preventDefault(); // Prevent default form submission
     try {
       setLoader(true);
-      const { confirmPassword, password, ...userDataWithoutPasswords } =
+      const { confirmPassword, password, dateOfBirth, ...userDataWithoutPasswords } =
         userData;
       if (confirmPassword !== password) {
         toast.error("Password Not Matched!");
