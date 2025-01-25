@@ -590,14 +590,14 @@ const ViewPolicyQuote = () => {
               className={`${
                 isReferral ? "lg:w-[30%]" : "lg:w-[45%]"
               } w-[90%] bg-white grid ${
-                isReferral ? "grid-cols-1" : "grid-cols-2"
+                isReferral ? "grid-cols-2" : "grid-cols-3"
               } justify-center rounded-md shadow-lg items-center`}
             >
               {PopupData && (
                 <Link
                   to={`/user_portal/pq_progress?type=${PopupData.policyType}&id=${PopupData.id}`}
                 >
-                  <div className="w-full group py-[30px] rounded-md cursor-pointer hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5">
+                  <div className="w-full group py-[30px] border-r-[1px] rounded-md cursor-pointer hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5">
                     <img
                       className="group-hover:animate-pulse w-16 h-16"
                       src={progicon}
@@ -610,7 +610,7 @@ const ViewPolicyQuote = () => {
                 </Link>
               )}
 
-              {PopupData && isReferral && (
+              {PopupData && !isReferral && (
                 <Link
                   to={`/user_portal/pq_results?type=${PopupData.policyType}&id=${PopupData.id}`}
                 >
