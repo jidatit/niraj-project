@@ -590,7 +590,7 @@ const ViewPolicyQuote = () => {
               className={`${
                 isReferral ? "lg:w-[30%]" : "lg:w-[45%]"
               } w-[90%] bg-white grid ${
-                isReferral ? "grid-cols-1" : "grid-cols-3"
+                isReferral ? "grid-cols-1" : "grid-cols-2"
               } justify-center rounded-md shadow-lg items-center`}
             >
               {PopupData && (
@@ -610,36 +610,37 @@ const ViewPolicyQuote = () => {
                 </Link>
               )}
 
-              {!isReferral && PopupData && (
-                <>
-                  <Link
-                    to={`/user_portal/pq_results?type=${PopupData.policyType}&id=${PopupData.id}`}
-                  >
-                    <div className="w-full border-r-[1px] group py-[30px] cursor-pointer rounded-md hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5">
-                      <img
-                        className="group-hover:animate-pulse w-16 h-16"
-                        src={resicon}
-                        alt="Quote Results Icon"
-                      />
-                      <p className="font-bold text-[16px] text-center">
-                        Quote Results
-                      </p>
-                    </div>
-                  </Link>
-                  <div
-                    onClick={() => handleOpenDetailModal()}
-                    className="w-full group py-[30px] rounded-md cursor-pointer hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5"
-                  >
+              {PopupData && isReferral && (
+                <Link
+                  to={`/user_portal/pq_results?type=${PopupData.policyType}&id=${PopupData.id}`}
+                >
+                  <div className="w-full border-r-[1px] group py-[30px] cursor-pointer rounded-md hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5">
                     <img
                       className="group-hover:animate-pulse w-16 h-16"
-                      src={viewicon}
-                      alt="View Submitted Details Icon"
+                      src={resicon}
+                      alt="Quote Results Icon"
                     />
                     <p className="font-bold text-[16px] text-center">
-                      View Submitted Details
+                      Quote Results
                     </p>
                   </div>
-                </>
+                </Link>
+              )}
+
+              {PopupData && (
+                <div
+                  onClick={() => handleOpenDetailModal()}
+                  className="w-full group py-[30px] rounded-md cursor-pointer hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5"
+                >
+                  <img
+                    className="group-hover:animate-pulse w-16 h-16"
+                    src={viewicon}
+                    alt="View Submitted Details Icon"
+                  />
+                  <p className="font-bold text-[16px] text-center">
+                    View Submitted Details
+                  </p>
+                </div>
               )}
             </div>
           </Slide>
