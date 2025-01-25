@@ -69,7 +69,7 @@ const HomeForm = () => {
         ]
       : [{ name: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
     files: [],
-    user: { ...(isClient ? currentUser.data : {}), id: currentUser?.uid },
+    user: { ...currentUser.data, id: currentUser.uid },
     occupancy: "Primary",
   });
 

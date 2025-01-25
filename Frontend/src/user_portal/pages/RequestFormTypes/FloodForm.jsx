@@ -282,9 +282,7 @@ const FloodForm = () => {
     haveCurrentPolicy: "",
     expiryDate: "",
     files: [],
-    user: isClient
-      ? { ...currentUser.data, id: currentUser.uid }
-      : { id: currentUser?.uid },
+    user: { ...currentUser.data, id: currentUser.uid },
     occupancy: "Primary",
   });
 

@@ -86,9 +86,7 @@ const LiabilityForm = () => {
         ],
     addresses: [{ address: "" }],
     autos: { cars: "", boats: "", motorcycles: "", golf_carts: "" },
-    user: isClient
-      ? { ...currentUser.data, id: currentUser.uid }
-      : { id: currentUser?.uid },
+    user: { ...currentUser.data, id: currentUser.uid },
     occupancy: "Primary",
   });
 
