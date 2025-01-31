@@ -7,6 +7,7 @@ import {
   doc,
   updateDoc,
   getFirestore,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db, storage } from "../../../db";
 import { Modal, Slide, Box, TextField } from "@mui/material";
@@ -49,6 +50,7 @@ import {
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import newlogo from "../../assets/newlogo.png";
 import PolicyDetailsModal from "../components/PolicyDetailsModal";
+import { CiCircleRemove } from "react-icons/ci";
 
 const ViewPolicyQuote = () => {
   const [AllQuotes, setAllQuotes] = useState([]);
@@ -93,7 +95,21 @@ const ViewPolicyQuote = () => {
     setFiles(acceptedFiles);
   };
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: "image/png, image/jpg, image/svg, image/webp, image/gif",
+    multiple: true, // Allow multiple file selection
+    onDrop: (acceptedFiles) => {
+      setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]); // Append new files
+    },
+  });
+
+  const removeFile = (index) => {
+    setFiles((prevFiles) => {
+      const updatedFiles = prevFiles.filter((_, i) => i !== index);
+
+      return updatedFiles;
+    });
+  };
   const handleOpenInspectionModal = (rowData) => {
     setSelectedRow(rowData);
 
@@ -107,7 +123,7 @@ const ViewPolicyQuote = () => {
   };
   const handleUploadInspection = async (event) => {
     setLoading(true);
-    if (files.length === 0 || !selectedRow) return; // Make sure there are files and a selected row
+    if (files.length === 0 || !selectedRow) return; // Ensure files exist and a row is selected
 
     const timestamp = Date.now();
     const uniqueId = Math.random().toString(36).substring(2);
@@ -128,10 +144,12 @@ const ViewPolicyQuote = () => {
       // Prepare the data with file URLs
       const updatedData = {
         files: fileUrls.map((url) => ({ file: url })),
+        status: "completed", // Update status to completed
+        status_step: "1",
+        updatedAt: serverTimestamp(), // Update timestamp
       };
 
-      // Get the document ID from selectedRow
-      // Determine the document type based on the selected policy type
+      // Get the document ID and policy type from selectedRow
       const documentId = selectedRow.id;
       const policyType = selectedRow.policyType;
       let documentType = ""; // Initialize documentType as an empty string
@@ -160,7 +178,10 @@ const ViewPolicyQuote = () => {
         await updateDoc(docRef, updatedData);
         getUserQuotes();
         setFiles([]);
-        toast.success("Files uploaded and document updated successfully!");
+        toast.success(
+          "Files uploaded, status updated, and document updated successfully!"
+        );
+
         ClientQuoteInspectionUploaded(
           currentUser.data.name,
           adminEmail,
@@ -172,7 +193,6 @@ const ViewPolicyQuote = () => {
       }
 
       setLoading(false);
-
       handleCloseInspectionModal();
     } catch (error) {
       setLoading(false);
@@ -730,10 +750,7 @@ const ViewPolicyQuote = () => {
             {/* File Upload Section */}
             <div {...getRootProps()} style={{ cursor: "pointer" }}>
               <input {...getInputProps()} />
-              <label
-                htmlFor="uploadFile1"
-                className="bg-white text-gray-500 font-semibold text-base rounded max-w-md h-52 flex flex-col items-center justify-center cursor-pointer border-2 border-gray-300 border-dashed mx-auto font-[sans-serif]"
-              >
+              <label className="bg-white text-gray-500 font-semibold text-base rounded max-w-md h-52 flex flex-col items-center justify-center cursor-pointer border-2 border-gray-300 border-dashed mx-auto">
                 {files.length === 0 ? (
                   <>
                     <svg
@@ -741,72 +758,72 @@ const ViewPolicyQuote = () => {
                       className="w-11 mb-2 fill-gray-500"
                       viewBox="0 0 32 32"
                     >
-                      <path
-                        d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"
-                        data-original="#000000"
-                      />
-                      <path
-                        d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"
-                        data-original="#000000"
-                      />
+                      <path d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z" />
+                      <path d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z" />
                     </svg>
                     Upload file
                     <p className="text-xs text-center px-2 font-medium text-gray-400 mt-2">
-                      PNG, JPG, SVG, WEBP, and GIF are allowed.
+                      PNG, JPG, SVG, WEBP, and GIF are Allowed.
                     </p>
                   </>
                 ) : (
-                  <div className="w-full flex flex-col justify-center items-center gap-2">
-                    <img
-                      className="w-[30%] animate-pulse"
-                      src={tickicon}
-                      alt="Tick Icon"
-                    />
-                    <p className="font-semibold text-center text-[12px]">
-                      Files selected successfully...
-                    </p>
-                    <p className="font-light text-center text-[11px]">
-                      Click outside to close modal...
-                    </p>
-                  </div>
+                  <>
+                    <div className="w-full flex flex-col justify-center items-center gap-2">
+                      <p className="font-semibold text-center text-[12px]">
+                        Files selected successfully...
+                      </p>
+                      <p className="font-light text-center text-[11px]">
+                        Click outside to close modal...
+                      </p>
+                    </div>
+                  </>
                 )}
               </label>
             </div>
 
-            {/* Display selected files */}
             {files.length > 0 && (
               <div className="mt-2 mb-2">
                 <h2 className="mt-1 mb-1 italic font-semibold">
                   Selected Files:
                 </h2>
-                <ul className="w-full grid md:grid-cols-2 gap-1 justify-center items-center grid-cols-1">
+                <ul className="grid md:grid-cols-2 gap-2 grid-cols-1">
                   {files.map((file, index) => (
-                    <li key={index} className="flex items-center">
-                      {file.type.includes("image") ? (
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`File ${index + 1}`}
-                          className="w-8 h-8 mr-2 rounded"
-                        />
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-8 h-8 mr-2 fill-current text-gray-500"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M19 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM5 2c-.55 0-1 .45-1 1v12c0 .55.45 1 1 1h14c.55 0 1-.45 1-1V6c0-.55-.45-1-1H5z"
+                    <li
+                      key={index}
+                      className="flex items-center justify-between p-2 border rounded"
+                    >
+                      <div className="flex items-center">
+                        {file.type.includes("image") ? (
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`File ${index + 1}`}
+                            className="w-8 h-8 mr-2 rounded"
                           />
-                        </svg>
-                      )}
-                      <span>{file.name}</span>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-8 h-8 mr-2 fill-current text-gray-500"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M19 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM5 2c-.55 0-1 .45-1 1v12c0 .55.45 1 1 1h14c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1H5z"
+                            />
+                          </svg>
+                        )}
+                        <span>{file.name}</span>
+                      </div>
+                      <button
+                        onClick={() => removeFile(index)}
+                        className="ml-2 px-2 py-1 text-sm text-red-600  rounded hover:bg-red-600 hover:text-white transition"
+                      >
+                        <CiCircleRemove size={28} />
+                      </button>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
-
             {/* Upload Button */}
             <button
               type="button"
