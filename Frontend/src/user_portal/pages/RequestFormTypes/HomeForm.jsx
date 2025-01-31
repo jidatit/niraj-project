@@ -588,33 +588,12 @@ const HomeForm = () => {
             </FormControl>
           </div>
 
-          {/* ✅ Occupancy Selection (Consistent Design) */}
-          <div className="flex flex-col gap-2">
-            <InputLabel htmlFor="occupancy-select" className="text-gray-700">
-              Occupancy
-            </InputLabel>
-            <FormControl className="w-full" variant="outlined">
-              <Select
-                labelId="occupancy-select-label"
-                id="occupancy-select"
-                value={formData.occupancy}
-                onChange={(e) => handleChange(e)}
-                name="occupancy"
-              >
-                <MenuItem value="Primary">Primary</MenuItem>
-                <MenuItem value="Rental">Rental</MenuItem>
-                <MenuItem value="Seasonal/Secondary">
-                  Seasonal/Secondary
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-
           {/* ✅ Upload Inspection Button (Hidden if isCondo is "yes") */}
           {formData.isCondo !== "yes" && (
             <div className="flex flex-col items-center justify-center gap-3 p-4 ">
               <h3 className="text-center text-sm font-semibold text-gray-700">
                 Upload 4 Point / Wind Mitigation Inspections
+                {formData?.ishomebuild === "no" && "  (Optional)"}
               </h3>
               <button
                 onClick={() => setfileModal(true)}
