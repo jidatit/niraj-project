@@ -32,7 +32,13 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { RiDeleteBin5Fill } from "react-icons/ri";
-import { IconButton, InputAdornment, Tooltip } from "@mui/material";
+import {
+  Checkbox,
+  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  Tooltip,
+} from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
 
 const HomeForm = () => {
@@ -57,6 +63,7 @@ const HomeForm = () => {
     closingDate: "",
     currentInsurance: "",
     expiryDate: "",
+    isCondo: "",
     mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
     persons: isClient
       ? [
@@ -150,13 +157,42 @@ const HomeForm = () => {
       setConfirmDialogOpen(false);
       setbuttonstate("Submitting...");
 
-      const status = formData.ishomebuild === "yes" ? "pending" : "completed";
-      const status_step = formData.ishomebuild === "no" ? "1" : "0";
-      if (files.length === 0) {
-        let nofilesformData = { ...formData, status: status, status_step: "1" };
+      const isCondo = formData.isCondo === "yes";
+      const isHomeBuild = formData.ishomebuild === "yes";
+      let status = "completed"; // Default status is "completed"
+      let status_step = "1"; // Default status_step
+
+      // If isHomeBuild is "yes" and no files are uploaded, set status to "pending"
+      if (isHomeBuild && files.length === 0) {
+        status = "pending"; // Set status to "pending" when isHomeBuild is "yes" and no files
+      }
+
+      if (isCondo) {
+        // If isCondo is "yes", ignore file uploads and set status to "completed"
+        status = "completed";
+      }
+
+      let formDataToSave = {
+        ...formData,
+        status: status,
+        status_step: status_step,
+      };
+
+      // Handle form data submission without file uploads for isCondo = "yes"
+      if (isCondo || files.length === 0) {
+        formDataToSave = {
+          ...formDataToSave,
+          files: [], // Ensure files are cleared
+        };
+
+        // Also clear files in formData state
+        setFormData((prevData) => ({
+          ...prevData,
+          files: [], // Clear files when isCondo is "yes" or no files
+        }));
         await addDoc(collection(db, "home_quotes"), {
-          ...nofilesformData,
-          inuser: nofilesformData.persons[0],
+          ...formDataToSave,
+          inuser: formDataToSave.persons[0],
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           ...(currentUser.data.signupType === "Referral" && {
@@ -164,56 +200,38 @@ const HomeForm = () => {
           }),
         });
 
-        if (formData.ishomebuild === "yes") {
-          if (currentUser.data.signupType === "Referral") {
-            ClientQuoteWithoutInspection(
-              formData.persons.map((driver) => driver.name).join(", "),
-              adminEmail,
-              "Home",
-              currentUser.data.name,
-              currentUser.data.name
-            );
-          } else {
-            ClientQuoteWithoutInspection(
-              formData.persons.map((driver) => driver.name).join(", "),
-              adminEmail,
-              "Home",
-              "None",
-              currentUser.data.name
-            );
-          }
-          // ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Home");
+        // Send email based on isHomeBuild value
+        if (isHomeBuild) {
+          ClientQuoteWithoutInspection(
+            formData.persons.map((driver) => driver.name).join(", "),
+            adminEmail,
+            "Home",
+            currentUser.data.signupType === "Referral"
+              ? currentUser.data.name
+              : "None",
+            currentUser.data.name
+          );
         } else {
-          if (currentUser.data.signupType === "Referral") {
-            ClientQuoteReqMail(
-              formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
-              adminEmail,
-              "Home",
-              currentUser.data.name,
-              currentUser.data.name
-            );
-          } else {
-            ClientQuoteReqMail(
-              formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
-              adminEmail,
-              "Home",
-              "None",
-              currentUser.data.name
-            );
-          }
-
-          // ClientQuoteReqMail(currentUser.data.name, adminEmail, "Home");
+          ClientQuoteReqMail(
+            formData.persons.map((driver) => driver.name).join(", "),
+            adminEmail,
+            "Home",
+            currentUser.data.signupType === "Referral"
+              ? currentUser.data.name
+              : "None",
+            currentUser.data.name
+          );
         }
 
-        toast.success("Application submitted with success.");
+        toast.success("Application submitted successfully.");
         setbuttonstate("Submit");
         redirectFunc("/user_portal");
         return;
       }
 
+      // If files need to be uploaded (isCondo = "no" and files exist)
       const timestamp = Date.now();
       const uniqueId = Math.random().toString(36).substring(2);
-
       const promises = files.map(async (file) => {
         const storageRef = ref(
           storage,
@@ -225,60 +243,42 @@ const HomeForm = () => {
 
       const fileUrls = await Promise.all(promises);
 
-      const formDataWithUrls = {
+      let formDataWithUrls = {
         ...formData,
         files: fileUrls.map((url) => ({ file: url })),
-      };
-
-      let statusformData = {
-        ...formDataWithUrls,
-        status: "completed",
+        status: "completed", // Ensure status is "completed" when files are uploaded
         status_step: "1",
       };
+
       await addDoc(collection(db, "home_quotes"), {
-        ...statusformData,
+        ...formDataWithUrls,
         inuser: formDataWithUrls.persons[0],
-        createdAt: serverTimestamp(), // Automatically add the creation timestamp
-        updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
         ...(currentUser.data.signupType === "Referral" && { byReferral: true }),
       });
 
-      if (formData.ishomebuild === "yes") {
-        if (currentUser.data.signupType === "Referral") {
-          ClientQuoteWithoutInspection(
-            formData.persons.map((driver) => driver.name).join(", "),
-            adminEmail,
-            "Home",
-            currentUser.data.name,
-            currentUser.data.name
-          );
-        } else {
-          ClientQuoteWithoutInspection(
-            formData.persons.map((driver) => driver.name).join(", "),
-            adminEmail,
-            "Home",
-            "None",
-            currentUser.data.name
-          );
-        }
+      // Send email based on isHomeBuild value
+      if (isHomeBuild) {
+        ClientQuoteWithoutInspection(
+          formData.persons.map((driver) => driver.name).join(", "),
+          adminEmail,
+          "Home",
+          currentUser.data.signupType === "Referral"
+            ? currentUser.data.name
+            : "None",
+          currentUser.data.name
+        );
       } else {
-        if (currentUser.data.signupType === "Referral") {
-          ClientQuoteReqMail(
-            formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
-            adminEmail,
-            "Home",
-            currentUser.data.name,
-            currentUser.data.name
-          );
-        } else {
-          ClientQuoteReqMail(
-            formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
-            adminEmail,
-            "Home",
-            "None",
-            currentUser.data.name
-          );
-        }
+        ClientQuoteReqMail(
+          formData.persons.map((driver) => driver.name).join(", "),
+          adminEmail,
+          "Home",
+          currentUser.data.signupType === "Referral"
+            ? currentUser.data.name
+            : "None",
+          currentUser.data.name
+        );
       }
 
       setFormData({
@@ -286,6 +286,7 @@ const HomeForm = () => {
         address: "",
         mailing: false,
         ishomebuild: "",
+        isCondo: "",
         newPurchase: "",
         closingDate: "",
         currentInsurance: "",
@@ -300,7 +301,7 @@ const HomeForm = () => {
       });
       setFiles([]);
 
-      toast.success("Application submitted with success.");
+      toast.success("Application submitted successfully.");
       setbuttonstate("Submit");
       redirectFunc("/user_portal");
     } catch (error) {
@@ -362,7 +363,6 @@ const HomeForm = () => {
             Fill out Form for Home Quote
           </h1>
         </div>
-
         {formData.persons.map((person, index) => (
           <>
             <div
@@ -451,7 +451,6 @@ const HomeForm = () => {
             )}
           </>
         ))}
-
         <div className="w-full flex flex-col justify-center items-center">
           <button
             onClick={handleAddPerson}
@@ -463,7 +462,6 @@ const HomeForm = () => {
             </span>
           </button>
         </div>
-
         <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
           <div className="flex w-full flex-col justify-center items-start gap-2">
             <InputLabel htmlFor="mailingAddress">Mailing Address</InputLabel>
@@ -478,7 +476,6 @@ const HomeForm = () => {
             />
           </div>
         </div>
-
         <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
           <div className="flex w-full flex-col justify-center items-start gap-2">
             <InputLabel htmlFor="address">Address to be insured</InputLabel>
@@ -524,7 +521,6 @@ const HomeForm = () => {
             <InputLabel htmlFor="mailing">Same as Mailing Address</InputLabel>
           </div> */}
         </div>
-
         <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
           <div className="flex w-full flex-col justify-center items-start gap-2">
             <InputLabel htmlFor="binary-select1">
@@ -564,20 +560,73 @@ const HomeForm = () => {
           </div>
         </div>
 
-        <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
-          {formData.ishomebuild === "yes" && (
-            <div className="flex w-full flex-col justify-center mt-8 items-center gap-2">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6 mb-6 ">
+          {/* ✅ Is Condo Select Dropdown */}
+          <div className="flex flex-col gap-2">
+            <InputLabel htmlFor="isCondo-select" className="text-gray-700">
+              Is this home a condo?
+            </InputLabel>
+            <FormControl className="w-full" variant="outlined">
+              <InputLabel id="binary-select2">Yes / No</InputLabel>
+              <Select
+                labelId="isCondo-select-label"
+                id="isCondo-select"
+                value={formData.isCondo || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, isCondo: e.target.value })
+                }
+                label="Yes / No"
+                name="isCondo"
+              >
+                <MenuItem value="yes">Yes</MenuItem>
+                <MenuItem value="no">No</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+
+          {/* ✅ Occupancy Selection (Consistent Design) */}
+          <div className="flex flex-col gap-2">
+            <InputLabel htmlFor="occupancy-select" className="text-gray-700">
+              Occupancy
+            </InputLabel>
+            <FormControl className="w-full" variant="outlined">
+              <Select
+                labelId="occupancy-select-label"
+                id="occupancy-select"
+                value={formData.occupancy}
+                onChange={(e) => handleChange(e)}
+                name="occupancy"
+              >
+                <MenuItem value="Primary">Primary</MenuItem>
+                <MenuItem value="Rental">Rental</MenuItem>
+                <MenuItem value="Seasonal/Secondary">
+                  Seasonal/Secondary
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+
+          {/* ✅ Upload Inspection Button (Hidden if isCondo is "yes") */}
+          {formData.isCondo !== "yes" && (
+            <div className="flex flex-col items-center justify-center gap-3 p-4 ">
+              <h3 className="text-center text-sm font-semibold text-gray-700">
+                Upload 4 Point / Wind Mitigation Inspections
+              </h3>
               <button
                 onClick={() => setfileModal(true)}
-                className="bg-white border-[1px] border-black text-black font-extralight  py-2 px-4 rounded  w-[70%]"
+                className="bg-white md:w-[45%] border-[1px] border-black text-black font-extralight w-full py-2 px-4 rounded"
               >
                 + Upload Inspections
               </button>
             </div>
           )}
+
+          {/* ✅ Closing Date Field (Consistent Layout) */}
           {formData.newPurchase === "yes" && (
-            <div className="flex w-full flex-col justify-center items-start gap-2">
-              <InputLabel htmlFor={`closing-date`}>Closing Date</InputLabel>
+            <div className="flex flex-col gap-2">
+              <InputLabel htmlFor="closing-date" className="text-gray-700">
+                Closing Date
+              </InputLabel>
               <TextField
                 className="w-full"
                 id="closingDate"
@@ -588,19 +637,19 @@ const HomeForm = () => {
               />
             </div>
           )}
+
+          {/* ✅ Insurance Selection (Consistent Layout) */}
           {formData.newPurchase === "no" && (
-            <div className="flex w-full flex-col gap-2 justify-center items-start">
-              <InputLabel htmlFor="binary-select3">
+            <div className="flex flex-col gap-2">
+              <InputLabel htmlFor="binary-select3" className="text-gray-700">
                 Insurance Currently in place?
               </InputLabel>
               <FormControl className="w-full" variant="outlined">
-                <InputLabel id="binary-select3">Yes / No</InputLabel>
                 <Select
                   labelId="binary-select-label"
                   id="binary-select3"
                   value={formData.currentInsurance}
                   onChange={(e) => handleChange(e)}
-                  label="Yes / No"
                   name="currentInsurance"
                 >
                   <MenuItem value="yes">Yes</MenuItem>
@@ -610,7 +659,6 @@ const HomeForm = () => {
             </div>
           )}
         </div>
-
         {formData.newPurchase === "no" &&
           formData.currentInsurance === "yes" && (
             <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
@@ -627,7 +675,6 @@ const HomeForm = () => {
               </div>
             </div>
           )}
-
         <div className="w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-end items-center">
           <button
             onClick={checkInspections}
@@ -650,7 +697,6 @@ const HomeForm = () => {
             </svg>
           </button>
         </div>
-
         <Modal open={fileModal} onClose={() => setfileModal(false)}>
           <Box
             className="w-[90%] md:w-[50%]"
@@ -744,7 +790,6 @@ const HomeForm = () => {
             </div>
           </Box>
         </Modal>
-
         <Dialog
           open={confirmDialogOpen}
           onClose={() => setConfirmDialogOpen(false)}

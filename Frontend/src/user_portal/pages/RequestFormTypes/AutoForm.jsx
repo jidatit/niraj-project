@@ -892,7 +892,7 @@ const AutoForm = () => {
 
         <Modal open={fileModal} onClose={() => setfileModal(false)}>
           <Box
-            className="w-[90%] md:w-[60%]"
+            className="w-[90%] md:w-[50%]"
             sx={{
               position: "absolute",
               top: "50%",
