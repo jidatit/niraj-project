@@ -145,7 +145,11 @@ const HomeForm = () => {
       toast.warn("is this home built before 2005?");
       return;
     }
-    if (formData.ishomebuild === "yes" && formData.files.length === 0) {
+    if (
+      formData.ishomebuild === "yes" &&
+      formData.files.length === 0 &&
+      formData.isCondo === "no"
+    ) {
       setConfirmDialogOpen(true);
     } else {
       addFormToDb();
@@ -778,7 +782,7 @@ const HomeForm = () => {
                         </div>
                         <button
                           onClick={() => removeFile(index)}
-                          className="ml-2 px-2 py-1 text-sm text-red-600  rounded hover:bg-red-600 hover:text-white transition"
+                          className="ml-2 px-2 py-1 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white transition"
                         >
                           <CiCircleRemove size={28} />
                         </button>

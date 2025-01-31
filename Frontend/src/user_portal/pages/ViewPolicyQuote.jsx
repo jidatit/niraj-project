@@ -318,12 +318,12 @@ const ViewPolicyQuote = () => {
         header: "Inspection",
         size: 100,
         Cell: ({ row }) => {
-          const { files, policyType, ishomebuild, cert_elevation } =
+          const { files, policyType, ishomebuild, cert_elevation, isCondo } =
             row.original;
           const showUploadInspectionButton =
             files &&
             files.length === 0 &&
-            ((policyType === "Home" && ishomebuild === "yes") ||
+            ((policyType === "Home" && ishomebuild === "yes" && !isCondo) ||
               policyType === "Auto" ||
               (policyType === "Flood" && cert_elevation === "yes")) &&
             policyType !== "Liability";
