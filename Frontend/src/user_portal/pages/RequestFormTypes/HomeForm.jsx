@@ -568,7 +568,7 @@ const HomeForm = () => {
           {/* ✅ Is Condo Select Dropdown */}
           <div className="flex flex-col gap-2">
             <InputLabel htmlFor="isCondo-select" className="text-gray-700">
-              Is this home a condo?
+              Is this home a condo? (Optional)
             </InputLabel>
             <FormControl className="w-full" variant="outlined">
               <InputLabel id="binary-select2">Yes / No</InputLabel>
