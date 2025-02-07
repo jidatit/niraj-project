@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Link, InputLabel, TextField } from "@mui/material";
 import { formatDate } from "../../utils/helperSnippets";
+import { handleDownload } from "../../utils/handleDownload";
 
 const PolicyDetailsModal = ({ open, onClose, selectedRow }) => {
   const [showImages, setShowImages] = useState(false);
@@ -320,19 +321,24 @@ const PolicyDetailsModal = ({ open, onClose, selectedRow }) => {
               {showImages &&
                 selectedRow.files.map((file, index) => (
                   <ul key={index} className="w-full">
-                    <li className="mt-2" key={file.name}>
-                      {renderFilePreview(file)}
-                    </li>
                     <a
                       href={file.file}
                       target="_blank"
                       rel="noopener noreferrer"
                       download
                     >
-                      <button className="bg-blue-500 rounded-lg text-white font-semibold px-2 py-2 mt-[10px] mb-[10px]">
-                        Download File
-                      </button>
+                      <li className="mt-2" key={file.name}>
+                        {renderFilePreview(file)}
+                      </li>
                     </a>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDownload(file)}
+                      className="bg-blue-500 rounded-lg text-white font-semibold px-2 py-2 mt-[10px] mb-[10px]"
+                    >
+                      Download File
+                    </button>
                   </ul>
                 ))}
             </div>

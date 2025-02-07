@@ -3,6 +3,7 @@ import Modal from "@mui/material/Modal";
 import { TextField, InputLabel } from "@mui/material";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../../utils/helperSnippets";
+import { handleDownload } from "../../../utils/handleDownload";
 
 const AutoPolicyPreview = ({ data, open, handleClose }) => {
   const [showImages, setShowImages] = useState(false);
@@ -251,14 +252,25 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
                 {showImages === true &&
                   files.map((file, index) => (
                     <ul key={index} className="w-full">
-                      <li className="mt-2" key={file.name}>
-                        {renderFilePreview(file)}
-                      </li>
-                      <a href={file.file} target="_blank" download>
-                        <button className="bg-blue-500 rounded-lg text-white font-semibold px-2 py-2 mt-[10px] mb-[10px]">
-                          Download File
-                        </button>
+                      <a
+                        href={file.file}
+                        target="_blank"
+                        download={file.name}
+                        rel="noreferrer"
+                      >
+                        <li className="mt-2" key={file.name}>
+                          {renderFilePreview(file)}
+                        </li>
                       </a>
+                      {/* <a href={file.file} download={file.name}> */}
+                      <button
+                        type="button"
+                        onClick={() => handleDownload(file)}
+                        className="bg-blue-500 rounded-lg text-white font-semibold px-2 py-2 mt-[10px] mb-[10px]"
+                      >
+                        Download File
+                      </button>
+                      {/* </a> */}
                     </ul>
                   ))}
               </div>
