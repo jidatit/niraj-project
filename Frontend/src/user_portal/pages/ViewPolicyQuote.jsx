@@ -718,7 +718,7 @@ const ViewPolicyQuote = () => {
           aria-describedby="inspection-modal-description"
         >
           <Box
-            className="w-[90%] md:w-[30%]"
+            className="w-[90%] md:w-[40%] max-h-[90vh] overflow-y-auto"
             sx={{
               position: "absolute",
               top: "50%",
@@ -789,7 +789,7 @@ const ViewPolicyQuote = () => {
                 <h2 className="mt-1 mb-1 italic font-semibold">
                   Selected Files:
                 </h2>
-                <ul className="grid md:grid-cols-2 gap-2 grid-cols-1">
+                <ul className="grid gap-2 grid-cols-1">
                   {files.map((file, index) => (
                     <li
                       key={index}
@@ -814,11 +814,16 @@ const ViewPolicyQuote = () => {
                             />
                           </svg>
                         )}
-                        <span>{file.name}</span>
+                        <span
+                          className="truncate max-w-[250px] "
+                          title={file.name}
+                        >
+                          {file.name}
+                        </span>
                       </div>
                       <button
                         onClick={() => removeFile(index)}
-                        className="ml-2 px-2 py-1 text-sm text-red-600  rounded hover:bg-red-600 hover:text-white transition"
+                        className="ml-2 px-2 py-1 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white transition"
                       >
                         <CiCircleRemove size={28} />
                       </button>

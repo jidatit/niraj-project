@@ -732,7 +732,7 @@ const HomeForm = () => {
                   <h2 className="mt-1 mb-1 italic font-semibold">
                     Selected Files:
                   </h2>
-                  <ul className="grid md:grid-cols-2 gap-2 grid-cols-1">
+                  <ul className="grid lg:grid-cols-2 gap-2 grid-cols-1">
                     {files.map((file, index) => (
                       <li
                         key={index}
@@ -757,7 +757,12 @@ const HomeForm = () => {
                               />
                             </svg>
                           )}
-                          <span>{file.name}</span>
+                          <span
+                            className="max-w-[150px] truncate"
+                            title={file.name}
+                          >
+                            {file.name}
+                          </span>
                         </div>
                         <button
                           onClick={() => removeFile(index)}
@@ -773,6 +778,7 @@ const HomeForm = () => {
             </div>
           </Box>
         </Modal>
+
         <Dialog
           open={confirmDialogOpen}
           onClose={() => setConfirmDialogOpen(false)}

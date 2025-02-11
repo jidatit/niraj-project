@@ -697,7 +697,7 @@ const FloodForm = () => {
                   <h2 className="mt-1 mb-1 italic font-semibold">
                     Selected Files:
                   </h2>
-                  <ul className="grid md:grid-cols-2 gap-2 grid-cols-1">
+                  <ul className="grid lg:grid-cols-2 gap-2 grid-cols-1">
                     {files.map((file, index) => (
                       <li
                         key={index}
@@ -722,11 +722,16 @@ const FloodForm = () => {
                               />
                             </svg>
                           )}
-                          <span>{file.name}</span>
+                          <span
+                            className="max-w-[150px] truncate"
+                            title={file.name}
+                          >
+                            {file.name}
+                          </span>
                         </div>
                         <button
                           onClick={() => removeFile(index)}
-                          className="ml-2 px-2 py-1 text-sm text-red-600  rounded hover:bg-red-600 hover:text-white transition"
+                          className="ml-2 px-2 py-1 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white transition"
                         >
                           <CiCircleRemove size={28} />
                         </button>
