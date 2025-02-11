@@ -697,7 +697,7 @@ const FloodForm = () => {
                   <h2 className="mt-1 mb-1 italic font-semibold">
                     Selected Files:
                   </h2>
-                  <ul className="grid lg:grid-cols-2 gap-2 grid-cols-1">
+                  <ul className="grid gap-2 grid-cols-1">
                     {files.map((file, index) => (
                       <li
                         key={index}
@@ -723,7 +723,7 @@ const FloodForm = () => {
                             </svg>
                           )}
                           <span
-                            className="max-w-[150px] truncate"
+                            className="max-w-[150px] md:max-w-[300px] truncate"
                             title={file.name}
                           >
                             {file.name}
