@@ -11,13 +11,14 @@
     "both": "concurrently \"npm run dev\" \"npm start --prefix ../backend\""
   },
   "dependencies": {
+    "@date-io/date-fns": "^3.2.0",
     "@emailjs/browser": "^4.3.3",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@faker-js/faker": "^8.4.1",
     "@mui/icons-material": "^5.15.15",
     "@mui/material": "^5.15.15",
-    "@mui/x-date-pickers": "^7.1.1",
+    "@mui/x-date-pickers": "^7.26.0",
     "axios": "^1.7.2",
     "chart.js": "^4.4.2",
     "concurrently": "^8.2.2",

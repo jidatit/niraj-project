@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import { Box, Tooltip } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Tooltip,
+} from "@mui/material";
 import "react-toastify/dist/ReactToastify.css";
 import papericon from "../../assets/dash/quotes/paper.png";
 import boxicon from "../../assets/dash/quotes/box.png";
@@ -37,6 +45,7 @@ import {
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import axiosInstance from "../../utils/axiosConfig";
+import PolicyCreationModal from "../components/PolicyCreateModal";
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
@@ -52,6 +61,17 @@ const QuotesPage = () => {
   const slideModalOpen = (data) => {
     setSlideModal(true);
     setBinderPopValue(data);
+  };
+  const [openBindModal, setOpenBindModal] = useState(false);
+
+  const handleBindModal = (data) => {
+    setOpenBindModal(true);
+    setPopupvalue(data);
+  };
+
+  const handleBindModalClose = () => {
+    setOpenBindModal(false);
+    setPopupvalue(null);
   };
 
   const handleModal = (data) => {
@@ -235,20 +255,16 @@ const QuotesPage = () => {
         ...doc.data(),
       }));
 
-      const PBData =
-        data &&
-        data.filter((item) => {
-          const effectiveDate = new Date(item.effective_date);
-          effectiveDate.setHours(0, 0, 0, 0);
-          return effectiveDate >= currentDate;
-        });
+      const PBData = data?.filter((item) => {
+        const effectiveDate = new Date(item.effective_date);
+        effectiveDate.setHours(0, 0, 0, 0);
+        return effectiveDate >= currentDate;
+      });
 
-      const historyData =
-        data &&
-        data?.filter((item) => {
-          const effectiveDate = new Date(item.effective_date);
-          return effectiveDate < currentDate;
-        });
+      const historyData = data?.filter((item) => {
+        const effectiveDate = new Date(item.effective_date);
+        return effectiveDate < currentDate;
+      });
 
       const sortedPBData = PBData.sort((a, b) => {
         const dateA =
@@ -545,16 +561,28 @@ const QuotesPage = () => {
       {
         header: "Actions",
         size: 200,
-        Cell: ({ cell }) => (
-          <Box display="flex" alignItems="center" gap="18px">
-            <button
-              onClick={() => handleModal(cell.row.original)}
-              className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
-            >
-              View Quote
-            </button>
-          </Box>
-        ),
+        Cell: ({ cell }) => {
+          const { isBounded } = cell.row.original;
+
+          return (
+            <Box display="flex" alignItems="center" gap="18px">
+              <button
+                onClick={() => handleModal(cell.row.original)}
+                className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
+              >
+                View Quote
+              </button>
+              {!isBounded && ( // ✅ Only show "Bind Quote" if isBounded is false
+                <button
+                  onClick={() => handleBindModal(cell.row.original)}
+                  className="bg-[#1e5979] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
+                >
+                  Bind Quote
+                </button>
+              )}
+            </Box>
+          );
+        },
       },
     ],
     []
@@ -750,6 +778,32 @@ const QuotesPage = () => {
     [boundLoader]
   );
 
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedPolicy, setSelectedPolicy] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const handleDeleteClick = (policy) => {
+    setSelectedPolicy(policy);
+    setOpenDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setDeleteLoading(true);
+    if (selectedPolicy) {
+      try {
+        await deleteDoc(doc(db, "bound_policies", selectedPolicy.id));
+        toast.success("Policy deleted successfully!");
+        getAllPolicyBoundData();
+      } catch (error) {
+        toast.error("Error deleting policy!", error.message);
+        console.error("Error deleting policy:", error);
+      } finally {
+        setOpenDialog(false);
+        setSelectedPolicy(null);
+        setDeleteLoading(false);
+      }
+    }
+  };
+
   const policy_bound_columns = useMemo(
     () => [
       {
@@ -810,6 +864,12 @@ const QuotesPage = () => {
               className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
             >
               View Policy
+            </button>
+            <button
+              onClick={() => handleDeleteClick(cell.row.original)}
+              className="bg-red-600 rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
+            >
+              Delete Policy
             </button>
           </Box>
         ),
@@ -997,7 +1057,7 @@ const QuotesPage = () => {
           </div>
         </div>
 
-        <div className="w-[90%] flex flex-col lg:flex-row gap-5 mt-[30px] justify-center items-center">
+        <div className="w-[90%] flex flex-col lg:flex-row gap-5 mt-[30px] justify-center items-center mb-4">
           <div
             className={`group w-full lg:w-[33%] hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
               selectedButton === "policyBound" ? "bg-[#003049] text-white" : ""
@@ -1036,7 +1096,26 @@ const QuotesPage = () => {
             <img src={historyicon} alt="" />
           </div>
         </div>
-
+        {/* <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
+          <div className="w-full flex justify-end px-4 mt-2">
+            <button className="group relative inline-flex items-center justify-center p-0.5 text-sm font-medium text-white rounded-lg bg-[#003049] hover:bg-[#005270] focus:ring-4 focus:outline-none focus:ring-blue-200">
+              <span className="relative px-6 py-2 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                Create Policy
+              </span>
+              <div className="hidden group-hover:block">
+                <div className="group absolute -top-12 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center rounded-sm text-center text-sm text-slate-300 before:-top-2">
+                  <div className="rounded-sm bg-black py-1 px-2">
+                    <p className="whitespace-nowrap">
+                      Create policy for a client
+                    </p>
+                  </div>
+                  <div className="h-0 w-fit border-l-8 border-r-8 border-t-8 border-transparent border-t-black"></div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div> */}
+        <PolicyCreationModal getAllPolicyBoundData={getAllPolicyBoundData} />
         {selectedButton === "requestedQuotes" && (
           <div className="w-full flex flex-col justify-center items-center mt-[30px]">
             {req_quotes && req_quotes.length > 0 ? (
@@ -1063,6 +1142,15 @@ const QuotesPage = () => {
               data={popupValue}
               openModal={openModal}
               onClose={handleModalClose}
+            />
+
+            <DeliveredQuotePreviewAdmin
+              data={popupValue}
+              openModal={openBindModal}
+              onClose={handleBindModalClose}
+              bindQuote={true}
+              getAllDeliveredQuotes={getAllDeliveredQuotes}
+              getAllBinderRequestedQuotes={getAllBinderRequestedQuotes}
             />
           </div>
         )}
@@ -1159,6 +1247,30 @@ const QuotesPage = () => {
           />
         )}
       </div>
+      <Dialog fullWidth open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this policy?
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOpenDialog(false)}
+            color="primary"
+            variant="contained"
+            disabled={deleteLoading} // Disable if loading
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            variant="contained"
+            color="error"
+            disabled={deleteLoading} // Disable if loading
+          >
+            {deleteLoading ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

@@ -35,7 +35,6 @@ const PolicyQuoteResults = () => {
         if (docData.q_id === id) {
           const quoteDetails = { ...docData, id: doc.id };
           setQuoteDetails(quoteDetails);
-          console.log("quotedetails", quoteDetails);
         }
       });
     } catch (error) {

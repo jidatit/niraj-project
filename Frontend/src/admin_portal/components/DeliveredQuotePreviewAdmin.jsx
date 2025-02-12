@@ -4,7 +4,14 @@ import { Modal, Slide } from "@mui/material";
 import CustomTablePreviewAdmin from "./CustomTablePreviewAdmin";
 import { formatKey } from "../../utils/helperSnippets";
 
-const DeliveredQuotePreviewAdmin = ({ data, openModal, onClose }) => {
+const DeliveredQuotePreviewAdmin = ({
+  data,
+  openModal,
+  onClose,
+  bindQuote,
+  getAllDeliveredQuotes,
+  getAllBinderRequestedQuotes,
+}) => {
   const getDesiredOrder = (qsrType) => {
     switch (qsrType) {
       case "Home":
@@ -170,9 +177,14 @@ const DeliveredQuotePreviewAdmin = ({ data, openModal, onClose }) => {
             <div className="w-full flex flex-col justify-center items-center">
               {data && data.qsr_type && (
                 <CustomTablePreviewAdmin
+                  qid={data?.q_id}
                   qsr_type={data.qsr_type}
                   table1_data={data.tablesData.table_1}
                   table2_data={data.tablesData.table_2}
+                  bindQuote={bindQuote}
+                  user={data?.user}
+                  getAllDeliveredQuotes={getAllDeliveredQuotes}
+                  getAllBinderRequestedQuotes={getAllBinderRequestedQuotes}
                 />
               )}
             </div>

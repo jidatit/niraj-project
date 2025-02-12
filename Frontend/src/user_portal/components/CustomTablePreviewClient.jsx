@@ -24,6 +24,7 @@ import {
   getDoc,
   updateDoc,
   serverTimestamp,
+  getDocs,
 } from "firebase/firestore";
 import { getType } from "../../utils/helperSnippets";
 import { useAuth } from "../../AuthContext";
@@ -226,7 +227,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
   };
 
   const [bindingDisable, setBindingDisable] = useState(false);
-
+  console.log("qid", qid);
   const handleBindQuote = async () => {
     try {
       setBindingDisable(true);
@@ -259,18 +260,34 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
 
   const updateStatusStep = async (type, id) => {
     try {
-      let docdata = {};
       const collectionRef = getType(type);
       const docRef = doc(db, collectionRef, id);
       const docSnap = await getDoc(docRef);
+
       if (docSnap.exists()) {
-        docdata = { ...docSnap.data(), id: docSnap.id };
+        await updateDoc(docRef, {
+          status_step: "3",
+        });
+
+        const prepQuotesRef = collection(db, "prep_quotes");
+        const querySnapshot = await getDocs(prepQuotesRef);
+
+        querySnapshot.forEach(async (doc) => {
+          if (doc.data().q_id === id) {
+            const prepQuoteRef = doc.ref;
+            await updateDoc(prepQuoteRef, {
+              isBounded: true,
+              boundBy: "Client",
+            });
+          }
+        });
+        toast.success("Status and quote update successful!");
+      } else {
+        toast.error("Document not found!");
       }
-      await updateDoc(docRef, {
-        status_step: "3",
-      });
     } catch (error) {
-      toast.error("Error updating status!");
+      console.log("error updating", error);
+      toast.error("Error updating status and quote!");
     }
   };
 
