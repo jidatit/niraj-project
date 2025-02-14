@@ -20,7 +20,7 @@ async function deleteOldQuotes() {
   try {
     const now = Timestamp.now();
     const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 1);
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 91);
     const ninetyDaysAgoTimestamp = Timestamp.fromDate(ninetyDaysAgo);
 
     for (const col of collectionsToCheck) {

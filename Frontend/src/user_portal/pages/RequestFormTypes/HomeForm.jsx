@@ -40,8 +40,9 @@ import {
   Tooltip,
 } from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
+import { data } from "autoprefixer";
 
-const HomeForm = () => {
+const HomeForm = ({ selectedUser }) => {
   const navigate = useNavigate();
 
   const redirectFunc = (path) => {
@@ -51,7 +52,11 @@ const HomeForm = () => {
   };
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const { currentUser } = useAuth();
+
+  let { currentUser } = useAuth();
+  currentUser = selectedUser
+    ? { uid: selectedUser?.id, data: selectedUser }
+    : currentUser;
   const isClient = currentUser?.data?.signupType === "Client";
 
   const [formData, setFormData] = useState({
@@ -229,7 +234,9 @@ const HomeForm = () => {
 
         toast.success("Application submitted successfully.");
         setbuttonstate("Submit");
-        redirectFunc("/user_portal");
+        if (!selectedUser) {
+          redirectFunc("/user_portal");
+        }
         return;
       }
 
@@ -307,7 +314,9 @@ const HomeForm = () => {
 
       toast.success("Application submitted successfully.");
       setbuttonstate("Submit");
-      redirectFunc("/user_portal");
+      if (!selectedUser) {
+        redirectFunc("/user_portal");
+      }
     } catch (error) {
       console.error("Error submitting application:", error);
       toast.error("Error submitting application.");

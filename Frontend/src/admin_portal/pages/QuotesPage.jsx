@@ -46,6 +46,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import axiosInstance from "../../utils/axiosConfig";
 import PolicyCreationModal from "../components/PolicyCreateModal";
+import AdminUserSelectDialog from "../components/AdminUserSelectDialog";
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
@@ -1115,7 +1116,9 @@ const QuotesPage = () => {
             </button>
           </div>
         </div> */}
+        <AdminUserSelectDialog db={db} buttonText="Submit Quote" />
         <PolicyCreationModal getAllPolicyBoundData={getAllPolicyBoundData} />
+
         {selectedButton === "requestedQuotes" && (
           <div className="w-full flex flex-col justify-center items-center mt-[30px]">
             {req_quotes && req_quotes.length > 0 ? (

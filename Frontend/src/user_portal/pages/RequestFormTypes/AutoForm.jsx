@@ -35,7 +35,7 @@ import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment, Tooltip } from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
 
-const AutoForm = () => {
+const AutoForm = ({ selectedUser }) => {
   const navigate = useNavigate();
 
   const redirectFunc = (path) => {
@@ -45,7 +45,10 @@ const AutoForm = () => {
   };
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const { currentUser } = useAuth();
+  let { currentUser } = useAuth();
+  currentUser = selectedUser
+    ? { uid: selectedUser?.id, data: selectedUser }
+    : currentUser;
   const isClient = currentUser?.data?.signupType === "Client";
   const [buttonstate, setbuttonstate] = useState("Submit");
   const [fileModal, setfileModal] = useState(false);
@@ -149,7 +152,9 @@ const AutoForm = () => {
         // ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Auto");
         toast.success("Application submitted with success.");
         setbuttonstate("Submit");
-        redirectFunc("/user_portal");
+        if (!selectedUser) {
+          redirectFunc("/user_portal");
+        }
         return;
       }
 
@@ -242,7 +247,9 @@ const AutoForm = () => {
 
       toast.success("Application submitted with success.");
       setbuttonstate("Submit");
-      redirectFunc("/user_portal");
+      if (!selectedUser) {
+        redirectFunc("/user_portal");
+      }
     } catch (error) {
       console.error("Error submitting application:", error);
       toast.error("Error submitting application.");

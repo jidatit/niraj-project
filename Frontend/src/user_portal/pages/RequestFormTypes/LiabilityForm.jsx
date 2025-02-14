@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment } from "@mui/material";
 
-const LiabilityForm = () => {
+const LiabilityForm = ({ selectedUser }) => {
   const navigate = useNavigate();
   const [adminEmail, setAdminEmail] = useState("");
 
@@ -55,7 +55,10 @@ const LiabilityForm = () => {
     }, 2000);
   };
 
-  const { currentUser } = useAuth();
+  let { currentUser } = useAuth();
+  currentUser = selectedUser
+    ? { uid: selectedUser?.id, data: selectedUser }
+    : currentUser;
   const isClient = currentUser?.data?.signupType === "Client";
   const [formData, setFormData] = useState({
     policyType: "Liability",
@@ -145,7 +148,9 @@ const LiabilityForm = () => {
 
       toast.success("Application submitted with success.");
       setbuttonstate("Submit");
-      redirectFunc("/user_portal");
+      if (!selectedUser) {
+        redirectFunc("/user_portal");
+      }
     } catch (error) {
       console.error("Error submitting application:", error);
       toast.error("Error submitting application.");
