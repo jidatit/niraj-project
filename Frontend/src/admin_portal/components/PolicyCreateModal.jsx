@@ -33,9 +33,9 @@ import { getCurrentDate } from "../../utils/helperSnippets";
 import { AdminBindConfirmQuoteMail } from "../../utils/mailingFuncs";
 import { toast } from "react-toastify";
 
-const PolicyCreationModal = ({ getAllPolicyBoundData }) => {
+const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
   const [loading, setLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
     user: null,
@@ -175,30 +175,6 @@ const PolicyCreationModal = ({ getAllPolicyBoundData }) => {
           bgcolor: "#FAFAFA",
         }}
       >
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "flex-end",
-            px: 2,
-            mt: 1,
-          }}
-        >
-          <Tooltip title="Create a new policy for Client" placement="top">
-            <Button
-              onClick={() => setIsOpen(true)}
-              variant="contained"
-              sx={{
-                bgcolor: "#005270",
-                "&:hover": { bgcolor: "#003049" },
-                borderRadius: "8px",
-                textTransform: "none",
-              }}
-            >
-              Create Policy
-            </Button>
-          </Tooltip>
-        </Box>
         <Dialog
           open={isOpen}
           onClose={() => setIsOpen(false)}

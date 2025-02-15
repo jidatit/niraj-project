@@ -992,6 +992,8 @@ const QuotesPage = () => {
     [deleteExpiredLoader]
   );
 
+  const [openQuoteModal, setOpenQuoteModal] = useState(false);
+  const [openPolicyModal, setOpenPolicyModal] = useState(false);
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
@@ -1116,8 +1118,47 @@ const QuotesPage = () => {
             </button>
           </div>
         </div> */}
-        <AdminUserSelectDialog db={db} buttonText="Submit Quote" />
-        <PolicyCreationModal getAllPolicyBoundData={getAllPolicyBoundData} />
+        <div className="flex gap-4 w-full justify-end">
+          <Tooltip title="Submit A Quote For Client/Referral" placement="top">
+            <Button
+              onClick={() => setOpenQuoteModal(true)}
+              variant="contained"
+              sx={{
+                bgcolor: "#005270",
+                "&:hover": { bgcolor: "#003049" },
+                borderRadius: "8px",
+                textTransform: "none",
+              }}
+            >
+              Submit Quote
+            </Button>
+          </Tooltip>
+          <Tooltip title="Create a new policy for Client" placement="top">
+            <Button
+              onClick={() => setOpenPolicyModal(true)}
+              variant="contained"
+              sx={{
+                bgcolor: "#005270",
+                "&:hover": { bgcolor: "#003049" },
+                borderRadius: "8px",
+                textTransform: "none",
+              }}
+            >
+              Create Policy
+            </Button>
+          </Tooltip>
+        </div>
+        <AdminUserSelectDialog
+          db={db}
+          buttonText="Submit Quote"
+          open={openQuoteModal}
+          setOpen={setOpenQuoteModal}
+        />
+        <PolicyCreationModal
+          getAllPolicyBoundData={getAllPolicyBoundData}
+          isOpen={openPolicyModal}
+          setIsOpen={setOpenPolicyModal}
+        />
 
         {selectedButton === "requestedQuotes" && (
           <div className="w-full flex flex-col justify-center items-center mt-[30px]">

@@ -41,8 +41,10 @@ const AdminUserSelectDialog = ({
   onUserSelect,
   db,
   buttonText = "Select User",
+  open,
+  setOpen,
 }) => {
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState([]);
   const [users, setUsers] = useState({ clients: [], referrals: [] });
   const [loading, setLoading] = useState(false);
@@ -201,34 +203,11 @@ const AdminUserSelectDialog = ({
   };
   return (
     <>
-      <Box
-        sx={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "flex-end",
-          px: 2,
-          mt: 1,
-        }}
-      >
-        <Button
-          onClick={() => setOpen(true)}
-          variant="contained"
-          sx={{
-            bgcolor: "#005270",
-            "&:hover": { bgcolor: "#003049" },
-            borderRadius: "8px",
-            textTransform: "none",
-          }}
-        >
-          {buttonText}
-        </Button>
-      </Box>
-
       <Dialog
         open={open}
         onClose={handleClose}
         fullWidth
-        maxWidth="lg"
+        maxWidth="md"
         fullScreen={isFullScreen}
       >
         <DialogTitle
