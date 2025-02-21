@@ -1301,7 +1301,7 @@ const QuotesPage = () => {
             onClick={() => setOpenDialog(false)}
             color="primary"
             variant="contained"
-            disabled={deleteLoading} // Disable if loading
+            disabled={deleteLoading}
           >
             Cancel
           </Button>
@@ -1309,7 +1309,7 @@ const QuotesPage = () => {
             onClick={handleConfirmDelete}
             variant="contained"
             color="error"
-            disabled={deleteLoading} // Disable if loading
+            disabled={deleteLoading}
           >
             {deleteLoading ? "Deleting..." : "Delete"}
           </Button>

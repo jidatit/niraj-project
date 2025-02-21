@@ -1,5 +1,13 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { TextField, Box } from "@mui/material";
+import {
+  TextField,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Button as MuiButton,
+  DialogActions,
+} from "@mui/material";
 import Button from "../components/Button";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,7 +23,42 @@ import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import Modal from "@mui/material/Modal";
 import { Link } from "react-router-dom";
 import { MaterialReactTable } from "material-react-table";
+import { CloudUpload, Close } from "@mui/icons-material";
+const ImageUploader = ({ label, onImageSelect, selectedImage, clearImage }) => {
+  return (
+    <div className="w-[70%] mx-auto text-center">
+      <label className="bg-transparent group w-full hover:bg-gray-700 border-black border-[1px] rounded-lg text-white text-sm px-4 py-2.5 outline-none cursor-pointer flex items-center justify-center">
+        <CloudUpload className="w-5 mr-2 group-hover:text-white text-black" />
+        <span className="text-black group-hover:text-white">{label}</span>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={onImageSelect}
+          className="hidden"
+        />
+      </label>
 
+      {selectedImage && (
+        <div className="relative mt-4 flex flex-col items-center">
+          <img
+            className="rounded-lg max-w-full h-40 object-cover"
+            src={URL.createObjectURL(selectedImage)}
+            alt="Preview"
+          />
+          <span className="mt-2 text-sm text-gray-500">
+            {selectedImage.name}
+          </span>
+          <button
+            onClick={clearImage} // Fix: Call clearImage instead of passing null to onImageSelect
+            className="absolute top-2 right-2 text-black p-1 rounded-full"
+          >
+            <Close fontSize="small" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 const BlogPage = () => {
   const [blogs, setBlogs] = useState([]);
   const [buttonText, setButtonText] = useState("Submit");
@@ -24,22 +67,22 @@ const BlogPage = () => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [selectedRowId, setSelectedRowId] = useState(null);
+  const fetchBlogs = async () => {
+    try {
+      const blogsCollection = collection(db, "blogs");
+      const snapshot = await getDocs(blogsCollection);
+      const blogsData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setBlogs(blogsData);
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+    }
+  };
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const blogsCollection = collection(db, "blogs");
-        const snapshot = await getDocs(blogsCollection);
-        const blogsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setBlogs(blogsData);
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
-      }
-    };
-
     fetchBlogs();
   }, []);
 
@@ -80,16 +123,6 @@ const BlogPage = () => {
     }));
   };
 
-  const handleAuthorImageSelect = (event) => {
-    const file = event.target.files[0];
-    setSelectedAuthorImageData(file);
-  };
-
-  const handleBlogImageSelect = (event) => {
-    const file = event.target.files[0];
-    setSelectedBlogImageData(file);
-  };
-
   const addblogtodb = async () => {
     try {
       if (!selectedAuthorImageData || !selectedBlogImageData) {
@@ -119,6 +152,8 @@ const BlogPage = () => {
       await addDoc(collection(db, "blogs"), formDataCopy);
       toast.success("Blog added successfully!");
       setButtonText("Submit");
+      setOpen(false);
+      fetchBlogs();
     } catch (error) {
       toast.error("Error occurred");
     }
@@ -183,6 +218,26 @@ const BlogPage = () => {
     ],
     []
   );
+
+  const handleDeleteClick = (table) => {
+    const selectedRows = table.getSelectedRowModel().flatRows;
+    console.log("Selected Rows:", selectedRows);
+
+    if (selectedRows.length === 1) {
+      setSelectedRowId(selectedRows[0].original.id);
+      setOpenDeleteModal(true); // Open confirmation dialog
+    } else {
+      alert("Please select a single row to delete.");
+    }
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedRowId) {
+      DeleteBlog(selectedRowId);
+      setOpenDeleteModal(false);
+      setSelectedRowId(null);
+    }
+  };
 
   const DeleteBlog = async (blog_id) => {
     try {
@@ -265,38 +320,14 @@ const BlogPage = () => {
               className="w-[70%]"
             />
 
-            <label className="bg-transparent group w-[70%] hover:bg-gray-700 border-black border-[1px] rounded-lg text-white text-sm px-4 py-2.5 outline-none cursor-pointer mx-auto block font-[sans-serif]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 mr-2 group-hover:fill-white fill-black inline"
-                viewBox="0 0 32 32"
-              >
-                <path
-                  d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"
-                  data-original="#000000"
-                />
-                <path
-                  d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"
-                  data-original="#000000"
-                />
-              </svg>
-              <span className="text-black group-hover:text-white">
-                {"Upload Author Image"}
-              </span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleAuthorImageSelect}
-                className="hidden"
-              />
-              {selectedAuthorImageData && (
-                <img
-                  className="mt-4 mx-auto max-w-full"
-                  src={selectedAuthorImageData}
-                />
-              )}
-            </label>
-
+            <ImageUploader
+              label="Upload Author Image"
+              onImageSelect={(e) =>
+                setSelectedAuthorImageData(e.target.files[0])
+              }
+              selectedImage={selectedAuthorImageData}
+              clearImage={() => setSelectedAuthorImageData(null)} // Fix: Handle null properly
+            />
             {formData.dynamicContent.map((content, index) => (
               <div
                 className="w-[70%] flex flex-col justify-center items-center gap-2"
@@ -335,38 +366,12 @@ const BlogPage = () => {
               />
             </div>
 
-            <label className="bg-transparent group w-[70%] hover:bg-gray-700 border-black border-[1px] rounded-lg text-white text-sm px-4 py-2.5 outline-none cursor-pointer mx-auto block font-[sans-serif]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 mr-2 group-hover:fill-white fill-black inline"
-                viewBox="0 0 32 32"
-              >
-                <path
-                  d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"
-                  data-original="#000000"
-                />
-                <path
-                  d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"
-                  data-original="#000000"
-                />
-              </svg>
-              <span className="text-black group-hover:text-white">
-                {"Upload Blog Image"}
-              </span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleBlogImageSelect}
-                className="hidden"
-              />
-              {selectedBlogImageData && (
-                <img
-                  className="mt-4 mx-auto max-w-full"
-                  src={selectedBlogImageData}
-                />
-              )}
-            </label>
-
+            <ImageUploader
+              label="Upload Blog Image"
+              onImageSelect={(e) => setSelectedBlogImageData(e.target.files[0])}
+              selectedImage={selectedBlogImageData}
+              clearImage={() => setSelectedBlogImageData(null)} // Fix: Handle null properly
+            />
             <div className="w-[90%] mb-5 flex flex-col justify-end items-end">
               <div className="md:w-[30%] w-full pr-0 md:pr-2">
                 <Button onClickProp={addblogtodb} text={buttonText} />
@@ -382,34 +387,48 @@ const BlogPage = () => {
                 enableRowSelection
                 columns={columns}
                 data={blogs}
-                renderTopToolbarCustomActions={({ table }) => {
-                  const handleDelete = () => {
-                    const selectedRows = table.getSelectedRowModel().flatRows;
-                    if (selectedRows.length === 1) {
-                      const selectedRowId = selectedRows[0].original.id;
-                      alert("Deleting Blog with ID: " + selectedRowId);
-                      DeleteBlog(selectedRowId);
-                    } else {
-                      alert("Please select a single row to delete.");
-                    }
-                  };
-                  return (
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
-                      <button
-                        color="error"
-                        disabled={!table.getIsSomeRowsSelected()}
-                        onClick={handleDelete}
-                        className="bg-[#003049] text-white rounded-lg py-2 px-6"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  );
-                }}
+                getRowId={(row) => row.id}
+                renderTopToolbarCustomActions={({ table }) => (
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      type="button"
+                      // disabled={!table.getIsSomeRowsSelected()}
+                      onClick={() => handleDeleteClick(table)}
+                      className="bg-[#003049] text-white rounded-lg py-2 px-6"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               />
             </div>
           ) : null}
         </div>
+        <Dialog
+          open={openDeleteModal}
+          onClose={() => setOpenDeleteModal(false)}
+        >
+          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogContent>
+            Are you sure you want to delete this blog?
+          </DialogContent>
+          <DialogActions>
+            <MuiButton
+              onClick={() => setOpenDeleteModal(false)}
+              color="primary"
+              variant="contained"
+            >
+              Cancel
+            </MuiButton>
+            <MuiButton
+              onClick={handleConfirmDelete}
+              variant="contained"
+              color="error"
+            >
+              Confirm
+            </MuiButton>
+          </DialogActions>
+        </Dialog>
       </div>
     </>
   );

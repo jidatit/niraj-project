@@ -598,20 +598,22 @@ const HomeForm = ({ selectedUser }) => {
           </div>
 
           {/* ✅ Upload Inspection Button (Hidden if isCondo is "yes") */}
-          {formData.isCondo !== "yes" && (
-            <div className="flex flex-col items-center justify-center gap-3 p-4 ">
-              <h3 className="text-center text-sm font-semibold text-gray-700">
-                Upload 4 Point / Wind Mitigation Inspections
-                {formData?.ishomebuild === "no" && "  (Optional)"}
-              </h3>
-              <button
-                onClick={() => setfileModal(true)}
-                className="bg-white md:w-[45%] border-[1px] border-black text-black font-extralight w-full py-2 px-4 rounded"
-              >
-                + Upload Inspections
-              </button>
-            </div>
-          )}
+          {/* {formData.isCondo !== "yes" && ( */}
+          <div className="flex flex-col items-center justify-center gap-3 p-4 ">
+            <h3 className="text-center text-sm font-semibold text-gray-700">
+              Upload 4 Point / Wind Mitigation Inspections
+              {(formData?.ishomebuild === "no" ||
+                formData?.isCondo === "yes") &&
+                " (Optional)"}
+            </h3>
+            <button
+              onClick={() => setfileModal(true)}
+              className="bg-white md:w-[45%] border-[1px] border-black text-black font-extralight w-full py-2 px-4 rounded"
+            >
+              + Upload Inspections
+            </button>
+          </div>
+          {/* )} */}
 
           {/* ✅ Closing Date Field (Consistent Layout) */}
           {formData.newPurchase === "yes" && (
