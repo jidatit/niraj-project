@@ -9,6 +9,8 @@ import {
   DialogTitle,
   Tooltip,
 } from "@mui/material";
+import { Menu, MenuItem, IconButton } from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import "react-toastify/dist/ReactToastify.css";
 import papericon from "../../assets/dash/quotes/paper.png";
 import boxicon from "../../assets/dash/quotes/box.png";
@@ -323,6 +325,33 @@ const QuotesPage = () => {
       setReminderLoader((prevState) => ({ ...prevState, [req_qid]: false }));
     }
   };
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  // const [deleteLoading, setDeleteLoading] = useState(false);
+  const [selectedQuote, setSelectedQuote] = useState(null);
+  const handleDeleteQuoteClick = (quote) => {
+    setSelectedQuote(quote);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleDeleteQuote = async () => {
+    if (!selectedQuote) return;
+
+    setDeleteLoading(true);
+    try {
+      // Convert policyType to lowercase
+      const policyType = selectedQuote.policyType.toLowerCase();
+      const quoteRef = doc(db, `${policyType}_quotes`, selectedQuote.id);
+
+      await deleteDoc(quoteRef);
+      toast.success("Quote deleted successfully.");
+      setOpenDeleteDialog(false);
+      getAllReqQuoteTypes();
+    } catch (error) {
+      console.error("Error deleting quote:", error);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   const req_columns = useMemo(
     () => [
@@ -431,65 +460,73 @@ const QuotesPage = () => {
       },
       {
         header: "Actions",
-        size: 200,
-        Cell: ({ cell }) => (
-          <Box display="flex" alignItems="center" gap="18px">
-            <button
-              onClick={() => {
-                handleViewPolicy(
-                  cell.row.original,
-                  cell.row.original.policyType
-                );
-              }}
-              className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
-            >
-              View Form Details
-            </button>
+        size: 150,
+        Cell: ({ cell }) => {
+          const [anchorEl, setAnchorEl] = useState(null);
+          const open = Boolean(anchorEl);
 
-            <Link
-              to={`/admin_portal/editor?qsr_type=${cell.row.original.policyType}&q_id=${cell.row.original.id}&qu_id=${cell.row.original.user.id}`}
-            >
-              <button
-                disabled={cell.row.original.status === "pending" ? true : false}
-                className={`${
-                  cell.row.original.status === "pending"
-                    ? "bg-[#ADADAD]"
-                    : "bg-[#F77F00]"
-                } font-bold rounded-[18px] px-[16px] py-[4px] text-white text-[10px]`}
-              >
-                Send Quote
-              </button>
-            </Link>
+          const handleMenuOpen = (event) => {
+            setAnchorEl(event.currentTarget);
+          };
 
-            <button
-              onClick={() =>
-                sendReminder(
-                  cell.row.original.id,
-                  cell.row.original.policyType,
-                  cell.row.original.user
-                )
-              }
-              disabled={
-                reminderLoader[cell.row.original.id] ||
-                cell.row.original.status !== "pending"
-              }
-              className={`${
-                cell.row.original.status === "pending"
-                  ? "bg-[#175ae1]"
-                  : "bg-[#ADADAD]"
-              } font-bold rounded-[18px] px-[16px] py-[4px] text-white text-[10px] flex gap-1 items-center justify-center`}
-            >
-              {reminderLoader[cell.row.original.id] ? (
-                <>
-                  <span>Sending</span>
-                  <CircularProgress size={20} color="inherit" />
-                </>
-              ) : (
-                "Send Reminder"
-              )}
-            </button>
-          </Box>
-        ),
+          const handleMenuClose = () => {
+            setAnchorEl(null);
+          };
+
+          return (
+            <Box display="flex" justifyContent="center">
+              <IconButton onClick={handleMenuOpen}>
+                <MoreVertIcon />
+              </IconButton>
+
+              <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+                <MenuItem
+                  onClick={() =>
+                    handleViewPolicy(
+                      cell.row.original,
+                      cell.row.original.policyType
+                    )
+                  }
+                >
+                  View Form Details
+                </MenuItem>
+
+                <MenuItem
+                  component={Link}
+                  to={`/admin_portal/editor?qsr_type=${cell.row.original.policyType}&q_id=${cell.row.original.id}&qu_id=${cell.row.original.user.id}`}
+                  disabled={cell.row.original.status === "pending"}
+                >
+                  Send Quote
+                </MenuItem>
+
+                <MenuItem
+                  onClick={() =>
+                    sendReminder(
+                      cell.row.original.id,
+                      cell.row.original.policyType,
+                      cell.row.original.user
+                    )
+                  }
+                  disabled={
+                    reminderLoader[cell.row.original.id] ||
+                    cell.row.original.status !== "pending"
+                  }
+                >
+                  {reminderLoader[cell.row.original.id]
+                    ? "Sending..."
+                    : "Send Reminder"}
+                </MenuItem>
+
+                <MenuItem
+                  onClick={() => handleDeleteQuoteClick(cell.row.original)}
+                  style={{ color: "red" }}
+                >
+                  Delete Quote
+                </MenuItem>
+              </Menu>
+            </Box>
+          );
+        },
       },
     ],
     [reminderLoader]
@@ -1312,6 +1349,33 @@ const QuotesPage = () => {
             disabled={deleteLoading}
           >
             {deleteLoading ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this quote? This action cannot be
+          undone.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteQuote}
+            color="error"
+            disabled={deleteLoading}
+          >
+            {deleteLoading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Delete"
+            )}
           </Button>
         </DialogActions>
       </Dialog>
