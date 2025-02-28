@@ -63,7 +63,7 @@ function bigButton({ R, GFQ, text }) {
                             <>
                                 <li className="border-b border-black">
                                     <Link to="/auth/login_referral"><p className="block px-4 py-2 text-black">
-                                        Log In as referral
+                                        Log In as Referral
                                     </p></Link>
                                 </li>
                                 <li>
@@ -77,7 +77,7 @@ function bigButton({ R, GFQ, text }) {
                             <>
                                 <li className="border-b border-black">
                                     <Link to="/auth/signup_referral"><p className="block px-4 py-2 text-black">
-                                        Sign up as referral
+                                        Sign up as Referral
                                     </p></Link>
                                 </li>
                                 <li>
