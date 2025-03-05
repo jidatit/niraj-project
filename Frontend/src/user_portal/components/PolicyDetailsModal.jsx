@@ -22,7 +22,7 @@ const PolicyDetailsModal = ({ open, onClose, selectedRow }) => {
   const renderDateField = (label, value) => (
     <div className="flex w-full flex-col justify-center items-start gap-2">
       <InputLabel htmlFor="exp">
-        {label} <span className="text-xs">(DD-MM-YYYY)</span>
+        {label} <span className="text-xs">(MM-DD-YYYY)</span>
       </InputLabel>
       <TextField
         className="w-full"

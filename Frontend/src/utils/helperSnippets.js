@@ -1,20 +1,23 @@
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from "date-fns";
 
 export const ModalCenteringstyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
   width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
+  bgcolor: "background.paper",
+  border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
 
 export function hasEmptyValue(userDataWithoutPasswords) {
   for (let key in userDataWithoutPasswords) {
-    if (userDataWithoutPasswords.hasOwnProperty(key) && userDataWithoutPasswords[key] === "") {
+    if (
+      userDataWithoutPasswords.hasOwnProperty(key) &&
+      userDataWithoutPasswords[key] === ""
+    ) {
       return true;
     }
   }
@@ -22,9 +25,9 @@ export function hasEmptyValue(userDataWithoutPasswords) {
 }
 
 export function formatDate(dateString) {
-  const [year, month, day] = dateString.split('-');
-  return `${day}-${month}-${year}`;
-};
+  const [year, month, day] = dateString.split("-");
+  return `${month}-${day}-${year}`;
+}
 
 export function getCurrentDate(type) {
   const currentDate = new Date();
@@ -33,33 +36,33 @@ export function getCurrentDate(type) {
   const month = currentDate.getMonth() + 1;
   const year = currentDate.getFullYear();
 
-  const formattedDay = day < 10 ? '0' + day : day;
-  const formattedMonth = month < 10 ? '0' + month : month;
+  const formattedDay = day < 10 ? "0" + day : day;
+  const formattedMonth = month < 10 ? "0" + month : month;
 
-  const formattedDate = type === "slash"
-    ? `${formattedDay}/${formattedMonth}/${year}`
-    : (type === "dash"
+  const formattedDate =
+    type === "slash"
+      ? `${formattedDay}/${formattedMonth}/${year}`
+      : type === "dash"
       ? `${year}-${formattedMonth}-${formattedDay}`
-      : `${formattedDay}/${formattedMonth}/${year}`
-    );
+      : `${formattedDay}/${formattedMonth}/${year}`;
 
   return formattedDate;
 }
 
 export function getType(t) {
-  let type = t.toLowerCase()
+  let type = t.toLowerCase();
   switch (type) {
     case "home":
-      return "home_quotes"
+      return "home_quotes";
       break;
     case "auto":
-      return "auto_quotes"
+      return "auto_quotes";
       break;
     case "liability":
-      return "liability_quotes"
+      return "liability_quotes";
       break;
     case "flood":
-      return "flood_quotes"
+      return "flood_quotes";
       break;
     default:
       break;
@@ -67,18 +70,20 @@ export function getType(t) {
 }
 
 export function formatKey(key) {
-  let formattedKey = key.replace(/_/g, ' ');
-  let words = formattedKey.split(' ');
-  words = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
-  return words.join(' ');
+  let formattedKey = key.replace(/_/g, " ");
+  let words = formattedKey.split(" ");
+  words = words.map(
+    (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  );
+  return words.join(" ");
 }
 
 export function formatTimeSince(date) {
   return formatDistanceToNow(new Date(date), { addSuffix: true });
-};
+}
 
 export function areKeysFilled(arr) {
-  return arr.every(item => {
-    return Object.values(item).every(value => value !== "");
+  return arr.every((item) => {
+    return Object.values(item).every((value) => value !== "");
   });
 }
