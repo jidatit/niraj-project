@@ -55,18 +55,22 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("signupType", "==", "Client"));
         const querySnapshot = await getDocs(q);
-        const usersList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name,
-          address: doc.data().mailingAddress,
-          dob: doc.data().dateOfBirth,
-          email: doc.data().email,
-          label: doc.data().email,
-          mailingAddress: doc.data().mailingAddress,
-          phoneNumber: doc.data().phoneNumber,
-          value: doc.data().email,
-          zipCode: doc.data().zipCode,
-        }));
+
+        const usersList = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data?.name ?? null,
+            address: data?.mailingAddress ?? null,
+            dob: data?.dateOfBirth ?? null,
+            email: data?.email ?? null,
+            label: data?.email ?? null,
+            mailingAddress: data?.mailingAddress ?? null,
+            phoneNumber: data?.phoneNumber ?? null,
+            value: data?.email ?? null,
+            zipCode: data?.zipCode ?? null,
+          };
+        });
 
         setUsers(usersList);
       } catch (error) {
