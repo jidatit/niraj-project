@@ -104,6 +104,11 @@ const LiabilityForm = ({ selectedUser }) => {
         status: "completed",
         status_step: "1",
         inuser: formData.persons[0],
+        ...(currentUser?.data?.signupType === "Referral" && {
+          byReferral: true,
+          ReferralId: currentUser?.uid,
+          Referral: currentUser?.data,
+        }),
         createdAt: serverTimestamp(), // Automatically add the creation timestamp
         updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
       });

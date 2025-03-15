@@ -206,6 +206,8 @@ const HomeForm = ({ selectedUser }) => {
           updatedAt: serverTimestamp(),
           ...(currentUser.data.signupType === "Referral" && {
             byReferral: true,
+            ReferralId: currentUser?.uid,
+            Referral: currentUser?.data,
           }),
         });
 
@@ -266,7 +268,11 @@ const HomeForm = ({ selectedUser }) => {
         inuser: formDataWithUrls.persons[0],
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        ...(currentUser.data.signupType === "Referral" && { byReferral: true }),
+        ...(currentUser.data.signupType === "Referral" && {
+          byReferral: true,
+          ReferralId: currentUser?.uid,
+          Referral: currentUser?.data,
+        }),
       });
 
       // Send email based on isHomeBuild value

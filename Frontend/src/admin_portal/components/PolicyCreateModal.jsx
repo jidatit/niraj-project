@@ -46,6 +46,9 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
     qsr_type: "",
     acc_loan_number: "",
     responsible_payment: "Insured",
+    ac_age: "",
+    roof_age: "",
+    purchase_date: "",
   });
   const [errors, setErrors] = useState({});
 
@@ -69,6 +72,7 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
             phoneNumber: data?.phoneNumber ?? null,
             value: data?.email ?? null,
             zipCode: data?.zipCode ?? null,
+            signupType: data?.signupType ?? null,
           };
         });
 
@@ -333,6 +337,60 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
                           label="Yes"
                         />
                       </RadioGroup>
+
+                      <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                        <Typography
+                          variant="h6"
+                          fontWeight="semibold"
+                          gutterBottom
+                        >
+                          AC Age in Years
+                        </Typography>
+
+                        <TextField
+                          className="w-full"
+                          id="ac_age"
+                          type="number"
+                          value={formData.ac_age}
+                          onChange={(e) => handleChange(e)}
+                          name="ac_age"
+                        />
+                      </div>
+
+                      <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                        <Typography
+                          variant="h6"
+                          fontWeight="semibold"
+                          gutterBottom
+                        >
+                          Roof Age in Years
+                        </Typography>
+                        <TextField
+                          className="w-full"
+                          id="roof_age"
+                          type="number"
+                          value={formData.roof_age}
+                          onChange={(e) => handleChange(e)}
+                          name="roof_age"
+                        />
+                      </div>
+                      <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                        <Typography
+                          variant="h6"
+                          fontWeight="semibold"
+                          gutterBottom
+                        >
+                          Purchase Date
+                        </Typography>
+                        <TextField
+                          className="w-full"
+                          id="purchase_date"
+                          type="date"
+                          value={formData.purchase_date}
+                          onChange={(e) => handleChange(e)}
+                          name="purchase_date"
+                        />
+                      </div>
                     </Box>
                   )}
 

@@ -174,6 +174,11 @@ const FloodForm = ({ selectedUser }) => {
           inuser: nofilesformData.persons[0],
           createdAt: serverTimestamp(), // Automatically add the creation timestamp
           updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
+          ...(currentUser?.data?.signupType === "Referral" && {
+            byReferral: true,
+            ReferralId: currentUser?.uid,
+            Referral: currentUser?.data,
+          }),
         });
         toast.success("Application submitted with success.");
         setbuttonstate("Submit");
@@ -212,6 +217,11 @@ const FloodForm = ({ selectedUser }) => {
         inuser: formDataWithUrls.persons[0],
         createdAt: serverTimestamp(), // Automatically add the creation timestamp
         updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
+        ...(currentUser?.data?.signupType === "Referral" && {
+          byReferral: true,
+          ReferralId: currentUser?.uid,
+          Referral: currentUser?.data,
+        }),
       });
 
       setFormData({

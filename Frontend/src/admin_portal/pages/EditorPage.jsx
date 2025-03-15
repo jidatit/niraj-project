@@ -114,6 +114,9 @@ const EditorPage = () => {
             ? docSnap.data().address
             : docSnap.data().garaging_address,
           mailingAddress: docSnap.data().mailingAddress,
+          byReferral: docSnap?.data()?.byReferral || false,
+          ReferralId: docSnap?.data()?.ReferralId || "",
+          Referral: docSnap?.data()?.Referral || "",
         };
       }
     } catch (error) {
@@ -137,6 +140,9 @@ const EditorPage = () => {
       setFormData((prevData) => ({
         ...prevData,
         user: inuser,
+        byReferral: inuser?.byReferral || false,
+        ReferralId: inuser?.ReferralId || "",
+        Referral: inuser?.Referral || "",
       }));
     };
 
@@ -168,15 +174,15 @@ const EditorPage = () => {
   const handlePrepQuote = async () => {
     try {
       setSubBtnDisabler(true);
-      if (Object.keys(formData.user).length === 0) {
+      if (Object.keys(formData?.user).length === 0) {
         toast.warn("Select a user!");
         return;
       }
-      if (Object.keys(formData.agent).length === 0) {
+      if (Object.keys(formData?.agent).length === 0) {
         toast.warn("Select a agent!");
         return;
       }
-      if (areKeysFilled(formData.tablesData.table_1) === false) {
+      if (areKeysFilled(formData?.tablesData?.table_1) === false) {
         toast.warn("Table 1 has empty value(s)");
         return;
       }
@@ -185,7 +191,11 @@ const EditorPage = () => {
 
       await updateStatusStep(QSR_Type, Q_id);
 
-      AdminPrepareQuoteMail(formData.user.name, formData.user.email, QSR_Type);
+      AdminPrepareQuoteMail(
+        formData?.user?.name,
+        formData?.user?.email,
+        QSR_Type
+      );
       toast.success("Quote prepared successfully!");
       setButtonText("Submit Quote");
       setTimeout(() => {

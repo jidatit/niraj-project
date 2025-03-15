@@ -32,6 +32,7 @@ import ChangePassword from "./user_portal/pages/ChangePassword";
 import ForgotPasswordClient from "./auth/ForgotPasswordClient";
 import ForgotPasswordReferral from "./auth/ForgotPasswordReferral";
 import ProfilePage from "./user_portal/pages/ProfilePage";
+import ReferralsPage from "./admin_portal/pages/ReferralsPage";
 function App() {
   return (
     <>
@@ -65,6 +66,7 @@ function App() {
           <Route path="/admin_portal" element={<AdminLayout />}>
             <Route index element={<QuotesPage />} />
             <Route path="blogs" element={<BlogPage />} />
+            <Route path="referrals" element={<ReferralsPage />} />
             <Route path="policy_changes" element={<PolicyChanges />} />
             <Route path="agents" element={<AgentPage />} />
             <Route path="editor" element={<EditorPage />} />

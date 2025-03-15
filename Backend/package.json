@@ -5,17 +5,23 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./index.js"
+    "start": "node ./index.js",
+    "dev": "nodemon ./index.js"
   },
   "keywords": [],
   "author": "Etzshally",
   "license": "ISC",
   "dependencies": {
+    "@emailjs/nodejs": "^5.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "emailjs-com": "^3.2.0",
     "express": "^4.19.2",
     "firebase": "^10.12.2",
     "node-cron": "^3.0.3",
     "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }

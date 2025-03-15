@@ -34,7 +34,7 @@ const BinderReqPreview = ({ data, isSlideModalOpen, onClose }) => {
             {data && (
               <div className="w-full flex flex-col justify-center items-center md:items-start">
                 <h1 className="lg:text-[32px] md:text-start text-center font-bold md:text-[24px] text-[18px]">
-                  Binder Form for {data.qsr_type} Quote
+                  Binder Form for {data?.qsr_type} Quote
                 </h1>
               </div>
             )}
@@ -89,6 +89,46 @@ const BinderReqPreview = ({ data, isSlideModalOpen, onClose }) => {
                           <MenuItem value="no">No</MenuItem>
                         </Select>
                       </FormControl>
+                    </div>
+                    <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                      <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                        AC Age in Years
+                      </p>
+                      <TextField
+                        className="w-full"
+                        id="ac_age"
+                        disabled
+                        type="number"
+                        value={data?.ac_age}
+                        name="ac_age"
+                      />
+                    </div>
+
+                    <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                      <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                        Roof Age in Years
+                      </p>
+                      <TextField
+                        className="w-full"
+                        id="roof_age"
+                        disabled
+                        type="number"
+                        value={data?.roof_age}
+                        name="roof_age"
+                      />
+                    </div>
+                    <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                      <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                        Purchase Date
+                      </p>
+                      <TextField
+                        className="w-full"
+                        id="purchase_date"
+                        type="date"
+                        disabled
+                        value={data?.purchase_date}
+                        name="purchase_date"
+                      />
                     </div>
 
                     {data.isMortgageOrLienholder === "yes" && (

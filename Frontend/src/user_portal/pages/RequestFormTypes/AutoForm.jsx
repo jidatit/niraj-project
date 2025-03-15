@@ -131,6 +131,11 @@ const AutoForm = ({ selectedUser }) => {
           ...nofilesformData, // Include the existing form data
           createdAt: serverTimestamp(), // Automatically add the creation timestamp
           updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
+          ...(currentUser?.data?.signupType === "Referral" && {
+            byReferral: true,
+            ReferralId: currentUser?.uid,
+            Referral: currentUser?.data,
+          }),
         });
         if (currentUser.data.signupType === "Referral") {
           ClientQuoteWithoutInspection(
@@ -187,6 +192,11 @@ const AutoForm = ({ selectedUser }) => {
         inuser: formDataWithUrls.drivers[0],
         createdAt: serverTimestamp(), // Automatically add the current timestamp
         updatedAt: serverTimestamp(), // Set initial updatedAt to the same timestamp
+        ...(currentUser?.data?.signupType === "Referral" && {
+          byReferral: true,
+          ReferralId: currentUser?.uid,
+          Referral: currentUser?.data,
+        }),
       });
       if (currentUser.data.signupType === "Referral") {
         ClientQuoteReqMail(

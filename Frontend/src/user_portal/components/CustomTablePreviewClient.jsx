@@ -47,6 +47,9 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
     company_name: "",
     acc_loan_number: "",
     responsible_payment: "",
+    ac_age: "",
+    roof_age: "",
+    purchase_date: "",
   });
 
   const onClose = () => {
@@ -227,7 +230,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
   };
 
   const [bindingDisable, setBindingDisable] = useState(false);
-  console.log("qid", qid);
+
   const handleBindQuote = async () => {
     try {
       setBindingDisable(true);
@@ -236,6 +239,9 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
         qid,
         qsr_type,
         user: { ...user },
+        byReferral: user?.byReferral || false,
+        ReferralId: user?.ReferralId || null,
+        Referral: user?.Referral || null,
         bound_status: "pending",
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -439,11 +445,13 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
                 />
               </div>
 
+              {/* New Inputs for AC Age, Roof Age, and Purchase Date */}
+
               {qsr_type && qsr_type.toLowerCase() === "home" && (
                 <>
                   <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
                     <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
-                       Is there a mortgage or lienholder?
+                      Is there a mortgage or lienholder?
                     </p>
                     <FormControl className="w-full" variant="outlined">
                       <InputLabel id="binary-select1">Yes / No</InputLabel>
@@ -459,6 +467,46 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
                         <MenuItem value="no">No</MenuItem>
                       </Select>
                     </FormControl>
+                  </div>
+                  <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                    <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                      AC Age in Years
+                    </p>
+                    <TextField
+                      className="w-full"
+                      id="ac_age"
+                      type="number"
+                      value={formData.ac_age}
+                      onChange={(e) => handleChange(e)}
+                      name="ac_age"
+                    />
+                  </div>
+
+                  <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                    <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                      Roof Age in Years
+                    </p>
+                    <TextField
+                      className="w-full"
+                      id="roof_age"
+                      type="number"
+                      value={formData.roof_age}
+                      onChange={(e) => handleChange(e)}
+                      name="roof_age"
+                    />
+                  </div>
+                  <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                    <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                      Purchase Date
+                    </p>
+                    <TextField
+                      className="w-full"
+                      id="purchase_date"
+                      type="date"
+                      value={formData.purchase_date}
+                      onChange={(e) => handleChange(e)}
+                      name="purchase_date"
+                    />
                   </div>
 
                   {formData.isMortgageOrLienholder === "yes" && (
