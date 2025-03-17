@@ -10,22 +10,37 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Chip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { collection, addDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
 
-const AddPersonnelModal = ({ open, handleClose, db }) => {
+const AddPersonnelModal = ({ open, handleClose, db, fetchPersonnelData }) => {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [zipCodes, setZipCodes] = useState("");
+  const [zipCodes, setZipCodes] = useState([]); // Use an array for zip codes
+  const [currentZipCode, setCurrentZipCode] = useState(""); // Temporary input for a single zip code
   const [contactInfo, setContactInfo] = useState("");
   const [type, setType] = useState("AC Repair"); // Default to AC Repair
   const [isLoading, setIsLoading] = useState(false);
 
+  // Function to add a zip code to the list
+  const handleAddZipCode = () => {
+    if (currentZipCode.trim() && !zipCodes.includes(currentZipCode.trim())) {
+      setZipCodes([...zipCodes, currentZipCode.trim()]);
+      setCurrentZipCode(""); // Clear the input field
+    }
+  };
+
+  // Function to remove a zip code from the list
+  const handleDeleteZipCode = (zipToDelete) => {
+    setZipCodes(zipCodes.filter((zip) => zip !== zipToDelete));
+  };
+
   const handleSave = async () => {
-    if (!name || !address || !zipCodes || !contactInfo) {
-      toast.error("Please fill all fields.");
+    if (!name || !address || zipCodes.length === 0 || !contactInfo) {
+      toast.error("Please fill all fields and add at least one zip code.");
       return;
     }
 
@@ -34,11 +49,12 @@ const AddPersonnelModal = ({ open, handleClose, db }) => {
       await addDoc(collection(db, "Personnels"), {
         name,
         address,
-        zipCodes: zipCodes.split(",").map((code) => code.trim()),
+        zipCodes, // Save zip codes as an array
         contactInfo,
         type,
         createdAt: new Date(),
       });
+      fetchPersonnelData();
       toast.success("Personnel added successfully");
       handleClose();
     } catch (error) {
@@ -114,14 +130,39 @@ const AddPersonnelModal = ({ open, handleClose, db }) => {
           required
         />
 
-        <TextField
-          fullWidth
-          label="Zip Codes (comma-separated)"
-          value={zipCodes}
-          onChange={(e) => setZipCodes(e.target.value)}
-          margin="normal"
-          required
-        />
+        {/* Zip Codes Input */}
+        <Box sx={{ mt: 2 }}>
+          <TextField
+            fullWidth
+            label="Add Zip Code"
+            value={currentZipCode}
+            onChange={(e) => setCurrentZipCode(e.target.value)}
+            margin="normal"
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                handleAddZipCode();
+              }
+            }}
+          />
+          <Button
+            variant="contained"
+            onClick={handleAddZipCode}
+            sx={{ mt: 1 }}
+            disabled={!currentZipCode.trim()}
+          >
+            Add Zip Code
+          </Button>
+          <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
+            {zipCodes.map((zip, index) => (
+              <Chip
+                key={index}
+                label={zip}
+                onDelete={() => handleDeleteZipCode(zip)}
+                sx={{ backgroundColor: "#003049", color: "white" }}
+              />
+            ))}
+          </Box>
+        </Box>
 
         <TextField
           fullWidth

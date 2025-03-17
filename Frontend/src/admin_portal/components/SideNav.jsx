@@ -6,6 +6,7 @@ import { FaUser } from "react-icons/fa";
 import { MdRequestQuote, MdPublishedWithChanges } from "react-icons/md";
 import { LiaBlogSolid } from "react-icons/lia";
 import { BsPersonWorkspace } from "react-icons/bs";
+import { HiOutlineMail } from "react-icons/hi";
 
 const SideNav = () => {
   const menus = [
@@ -14,7 +15,7 @@ const SideNav = () => {
     {
       name: "Referrals",
       link: "/admin_portal/referrals",
-      icon: MdRequestQuote,
+      icon: HiOutlineMail,
     },
     {
       name: "Policy Changes",

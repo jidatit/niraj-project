@@ -85,7 +85,6 @@ const CustomTemplateModal = ({ open, handleClose, referral, db, storage }) => {
       }
     };
 
-
     if (open) {
       fetchCustomTemplate();
       fetchReferralLogo();

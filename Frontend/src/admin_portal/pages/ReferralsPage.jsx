@@ -18,6 +18,7 @@ import CustomTemplateModal from "../components/CustomTempModal";
 // import StandardTemplateModal from "../components/StandardTemplateModal";
 import AddPersonnelModal from "../components/PersonnelModal";
 import EditTemplateModal from "../components/EditTemplateModal";
+import { Box, Chip } from "@mui/material";
 
 const ReferralsPage = () => {
   const [selectedTab, setSelectedTab] = useState("referralPartners");
@@ -63,7 +64,20 @@ const ReferralsPage = () => {
   const handleCloseCustomModal = () => {
     setOpenCustomModal(false);
   };
-
+  const fetchPersonnelData = async () => {
+    setIsPersonnelLoading(true);
+    try {
+      const q = query(collection(db, "Personnels"));
+      const snapshot = await getDocs(q);
+      setPersonnelData(
+        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      );
+    } catch (error) {
+      console.error("Error fetching personnel data:", error);
+    } finally {
+      setIsPersonnelLoading(false);
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -77,26 +91,11 @@ const ReferralsPage = () => {
       setData(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
     };
-    const fetchPersonnelData = async () => {
-      setIsPersonnelLoading(true);
-      try {
-        const q = query(collection(db, "Personnels"));
-        const snapshot = await getDocs(q);
-        setPersonnelData(
-          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-        );
-      } catch (error) {
-        console.error("Error fetching personnel data:", error);
-      } finally {
-        setIsPersonnelLoading(false);
-      }
-    };
-    if (selectedTab === "referralPartners") {
-      fetchData();
-    } else if (selectedTab === "personnel") {
-      fetchPersonnelData();
-    }
-  }, [selectedTab]);
+
+    fetchData();
+
+    fetchPersonnelData();
+  }, []);
 
   const columns = [
     { accessorKey: "name", header: "Name", size: 150 },
@@ -134,11 +133,38 @@ const ReferralsPage = () => {
     },
   ];
   const personnelColumns = [
-    { accessorKey: "name", header: "Name", size: 150 },
-    { accessorKey: "address", header: "Address", size: 200 },
-    { accessorKey: "zipCodes", header: "Zip Codes", size: 150 },
-    { accessorKey: "contactInfo", header: "Contact Info", size: 200 },
-    { accessorKey: "type", header: "Type", size: 100 }, // "AC Repair" or "Roof Repair"
+    {
+      accessorKey: "name",
+      header: "Name",
+    },
+    {
+      accessorKey: "address",
+      header: "Address",
+    },
+    {
+      accessorKey: "zipCodes",
+      header: "Zip Codes",
+      // Custom rendering for zipCodes
+      Cell: ({ cell }) => (
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+          {cell.getValue().map((zip, index) => (
+            <Chip
+              key={index}
+              label={zip}
+              sx={{ backgroundColor: "#003049", color: "white" }}
+            />
+          ))}
+        </Box>
+      ),
+    },
+    {
+      accessorKey: "contactInfo",
+      header: "Contact Info",
+    },
+    {
+      accessorKey: "type",
+      header: "Repair Type",
+    },
   ];
 
   const renderSkeleton = () => {
@@ -282,6 +308,7 @@ const ReferralsPage = () => {
         open={openAddPersonnelModal}
         handleClose={handleCloseAddPersonnelModal}
         db={db}
+        fetchPersonnelData={fetchPersonnelData}
       />
       <StandardTemplateModal
         open={openModal}

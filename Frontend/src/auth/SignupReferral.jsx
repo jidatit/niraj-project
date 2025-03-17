@@ -24,12 +24,13 @@ const SignupReferral = () => {
   });
   const [isFocus, setIsFocus] = useState(false);
   const [passwordError, setPasswordError] = useState("");
-
   const occupations = [
     { value: "Real Estate Agent", label: "Real Estate Agent" },
     { value: "Mortgage Broker", label: "Mortgage Broker" },
     { value: "Property Manager", label: "Property Manager" },
     { value: "Inspector", label: "Inspector" },
+    { value: "AC Repair", label: "AC Repair" },
+    { value: "Roof Repair", label: "Roof Repair" },
   ];
 
   const handleInputChange = (e) => {
@@ -66,11 +67,8 @@ const SignupReferral = () => {
     e.preventDefault(); // Prevent default form submission
     try {
       setLoader(true);
-      const {
-        confirmPassword,
-        password,
-        ...userDataWithoutPasswords
-      } = userData;
+      const { confirmPassword, password, ...userDataWithoutPasswords } =
+        userData;
       if (confirmPassword !== password) {
         toast.error("Password Not Matched!");
         setLoader(false);
