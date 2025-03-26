@@ -28,13 +28,33 @@ app.post("/webhook", async (req, res) => {
       payload.Email = payload.Email.toLowerCase();
     }
     await addDoc(collection(db, "cms_quotes"), payload);
-    res
-      .status(201)
-      .json({
-        message: "Quote from CMS added into db successfully!",
-        status: "201",
-        payload,
-      });
+    res.status(201).json({
+      message: "Quote from CMS added into db successfully!",
+      status: "201",
+      payload,
+    });
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
+});
+app.post("/renewal", async (req, res) => {
+  try {
+    console.log("renewal request comes");
+    console.log("req.body", req);
+    let payload = req.body;
+    console.log("payload", payload);
+    const timestamp = new Date().toISOString();
+    console.log("New Record:");
+    console.log(`[${timestamp}] Received webhook payload`);
+    if (payload.Email) {
+      payload.Email = payload.Email.toLowerCase();
+    }
+    // await addDoc(collection(db, "cms_quotes"), payload);
+    res.status(201).json({
+      message: "Quotes receieved quickly!",
+      status: "201",
+      payload,
+    });
   } catch (error) {
     res.status(500).json(error.message);
   }
@@ -56,13 +76,11 @@ app.get("/get_quotes", async (req, res) => {
       const querySnapshot = await getDocs(queryResults);
 
       if (querySnapshot.empty) {
-        res
-          .status(200)
-          .json({
-            success: false,
-            status: 404,
-            message: `No Quotes from Client Dynamics Found for email: ${email} and zipCode: ${zipCode}`,
-          });
+        res.status(200).json({
+          success: false,
+          status: 404,
+          message: `No Quotes from Client Dynamics Found for email: ${email} and zipCode: ${zipCode}`,
+        });
       } else {
         querySnapshot.forEach((doc) => {
           const quoteData = {
@@ -75,13 +93,11 @@ app.get("/get_quotes", async (req, res) => {
         res.status(200).json({ success: true, status: 200, quotesList });
       }
     } else {
-      res
-        .status(200)
-        .json({
-          success: false,
-          status: 401,
-          message: `Email and zipCode are required.`,
-        });
+      res.status(200).json({
+        success: false,
+        status: 401,
+        message: `Email and zipCode are required.`,
+      });
     }
   } catch (error) {
     res.status(400).send(error.message);
@@ -149,13 +165,11 @@ app.post("/policy_info", async (req, res) => {
     const data = await response.json();
 
     if (data.num_records === 0) {
-      res
-        .status(200)
-        .json({
-          status: 400,
-          message: "No Policy Data Found.",
-          policyData: null,
-        });
+      res.status(200).json({
+        status: 400,
+        message: "No Policy Data Found.",
+        policyData: null,
+      });
     } else {
       res.status(200).json({ status: 200, policyData: data.results });
     }
