@@ -44,7 +44,7 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
     isMortgageOrLienholder: "no",
     company_name: "",
     qsr_type: "",
-    acc_loan_number: "",
+    // acc_loan_number: "",
     responsible_payment: "Insured",
     ac_age: "",
     roof_age: "",
@@ -113,8 +113,8 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
     ) {
       if (!formData.company_name)
         newErrors.company_name = "Company name is required";
-      if (!formData.acc_loan_number)
-        newErrors.acc_loan_number = "Account/Loan number is required";
+      // if (!formData.acc_loan_number)
+      //   newErrors.acc_loan_number = "Account/Loan number is required";
       if (!formData.responsible_payment)
         newErrors.responsible_payment = "Responsible payment is required";
     }
@@ -138,8 +138,9 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
         bound_status: "bounded",
         bound_date: getCurrentDate("dash"),
       });
+      //Policy Bind Mail
 
-      AdminBindConfirmQuoteMail(formData.user?.name, formData.user?.email, "");
+      // AdminBindConfirmQuoteMail(formData.user?.name, formData.user?.email, "");
       toast.success("Policy created successfully!");
 
       // Reset form data after successful submission
@@ -149,7 +150,7 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
         effective_date: "",
         isMortgageOrLienholder: "no",
         company_name: "",
-        acc_loan_number: "",
+        // acc_loan_number: "",
         responsible_payment: "Insured",
       });
       getAllPolicyBoundData();
@@ -267,6 +268,7 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
                       <MenuItem value="Liability">Liability</MenuItem>
                       <MenuItem value="Flood">Flood</MenuItem>
                       <MenuItem value="Auto">Auto</MenuItem>
+                      <MenuItem value="Wind">Wind</MenuItem>
                     </Select>
                     {errors.qsr_type && (
                       <Typography variant="caption" color="error">
@@ -415,8 +417,9 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
                             helperText={errors.company_name}
                           />
                         </Box>
+                        {/*acc_loan_number*/}
 
-                        <Box sx={{ mt: 3, mb: 3 }}>
+                        {/* <Box sx={{ mt: 3, mb: 3 }}>
                           <Typography
                             variant="h6"
                             fontWeight="semibold"
@@ -433,7 +436,7 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
                             error={!!errors.acc_loan_number}
                             helperText={errors.acc_loan_number}
                           />
-                        </Box>
+                        </Box> */}
 
                         <Box sx={{ mt: 3, mb: 3 }}>
                           <Typography

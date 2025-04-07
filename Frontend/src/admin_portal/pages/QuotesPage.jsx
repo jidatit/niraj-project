@@ -678,11 +678,13 @@ const QuotesPage = () => {
         }); // add new record
         await updateStatusStep(data.qsr_type, data.qid);
         await updateBoundStatus(rowdocid);
-        AdminBindConfirmQuoteMail(
-          data.user?.name,
-          data.user?.email,
-          data.qsr_type
-        );
+        //Policy Bind Mail
+
+        // AdminBindConfirmQuoteMail(
+        //   data.user?.name,
+        //   data.user?.email,
+        //   data.qsr_type
+        // );
         toast.success("Policy bounded successfully!");
       } else {
         return;

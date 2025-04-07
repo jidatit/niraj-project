@@ -154,7 +154,7 @@ const BinderReqPreview = ({ data, isSlideModalOpen, onClose }) => {
                             className="w-full"
                             id="acc_loan_number"
                             type="text"
-                            value={data.acc_loan_number}
+                            value={data?.acc_loan_number}
                             disabled
                             name="acc_loan_number"
                           />

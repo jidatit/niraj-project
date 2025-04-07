@@ -40,7 +40,6 @@ app.post("/webhook", async (req, res) => {
 app.post("/renewal", async (req, res) => {
   try {
     console.log("renewal request comes");
-    console.log("req.body", req);
     let payload = req.body;
     console.log("payload", payload);
     const timestamp = new Date().toISOString();
