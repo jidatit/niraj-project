@@ -1108,14 +1108,14 @@ const QuotesPage = () => {
           >
             <div className="flex w-[60%] flex-col justify-center items-center lg:items-start gap-1">
               <p className="lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white">
-                Policy Bound
+                Active Policies
               </p>
               <p className="lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white">
-                {policy_bound_data && policy_bound_data.length} policies have
-                been bound
+                {policy_bound_data && policy_bound_data.length} active policies
+                available
               </p>
             </div>
-            <img src={peopleicon} alt="" />
+            <img src={peopleicon} alt="Icon for active policies" />
           </div>
 
           <div
@@ -1128,7 +1128,7 @@ const QuotesPage = () => {
           >
             <div className="flex w-[60%] flex-col justify-center items-center lg:items-start gap-1">
               <p className="lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white">
-                Policy History
+                Expired Policies
               </p>
               <p className="lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white">
                 {policy_history_data && policy_history_data.length} Policies

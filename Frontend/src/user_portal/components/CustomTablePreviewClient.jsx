@@ -50,6 +50,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
     ac_age: "",
     roof_age: "",
     purchase_date: "",
+    exp_date: "",
   });
 
   const onClose = () => {
@@ -442,6 +443,19 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
                   value={formData.effective_date}
                   onChange={(e) => handleChange(e)}
                   name="effective_date"
+                />
+              </div>
+              <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                  Confirm the epxpiry date of the policy
+                </p>
+                <TextField
+                  className="w-full"
+                  id="exp_date"
+                  type="date"
+                  value={formData.exp_date}
+                  onChange={(e) => handleChange(e)}
+                  name="exp_date"
                 />
               </div>
 

@@ -186,7 +186,7 @@ async function findExpiredPolicies() {
     const endStr = formatDate(rangeEnd);
 
     console.log(
-      "Querying policies with effective_date between:",
+      "Querying policies with exp_date between:",
       startStr,
       "and",
       endStr
@@ -197,8 +197,8 @@ async function findExpiredPolicies() {
     const q = query(
       boundPoliciesRef,
       where("byReferral", "==", true),
-      where("effective_date", ">=", startStr), // String comparison
-      where("effective_date", "<=", endStr) // String comparison
+      where("exp_date", ">=", startStr), // String comparison
+      where("exp_date", "<=", endStr) // String comparison
     );
 
     // Execute query
@@ -316,7 +316,7 @@ async function findExpiredCustomPolicies() {
       const endStr = formatDate(rangeEnd);
 
       console.log(
-        `Querying policies with effective_date between ${startStr} and ${endStr} (${interval} months interval)...`
+        `Querying policies with exp_date between ${startStr} and ${endStr} (${interval} months interval)...`
       );
 
       const boundPoliciesRef = collection(db, "bound_policies");
@@ -325,8 +325,8 @@ async function findExpiredCustomPolicies() {
       const q = query(
         boundPoliciesRef,
         where("byReferral", "==", true),
-        where("effective_date", ">=", startStr), // String comparison
-        where("effective_date", "<=", endStr) // String comparison
+        where("exp_date", ">=", startStr), // String comparison
+        where("exp_date", "<=", endStr) // String comparison
       );
 
       // Execute query

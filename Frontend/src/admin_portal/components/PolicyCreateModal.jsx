@@ -49,6 +49,7 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
     ac_age: "",
     roof_age: "",
     purchase_date: "",
+    exp_date: "",
   });
   const [errors, setErrors] = useState({});
 
@@ -107,6 +108,8 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
     if (!formData.carrier) newErrors.carrier = "Carrier is required";
     if (!formData.effective_date)
       newErrors.effective_date = "Effective date is required";
+    if (!formData.exp_date)
+      newErrors.effective_date = "Expiry date is required";
     if (
       formData.qsr_type === "Home" &&
       formData.isMortgageOrLienholder === "yes"
@@ -313,6 +316,22 @@ const PolicyCreationModal = ({ getAllPolicyBoundData, isOpen, setIsOpen }) => {
                     />
                   </Box>
 
+                  <Box sx={{ mt: 3, mb: 3 }}>
+                    <Typography variant="h6" fontWeight="semibold" gutterBottom>
+                      Expiry Date
+                    </Typography>
+                    <TextField
+                      type="date"
+                      value={formData?.exp_date}
+                      onChange={handleChange}
+                      name="exp_date"
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      onClick={(e) => e.target.showPicker?.()}
+                      error={!!errors.exp_date}
+                      helperText={errors.exp_date}
+                    />
+                  </Box>
                   {formData.qsr_type === "Home" && (
                     <Box sx={{ mt: 3, mb: 3 }}>
                       <Typography
