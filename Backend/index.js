@@ -13,6 +13,7 @@ const {
 } = require("firebase/firestore");
 const { db } = require("./firebase.js");
 const fetch = require("node-fetch");
+const { checkForActivePolicy } = require("./utils/checkActivePolicies.js");
 require("./cronJobs");
 
 app.use(CORS());
@@ -22,21 +23,42 @@ app.post("/webhook", async (req, res) => {
   try {
     let payload = req.body;
     const timestamp = new Date().toISOString();
-    console.log("New Record:");
+
     console.log(`[${timestamp}] Received webhook payload`);
+
+    // Normalize email if present
     if (payload.Email) {
       payload.Email = payload.Email.toLowerCase();
     }
-    await addDoc(collection(db, "cms_quotes"), payload);
+
+    // Check for active policy
+    const hasActivePolicy = await checkForActivePolicy(payload);
+    const collectionName = hasActivePolicy ? "renewal_quotes" : "cms_quotes";
+
+    // Add metadata
+    payload.receivedAt = timestamp;
+    payload.isRenewal = hasActivePolicy;
+
+    // Store in appropriate collection
+    await addDoc(collection(db, collectionName), payload);
+
+    console.log(`Stored in ${collectionName} collection`);
+
     res.status(201).json({
-      message: "Quote from CMS added into db successfully!",
+      message: `Quote stored as ${hasActivePolicy ? "renewal" : "new"} quote`,
       status: "201",
+      isRenewal: hasActivePolicy,
       payload,
     });
   } catch (error) {
-    res.status(500).json(error.message);
+    console.error("Webhook processing error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      details: error.message,
+    });
   }
 });
+
 app.post("/renewal", async (req, res) => {
   try {
     console.log("renewal request comes");
