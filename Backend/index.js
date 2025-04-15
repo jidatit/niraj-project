@@ -14,6 +14,7 @@ const {
 const { db } = require("./firebase.js");
 const fetch = require("node-fetch");
 const { checkForActivePolicy } = require("./utils/checkActivePolicies.js");
+
 require("./cronJobs");
 
 app.use(CORS());
@@ -30,7 +31,7 @@ app.post("/webhook", async (req, res) => {
     if (payload.Email) {
       payload.Email = payload.Email.toLowerCase();
     }
-    console.log(`Payload is ${payload} `);
+    console.log(`Payload is ${JSON.stringify(payload)}`);
 
     // Check for active policy
     const hasActivePolicy = await checkForActivePolicy(payload);
@@ -200,7 +201,6 @@ app.post("/policy_info", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 app.listen(PORT, () => {
   console.log(`Server is live @ ${HOSTURL}`);
 });

@@ -26,7 +26,7 @@ async function checkForActivePolicy(payload) {
 
     const q = query(
       collection(db, "bound_policies"),
-      where("carrier", "==", payload.Carrier),
+      // where("carrier", "==", payload.Carrier),
       where("bound_status", "==", "bounded")
     );
 
