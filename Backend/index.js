@@ -30,6 +30,7 @@ app.post("/webhook", async (req, res) => {
     if (payload.Email) {
       payload.Email = payload.Email.toLowerCase();
     }
+    console.log(`Payload is ${payload} `);
 
     // Check for active policy
     const hasActivePolicy = await checkForActivePolicy(payload);
