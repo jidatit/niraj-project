@@ -39,7 +39,7 @@ const sendPersonnelDetails = async (policy, type) => {
     console.log(
       "policy",
       policy?.byReferral,
-      policy?.Referral.occupation,
+      policy?.Referral?.occupation,
       type
     );
 
@@ -49,10 +49,10 @@ const sendPersonnelDetails = async (policy, type) => {
       const referral = policy.Referral;
       personnelDetails = formatPersonnelDetails([
         {
-          name: referral.name,
-          address: referral.mailingAddress,
-          contactInfo: referral.phoneNumber,
-          type: referral.occupation,
+          name: referral?.name,
+          address: referral?.mailingAddress,
+          contactInfo: referral?.phoneNumber,
+          type: referral?.occupation,
         },
       ]);
     } else {
