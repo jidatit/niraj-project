@@ -49,6 +49,7 @@ import axios from "axios";
 import axiosInstance from "../../utils/axiosConfig";
 import PolicyCreationModal from "../components/PolicyCreateModal";
 import AdminUserSelectDialog from "../components/AdminUserSelectDialog";
+import EmptyState from "../../components/EmptyState";
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
@@ -259,14 +260,14 @@ const QuotesPage = () => {
       }));
 
       const PBData = data?.filter((item) => {
-        const effectiveDate = new Date(item.effective_date);
-        effectiveDate.setHours(0, 0, 0, 0);
-        return effectiveDate >= currentDate;
+        const exp_date = new Date(item?.exp_date);
+        exp_date.setHours(0, 0, 0, 0);
+        return exp_date >= currentDate;
       });
 
       const historyData = data?.filter((item) => {
-        const effectiveDate = new Date(item.effective_date);
-        return effectiveDate < currentDate;
+        const exp_date = new Date(item?.exp_date);
+        return exp_date < currentDate;
       });
 
       const sortedPBData = PBData.sort((a, b) => {
@@ -843,6 +844,18 @@ const QuotesPage = () => {
       }
     }
   };
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editPolicyData, setEditPolicyData] = useState(null);
+  const handleEditPolicy = (policy) => {
+    setEditPolicyData(policy);
+    setIsEditMode(true);
+    setOpenPolicyModal(true);
+  };
+  const handleCreatePolicy = () => {
+    setEditPolicyData(null);
+    setIsEditMode(false);
+    setOpenPolicyModal(true);
+  };
 
   const policy_bound_columns = useMemo(
     () => [
@@ -906,6 +919,12 @@ const QuotesPage = () => {
               View Policy
             </button>
             <button
+              onClick={() => handleEditPolicy(cell.row.original)} // Add this handler
+              className="bg-[#4CAF50] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
+            >
+              Edit Policy
+            </button>
+            <button
               onClick={() => handleDeleteClick(cell.row.original)}
               className="bg-red-600 rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
             >
@@ -919,26 +938,65 @@ const QuotesPage = () => {
   );
 
   const [deleteExpiredLoader, setdeleteExpiredLoader] = useState({});
-
-  const deleteExpiredPolicy = async (id) => {
+  const [setselectedExpiredPolicy, setSetselectedExpiredPolicy] =
+    useState(null);
+  const [openExpiredDialog, setOpenExpiredDialog] = useState(null);
+  const handleExpiredDeleteClick = (policy) => {
+    setSetselectedExpiredPolicy(policy);
+    setOpenExpiredDialog(true);
+  };
+  const deleteExpiredPolicy = async () => {
     try {
-      setdeleteExpiredLoader((prevState) => ({ ...prevState, [id]: true }));
-      const policiesCollectionRef = collection(db, "bound_policies");
-      const q = query(policiesCollectionRef, where("id", "==", id));
+      // Set loading state for this document id
+      setdeleteExpiredLoader((prevState) => ({
+        ...prevState,
+        [setselectedExpiredPolicy?.id]: true,
+      }));
 
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
-        const policyDocRef = doc.ref;
-        await deleteDoc(policyDocRef);
-        toast.success(`Expired Policy deleted successfully.`);
-        getAllPolicyBoundData();
-      });
+      // Get a reference to the document directly using the document id.
+      const policyDocRef = doc(
+        db,
+        "bound_policies",
+        setselectedExpiredPolicy?.id
+      );
+
+      // Delete the document
+      await deleteDoc(policyDocRef);
+
+      // Show success message and refresh data
+      toast.success("Expired Policy deleted successfully.");
+      getAllPolicyBoundData();
     } catch (error) {
-      console.error("Error deleting documents: ", error);
+      console.error("Error deleting document:", error);
     } finally {
-      setdeleteExpiredLoader((prevState) => ({ ...prevState, [id]: false }));
+      // Reset loading state for this document id
+      setdeleteExpiredLoader((prevState) => ({
+        ...prevState,
+        [setselectedExpiredPolicy?.id]: false,
+      }));
+      setOpenExpiredDialog(false);
     }
   };
+  // const deleteExpiredPolicy = async (id) => {
+  //   console.log("id", id);
+  //   try {
+  //     setdeleteExpiredLoader((prevState) => ({ ...prevState, [id]: true }));
+  //     const policiesCollectionRef = collection(db, "bound_policies");
+  //     const q = query(policiesCollectionRef, where("id", "==", id));
+
+  //     const querySnapshot = await getDocs(q);
+  //     querySnapshot.forEach(async (doc) => {
+  //       const policyDocRef = doc.ref;
+  //       await deleteDoc(policyDocRef);
+  //       toast.success(`Expired Policy deleted successfully.`);
+  //       getAllPolicyBoundData();
+  //     });
+  //   } catch (error) {
+  //     console.error("Error deleting documents: ", error);
+  //   } finally {
+  //     setdeleteExpiredLoader((prevState) => ({ ...prevState, [id]: false }));
+  //   }
+  // };
 
   const policy_history_columns = useMemo(
     () => [
@@ -1011,7 +1069,7 @@ const QuotesPage = () => {
               View Policy
             </button>
             <button
-              onClick={() => deleteExpiredPolicy(cell.row.original.id)}
+              onClick={() => handleExpiredDeleteClick(cell.row.original)}
               disabled={deleteExpiredLoader[cell.row.original.id]}
               className="bg-[#db1e1e] rounded-[18px] flex flex-row justify-center items-center gap-1 px-[16px] py-[4px] text-white text-[10px]"
             >
@@ -1138,25 +1196,7 @@ const QuotesPage = () => {
             <img src={historyicon} alt="" />
           </div>
         </div>
-        {/* <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
-          <div className="w-full flex justify-end px-4 mt-2">
-            <button className="group relative inline-flex items-center justify-center p-0.5 text-sm font-medium text-white rounded-lg bg-[#003049] hover:bg-[#005270] focus:ring-4 focus:outline-none focus:ring-blue-200">
-              <span className="relative px-6 py-2 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                Create Policy
-              </span>
-              <div className="hidden group-hover:block">
-                <div className="group absolute -top-12 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center rounded-sm text-center text-sm text-slate-300 before:-top-2">
-                  <div className="rounded-sm bg-black py-1 px-2">
-                    <p className="whitespace-nowrap">
-                      Create policy for a client
-                    </p>
-                  </div>
-                  <div className="h-0 w-fit border-l-8 border-r-8 border-t-8 border-transparent border-t-black"></div>
-                </div>
-              </div>
-            </button>
-          </div>
-        </div> */}
+
         <div className="flex gap-4 w-full justify-end">
           <Tooltip title="Submit A Quote For Client/Referral" placement="top">
             <Button
@@ -1174,7 +1214,7 @@ const QuotesPage = () => {
           </Tooltip>
           <Tooltip title="Create a new policy for Client" placement="top">
             <Button
-              onClick={() => setOpenPolicyModal(true)}
+              onClick={handleCreatePolicy}
               variant="contained"
               sx={{
                 bgcolor: "#005270",
@@ -1197,6 +1237,8 @@ const QuotesPage = () => {
           getAllPolicyBoundData={getAllPolicyBoundData}
           isOpen={openPolicyModal}
           setIsOpen={setOpenPolicyModal}
+          editData={editPolicyData}
+          isEditMode={isEditMode}
         />
 
         {selectedButton === "requestedQuotes" && (
@@ -1206,7 +1248,7 @@ const QuotesPage = () => {
                 <MaterialReactTable columns={req_columns} data={req_quotes} />
               </div>
             ) : (
-              <p className="text-center mt-5">No Quotes Found....</p>
+              <EmptyState message="No Quotes Found" icon="inbox" />
             )}
           </div>
         )}
@@ -1218,7 +1260,7 @@ const QuotesPage = () => {
                 <MaterialReactTable columns={del_columns} data={del_quotes} />
               </div>
             ) : (
-              <p className="text-center mt-5">No Quotes Found....</p>
+              <EmptyState message="No Quotes Found" icon="inbox" />
             )}
 
             <DeliveredQuotePreviewAdmin
@@ -1248,7 +1290,7 @@ const QuotesPage = () => {
                 />
               </div>
             ) : (
-              <p className="text-center mt-5">No Quotes Found....</p>
+              <EmptyState message="No Quotes Found" icon="inbox" />
             )}
 
             <BinderReqPreview
@@ -1269,7 +1311,7 @@ const QuotesPage = () => {
                 />
               </div>
             ) : (
-              <p className="text-center mt-5">No Policy Bound Found....</p>
+              <EmptyState message="No Policy Bound Found" icon="sad" />
             )}
 
             <BinderReqPreview
@@ -1290,7 +1332,7 @@ const QuotesPage = () => {
                 />
               </div>
             ) : (
-              <p className="text-center mt-5">No Policy Bound Found....</p>
+              <EmptyState message="No Expired Policies Found" icon="happy" />
             )}
 
             <BinderReqPreview
@@ -1330,6 +1372,34 @@ const QuotesPage = () => {
           />
         )}
       </div>
+      <Dialog
+        fullWidth
+        open={openExpiredDialog}
+        onClose={() => setOpenExpiredDialog(false)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this Expired policy?
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOpenExpiredDialog(false)}
+            color="primary"
+            variant="contained"
+            disabled={deleteLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={deleteExpiredPolicy}
+            variant="contained"
+            color="error"
+            disabled={deleteLoading}
+          >
+            {deleteLoading ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Dialog fullWidth open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
