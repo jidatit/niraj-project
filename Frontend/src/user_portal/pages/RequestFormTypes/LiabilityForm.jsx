@@ -16,7 +16,7 @@ import {
   getFirestore,
   serverTimestamp,
 } from "firebase/firestore";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../../AuthContext";
 import { ClientQuoteReqMail } from "../../../utils/mailingFuncs";
@@ -239,7 +239,6 @@ const LiabilityForm = ({ selectedUser }) => {
   return (
     <>
       <div className="w-full flex flex-col justify-center items-center gap-5">
-        <ToastContainer />
         <div className="w-full flex flex-col justify-center items-start">
           <h1 className="font-bold lg:text-[25px]">
             Fill out Form for Liability Quote

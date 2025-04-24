@@ -17,7 +17,7 @@ import progicon from "../../assets/dash/modal/prog.png";
 import viewicon from "../../assets/dash/modal/view.png";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import img1 from "../../assets/dash/user/1.png";
 import img2 from "../../assets/dash/user/2.png";
 import img3 from "../../assets/dash/user/3.png";
@@ -1048,7 +1048,7 @@ const DropdownPolicy = ({ popup_data }) => {
   return (
     <>
       <div className="w-full flex-col justify-center items-center rounded-md">
-        <ToastContainer />
+  
         <div className="w-full flex flex-col justify-center rounded-t-md items-center py-4 bg-[#003049] text-white">
           <p className="text-center font-semibold text-[24px]">
             Select your action

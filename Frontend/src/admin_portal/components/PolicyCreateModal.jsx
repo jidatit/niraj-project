@@ -29,6 +29,9 @@ import {
   serverTimestamp,
   doc,
   updateDoc,
+  orderBy,
+  limit,
+  startAfter,
 } from "firebase/firestore";
 import { db } from "../../../db";
 import { getCurrentDate } from "../../utils/helperSnippets";
@@ -37,7 +40,23 @@ import { toast } from "react-toastify";
 import { DatePicker } from "@mui/x-date-pickers";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-
+const PAGE_SIZE = 15;
+const initialFormData = {
+  user: null,
+  referral: null,
+  policy_number: "",
+  insured_address: "",
+  carrier: "",
+  effective_date: "",
+  exp_date: "",
+  purchase_date: "",
+  qsr_type: "",
+  isMortgageOrLienholder: "no",
+  company_name: "",
+  responsible_payment: "Insured",
+  ac_age: "",
+  roof_age: "",
+};
 const PolicyCreationModal = ({
   getAllPolicyBoundData,
   isOpen,
@@ -48,82 +67,139 @@ const PolicyCreationModal = ({
   const [loading, setLoading] = useState(false);
   // const [isOpen, setIsOpen] = useState(false);
   const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [lastUserDoc, setLastUserDoc] = useState(null);
+  const [inputValue, setInputValue] = useState("");
   const [formData, setFormData] = useState({
     user: null,
+    referral: null,
     carrier: "",
     effective_date: "",
     isMortgageOrLienholder: "no",
     company_name: "",
     qsr_type: "",
     // acc_loan_number: "",
+    policy_number: "", // ← new
+    insured_address: "", // ← new
     responsible_payment: "Insured",
     ac_age: "",
     roof_age: "",
     purchase_date: "",
     exp_date: "",
   });
+  const resetForm = () => {
+    setFormData(initialFormData);
+    setErrors({});
+    setInputValue("");
+    setInputRef("");
+  };
+  // referral pagination state
+  const [referrals, setReferrals] = useState([]);
+  const [loadingRefs, setLoadingRefs] = useState(false);
+  const [lastRefDoc, setLastRefDoc] = useState(null);
+  const [inputRef, setInputRef] = useState("");
+
+  // load users page
+  const loadCollection = async (type, search = "", cursor = null) => {
+    const isRef = type === "Referral";
+    const setLoading = isRef ? setLoadingRefs : setLoadingUsers;
+    const setLastDoc = isRef ? setLastRefDoc : setLastUserDoc;
+    const setData = isRef ? setReferrals : setUsers;
+
+    let baseQuery = query(
+      collection(db, "users"),
+      where("signupType", "==", isRef ? "Referral" : "Client"),
+      orderBy("name"),
+      limit(PAGE_SIZE)
+    );
+
+    if (search) {
+      baseQuery = query(baseQuery, where("name", ">=", search));
+    }
+    if (cursor) {
+      baseQuery = query(baseQuery, startAfter(cursor));
+    }
+
+    setLoading(true);
+    const snap = await getDocs(baseQuery);
+    const docs = snap?.docs.map((d) => {
+      const data = d.data() || {};
+      return {
+        id: d.id,
+        name: data.name ?? null,
+        address: data.mailingAddress ?? null,
+        dob: data.dateOfBirth ?? null,
+        email: data.email ?? null,
+        label: data.email ?? null,
+        mailingAddress: data.mailingAddress ?? null,
+        phoneNumber: data.phoneNumber ?? null,
+        value: data.email ?? null,
+        zipCode: data.zipCode ?? null,
+        signupType: data.signupType ?? null,
+      };
+    });
+
+    setData((prev) => (cursor ? [...prev, ...docs] : docs));
+    setLastDoc(snap.docs[snap.docs.length - 1] || null);
+    setLoading(false);
+  };
+
   const [errors, setErrors] = useState({});
+
   useEffect(() => {
     if (isEditMode && editData) {
       setFormData({
-        ...editData,
         user: editData.user || null,
+        referral: editData.Referral || null,
+        policy_number: editData.policy_number || "",
+        insured_address: editData.insured_address || "",
+        carrier: editData.carrier || "",
         effective_date: editData.effective_date || "",
         exp_date: editData.exp_date || "",
         purchase_date: editData.purchase_date || "",
+        qsr_type: editData.qsr_type || "",
+        isMortgageOrLienholder: editData.isMortgageOrLienholder || "no",
+        company_name: editData.company_name || "",
+        responsible_payment: editData.responsible_payment || "Insured",
+        ac_age: editData.ac_age || "",
+        roof_age: editData.roof_age || "",
       });
+
+      // *** ADD THESE TWO LINES ***
+      setInputValue(editData.user?.name ?? "N/A");
+      setInputRef(editData.Referral?.name ?? "N/A");
     } else {
-      // Reset form for create mode
       setFormData({
         user: null,
+        referral: null,
+        policy_number: "",
+        insured_address: "",
         carrier: "",
         effective_date: "",
+        exp_date: "",
+        purchase_date: "",
+        qsr_type: "",
         isMortgageOrLienholder: "no",
         company_name: "",
-        qsr_type: "",
         responsible_payment: "Insured",
         ac_age: "",
         roof_age: "",
-        purchase_date: "",
-        exp_date: "",
       });
+      // reset your inputs too
+      setInputValue("");
+      setInputRef("");
     }
   }, [isEditMode, editData]);
 
+  // initial load / search triggers
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const usersRef = collection(db, "users");
-        const q = query(usersRef, where("signupType", "==", "Client"));
-        const querySnapshot = await getDocs(q);
-
-        const usersList = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            name: data?.name ?? null,
-            address: data?.mailingAddress ?? null,
-            dob: data?.dateOfBirth ?? null,
-            email: data?.email ?? null,
-            label: data?.email ?? null,
-            mailingAddress: data?.mailingAddress ?? null,
-            phoneNumber: data?.phoneNumber ?? null,
-            value: data?.email ?? null,
-            zipCode: data?.zipCode ?? null,
-            signupType: data?.signupType ?? null,
-          };
-        });
-
-        setUsers(usersList);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-
     if (isOpen) {
-      fetchUsers();
+      setLastUserDoc(null);
+      loadCollection("Client", inputValue, null);
+      setLastRefDoc(null);
+      loadCollection("Referral", inputRef, null);
     }
-  }, [isOpen]);
+  }, [isOpen, inputValue, inputRef]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -141,46 +217,59 @@ const PolicyCreationModal = ({
   const validateForm = () => {
     const newErrors = {};
     if (!formData.user) newErrors.user = "Client is required";
+    if (!formData.policy_number)
+      newErrors.policy_number = "Policy number is required";
+    if (!formData.insured_address)
+      newErrors.insured_address = "Insured address is required";
     if (!formData.qsr_type) newErrors.qsr_type = "Policy type is required";
     if (!formData.carrier) newErrors.carrier = "Carrier is required";
     if (!formData.effective_date)
       newErrors.effective_date = "Effective date is required";
     if (!formData.exp_date) newErrors.exp_date = "Expiry date is required";
+
     if (
       formData.qsr_type === "Home" &&
       formData.isMortgageOrLienholder === "yes"
     ) {
       if (!formData.company_name)
         newErrors.company_name = "Company name is required";
-      // if (!formData.acc_loan_number)
-      //   newErrors.acc_loan_number = "Account/Loan number is required";
+      // ...
       if (!formData.responsible_payment)
         newErrors.responsible_payment = "Responsible payment is required";
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!validateForm()) return;
-
     setLoading(true);
 
     try {
+      // pull out referral so it doesn't get spread in as `referral`
+      const { referral, ...rest } = formData;
+      const payload = { ...rest };
+
+      if (referral) {
+        payload.byReferral = true;
+        payload.ReferralId = referral.id;
+        payload.Referral = referral;
+        payload.user = {
+          ...payload.user,
+          byReferral: true,
+          ReferralId: referral.id,
+          Referral: referral,
+        };
+      }
+
       if (isEditMode && editData) {
-        // Update existing policy
-        const policyRef = doc(db, "bound_policies", editData?.id);
-        await updateDoc(policyRef, {
-          ...formData,
-          updatedAt: serverTimestamp(),
-        });
+        const ref = doc(db, "bound_policies", editData.id);
+        await updateDoc(ref, { ...payload, updatedAt: serverTimestamp() });
         toast.success("Policy updated successfully!");
       } else {
-        // Create new policy
-        const policyRef = collection(db, "bound_policies");
-        await addDoc(policyRef, {
-          ...formData,
+        await addDoc(collection(db, "bound_policies"), {
+          ...payload,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           policyCreatedBy: "Admin",
@@ -190,32 +279,12 @@ const PolicyCreationModal = ({
         toast.success("Policy created successfully!");
       }
 
-      // Reset form and refresh data
-      if (!isEditMode) {
-        setFormData({
-          user: null,
-          carrier: "",
-          effective_date: "",
-          isMortgageOrLienholder: "no",
-          company_name: "",
-          responsible_payment: "Insured",
-          ac_age: "",
-          roof_age: "",
-          purchase_date: "",
-          exp_date: "",
-          qsr_type: "",
-        });
-      }
-
       getAllPolicyBoundData();
+      resetForm();
       setIsOpen(false);
-    } catch (error) {
+    } catch (err) {
       toast.error(
-        `Error ${isEditMode ? "updating" : "creating"} policy: ${error.message}`
-      );
-      console.error(
-        `Error ${isEditMode ? "updating" : "creating"} policy:`,
-        error
+        `Error ${isEditMode ? "updating" : "creating"} policy: ${err.message}`
       );
     } finally {
       setLoading(false);
@@ -291,26 +360,99 @@ const PolicyCreationModal = ({
                   </Typography>
                   <Autocomplete
                     options={users}
-                    getOptionLabel={(option) => option.name}
-                    renderInput={(params) => (
+                    getOptionLabel={(u) => u.name}
+                    loading={loadingUsers}
+                    inputValue={inputValue}
+                    onInputChange={(e, v, r) =>
+                      r === "input" && setInputValue(v)
+                    }
+                    ListboxProps={{
+                      onScroll: (e) => {
+                        const node = e.currentTarget;
+                        if (
+                          node.scrollTop + node.clientHeight >=
+                            node.scrollHeight - 4 &&
+                          lastUserDoc
+                        ) {
+                          loadCollection("Client", inputValue, lastUserDoc);
+                        }
+                      },
+                      style: { maxHeight: 200, overflow: "auto" },
+                    }}
+                    renderInput={(p) => (
                       <TextField
-                        {...params}
+                        {...p}
                         label="Search clients..."
-                        variant="outlined"
-                        sx={{ mt: 1 }}
                         error={!!errors.user}
                         helperText={errors.user}
-                        disabled={isEditMode} // Disable in edit mode
                       />
                     )}
-                    onChange={(_, newValue) => {
-                      setFormData((prev) => ({ ...prev, user: newValue }));
-                      setErrors((prev) => ({ ...prev, user: "" }));
-                    }}
+                    onChange={(_, v) => setFormData((f) => ({ ...f, user: v }))}
                     value={formData.user}
                     fullWidth
-                    disabled={isEditMode} // Disable in edit mode
-                    sx={{ maxHeight: 300, overflowY: "auto" }}
+                    disabled={isEditMode}
+                  />
+                </Box>
+
+                <Box mb={2}>
+                  <Typography>Attach Referral (optional)</Typography>
+                  <Autocomplete
+                    options={referrals}
+                    getOptionLabel={(r) => r.name}
+                    loading={loadingRefs}
+                    inputValue={inputRef}
+                    onInputChange={(e, v, r) => r === "input" && setInputRef(v)}
+                    ListboxProps={{
+                      onScroll: (e) => {
+                        const node = e.currentTarget;
+                        if (
+                          node.scrollTop + node.clientHeight >=
+                            node.scrollHeight - 4 &&
+                          lastRefDoc
+                        ) {
+                          loadCollection("Referral", inputRef, lastRefDoc);
+                        }
+                      },
+                      style: { maxHeight: 200, overflow: "auto" },
+                    }}
+                    renderInput={(p) => (
+                      <TextField {...p} label="Search referrals..." />
+                    )}
+                    onChange={(_, v) =>
+                      setFormData((f) => ({ ...f, referral: v }))
+                    }
+                    value={formData.referral}
+                    fullWidth
+                    disabled={isEditMode}
+                  />
+                </Box>
+                {/* Policy Number */}
+                <Box sx={{ mt: 3, mb: 3 }}>
+                  <Typography variant="h6" fontWeight="semibold" gutterBottom>
+                    Policy Number
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    name="policy_number"
+                    value={formData.policy_number}
+                    onChange={handleChange}
+                    error={!!errors.policy_number}
+                    helperText={errors.policy_number}
+                  />
+                </Box>
+
+                {/* Insured Address */}
+                <Box sx={{ mt: 3, mb: 3 }}>
+                  <Typography variant="h6" fontWeight="semibold" gutterBottom>
+                    Insured Address
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    name="insured_address"
+                    value={formData.insured_address}
+                    onChange={handleChange}
+                    error={!!errors.insured_address}
+                    helperText={errors.insured_address}
                   />
                 </Box>
 

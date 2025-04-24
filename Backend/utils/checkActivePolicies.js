@@ -9,7 +9,7 @@ const { db } = require("../firebase");
 
 const testPayloads = [
   {
-    Email: "esbenmou325@gmail.com",
+    Email: "crist_hs@hotmail.com",
     Carrier: "Neptune Flood",
     Name: "Greg Higham",
   },
@@ -19,33 +19,22 @@ const testPayloads = [
     Name: "Wrong Carrier",
   },
 ];
-
 async function checkForActivePolicy(payload) {
-  try {
-    if (!payload.Email || !payload.Carrier) return false;
+  if (!payload.Email || !payload.Carrier) return false;
 
-    const q = query(
-      collection(db, "bound_policies"),
-      // where("carrier", "==", payload.Carrier),
-      where("bound_status", "==", "bounded")
-    );
+  // normalize exactly how you store it in Firestore!
+  const emailToMatch = payload.Email.toLowerCase();
 
-    const querySnapshot = await getDocs(q);
-    const searchEmail = payload.Email.toLowerCase();
+  // build a single query that only returns matching docs
+  const q = query(
+    collection(db, "bound_policies"),
+    where("bound_status", "==", "bounded"),
+    where("user.email", "==", emailToMatch)
+  );
 
-    let hasMatch = false;
-    querySnapshot.forEach((doc) => {
-      const policy = doc.data();
-      if (policy.user?.email?.toLowerCase() === searchEmail) {
-        hasMatch = true;
-      }
-    });
-
-    return hasMatch;
-  } catch (error) {
-    console.error("Policy check error:", error);
-    return false;
-  }
+  const snap = await getDocs(q);
+  // if any doc comes back, we know there’s an active policy
+  return !snap.empty;
 }
 
 async function runTests() {
@@ -62,5 +51,4 @@ async function runTests() {
   console.log("Tests completed");
 }
 
-// runTests().catch((e) => console.error("Test failed:", e));
 module.exports = { runTests, checkForActivePolicy };

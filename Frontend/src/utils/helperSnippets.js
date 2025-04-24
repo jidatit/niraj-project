@@ -24,9 +24,44 @@ export function hasEmptyValue(userDataWithoutPasswords) {
   return false;
 }
 
-export function formatDate(dateString) {
-  const [year, month, day] = dateString.split("-");
-  return `${month}-${day}-${year}`;
+export function formatDate(dateInput) {
+  // 1. Handle empty/undefined values
+  if (!dateInput) return "";
+
+  let date;
+
+  // 2. Parse different input types
+  if (dateInput instanceof Date) {
+    date = dateInput; // Already a Date object
+  } else if (typeof dateInput === "number") {
+    date = new Date(dateInput); // Timestamp
+  } else if (typeof dateInput === "string") {
+    // Try ISO format (YYYY-MM-DD)
+    if (/^\d{4}-\d{2}-\d{2}/.test(dateInput)) {
+      const [year, month, day] = dateInput.split("-");
+      return `${month}-${day}-${year}`;
+    }
+    // Try DD/MM/YYYY format
+    else if (/^\d{2}\/\d{2}\/\d{4}/.test(dateInput)) {
+      const [day, month, year] = dateInput.split("/");
+      return `${month}-${day}-${year}`;
+    }
+    // Fallback to Date parsing
+    date = new Date(dateInput);
+  } else {
+    console.warn("Unsupported date format:", dateInput);
+    return "Invalid Date";
+  }
+
+  // 3. Format to MM-DD-YYYY
+  if (!isNaN(date)) {
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+  }
+
+  return "Invalid Date";
 }
 
 export function getCurrentDate(type) {

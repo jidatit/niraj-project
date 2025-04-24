@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import {
   Box,
   Button,
@@ -39,7 +39,11 @@ import FloodPolicyPreview from "./QuotePoliciesPreviews/FloodPolicyPreview";
 import { Link } from "react-router-dom";
 import DeliveredQuotePreviewAdmin from "../components/DeliveredQuotePreviewAdmin";
 import BinderReqPreview from "../components/BinderReqPreview";
-import { getCurrentDate, getType } from "../../utils/helperSnippets";
+import {
+  formatDate,
+  getCurrentDate,
+  getType,
+} from "../../utils/helperSnippets";
 import {
   AdminBindConfirmQuoteMail,
   AdminSendReminder,
@@ -50,6 +54,7 @@ import axiosInstance from "../../utils/axiosConfig";
 import PolicyCreationModal from "../components/PolicyCreateModal";
 import AdminUserSelectDialog from "../components/AdminUserSelectDialog";
 import EmptyState from "../../components/EmptyState";
+import { AttachReferralModal } from "../components/AttachReferral";
 
 const QuotesPage = () => {
   const [selectedButton, setSelectedButton] = useState(null);
@@ -97,6 +102,7 @@ const QuotesPage = () => {
   const [binder_req_quotes, setBinderReqQuotes] = useState([]);
   const [policy_bound_data, setpolicy_bound_data] = useState([]);
   const [policy_history_data, setpolicy_history] = useState([]);
+
   const [selectedPolicyData, setSelectedPolicyData] = useState(null);
   const [selectedPolicyType, setSelectedPolicyType] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -384,7 +390,6 @@ const QuotesPage = () => {
           );
         },
       },
-
       {
         accessorKey: "referral",
         header: "Referral",
@@ -857,85 +862,150 @@ const QuotesPage = () => {
     setOpenPolicyModal(true);
   };
 
-  const policy_bound_columns = useMemo(
-    () => [
+  //Attach Refrral requirements
+  const [refModalOpen, setRefModalOpen] = useState(false);
+  const [selectedPolicyReferral, setSelectedPolicyReferral] = useState(null);
+
+  const policy_bound_columns = useMemo(() => {
+    return [
       {
         accessorKey: "user.name",
         header: "Client",
         size: 100,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
+        Cell: ({ cell }) => {
+          const v = cell.getValue();
+          return <Box>{v.length > 30 ? v.slice(0, 30) + "…" : v}</Box>;
+        },
       },
       {
-        accessorKey: "user.phoneNumber",
-        header: "Client Contact no.",
+        accessorKey: "Refe",
+        header: "Referral",
+        size: 120,
+        Cell: ({ row }) => {
+          const data = row?.original;
+          return data?.byReferral ? (
+            <Box>{data?.Referral?.name}</Box>
+          ) : (
+            <Button
+              size="small"
+              onClick={() => {
+                setSelectedPolicyReferral(data);
+                setRefModalOpen(true);
+              }}
+              variant="contained"
+              sx={{
+                bgcolor: "#005270",
+                "&:hover": { bgcolor: "#003049" },
+                borderRadius: "8px",
+                textTransform: "none",
+              }}
+            >
+              Attach
+            </Button>
+          );
+        },
+      },
+      {
+        accessorKey: "policy_number",
+        header: "Policy Number",
+        size: 120,
+        Cell: ({ cell }) => {
+          const v = cell.getValue() ?? "";
+          return (
+            <Box>
+              {v ? (v.length > 30 ? v.slice(0, 30) + "…" : v) : "Not available"}
+            </Box>
+          );
+        },
+      },
+      {
+        accessorKey: "insured_address",
+        header: "Insured Address",
         size: 200,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
+        Cell: ({ cell }) => {
+          const v = cell.getValue() ?? "";
+          return (
+            <Box>
+              {v ? (v.length > 30 ? v.slice(0, 30) + "…" : v) : "Not available"}
+            </Box>
+          );
+        },
       },
-      {
-        accessorKey: "user.email",
-        header: "Client Email",
-        size: 100,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
-      },
+
       {
         accessorKey: "qsr_type",
         header: "Policy Type",
         size: 100,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
       },
       {
-        header: "Actions",
-        size: 200,
-        Cell: ({ cell }) => (
-          <Box display="flex" alignItems="center" gap="18px">
-            <button
-              onClick={() => slideModalOpen(cell.row.original)}
-              className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
-            >
-              View Policy
-            </button>
-            <button
-              onClick={() => handleEditPolicy(cell.row.original)} // Add this handler
-              className="bg-[#4CAF50] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
-            >
-              Edit Policy
-            </button>
-            <button
-              onClick={() => handleDeleteClick(cell.row.original)}
-              className="bg-red-600 rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
-            >
-              Delete Policy
-            </button>
-          </Box>
-        ),
+        accessorKey: "effective_date",
+        header: "Effective Date",
+        size: 100,
+        Cell: ({ cell }) => <Box>{formatDate(cell.getValue())}</Box>,
       },
-    ],
-    []
-  );
+      {
+        accessorKey: "exp_date",
+        header: "Expiration Date",
+        size: 100,
+        Cell: ({ cell }) => <Box>{formatDate(cell.getValue())}</Box>,
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        size: 80,
+        Cell: ({ cell }) => {
+          // local state per-row for menu anchor
+          const [anchorEl, setAnchorEl] = useState(null);
+          const open = Boolean(anchorEl);
+          const row = cell.row.original;
+
+          const handleOpen = (e) => setAnchorEl(e.currentTarget);
+          const handleClose = () => setAnchorEl(null);
+
+          return (
+            <>
+              <IconButton size="small" onClick={handleOpen}>
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    slideModalOpen(row);
+                    handleClose();
+                  }}
+                >
+                  View Policy
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleEditPolicy(row);
+                    handleClose();
+                  }}
+                >
+                  Edit Policy
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleDeleteClick(row);
+                    handleClose();
+                  }}
+                  sx={{ color: (theme) => theme.palette.error.main }}
+                >
+                  Delete Policy
+                </MenuItem>
+              </Menu>
+            </>
+          );
+        },
+      },
+    ];
+  }, []);
 
   const [deleteExpiredLoader, setdeleteExpiredLoader] = useState({});
   const [setselectedExpiredPolicy, setSetselectedExpiredPolicy] =
@@ -1007,83 +1077,108 @@ const QuotesPage = () => {
         Cell: ({ cell }) => (
           <Box>
             {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
+              ? cell.getValue().slice(0, 100) + "…"
               : cell.getValue()}
           </Box>
         ),
       },
       {
-        accessorKey: "user.phoneNumber",
-        header: "Client Contact no.",
+        accessorKey: "policy_number",
+        header: "Policy Number",
+        size: 120,
+        Cell: ({ cell }) => {
+          const v = cell.getValue() ?? "";
+          return (
+            <Box>
+              {v ? (v.length > 30 ? v.slice(0, 30) + "…" : v) : "Not available"}
+            </Box>
+          );
+        },
+      },
+      {
+        accessorKey: "insured_address",
+        header: "Insured Address",
         size: 200,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
-      },
-      {
-        accessorKey: "user.email",
-        header: "Client Email",
-        size: 100,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
+        Cell: ({ cell }) => {
+          const v = cell.getValue() ?? "";
+          return (
+            <Box>
+              {v ? (v.length > 30 ? v.slice(0, 30) + "…" : v) : "Not available"}
+            </Box>
+          );
+        },
       },
       {
         accessorKey: "qsr_type",
         header: "Policy Type",
         size: 100,
-        Cell: ({ cell }) => (
-          <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
-          </Box>
-        ),
+        Cell: ({ cell }) => {
+          const v = cell.getValue() ?? "";
+          return <Box>{v.length > 40 ? v.slice(0, 40) + "…" : v}</Box>;
+        },
       },
       {
         header: "Effective Dates",
         size: 100,
         Cell: ({ cell }) => (
           <Box>
-            {`B: ${cell.row.original.bound_date} - E: ${cell.row.original.effective_date}`}
+            {`B: ${formatDate(cell.row.original.bound_date)} - E: ${formatDate(
+              cell.row.original.effective_date
+            )}`}
           </Box>
         ),
       },
       {
+        accessorKey: "exp_date",
+        header: "Expiration Date",
+        size: 100,
+        Cell: ({ cell }) => <Box>{formatDate(cell.getValue())}</Box>,
+      },
+      {
+        id: "actions",
         header: "Actions",
-        size: 200,
-        Cell: ({ cell }) => (
-          <Box display="flex" alignItems="center" gap="18px">
-            <button
-              onClick={() => slideModalOpen(cell.row.original)}
-              className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
-            >
-              View Policy
-            </button>
-            <button
-              onClick={() => handleExpiredDeleteClick(cell.row.original)}
-              disabled={deleteExpiredLoader[cell.row.original.id]}
-              className="bg-[#db1e1e] rounded-[18px] flex flex-row justify-center items-center gap-1 px-[16px] py-[4px] text-white text-[10px]"
-            >
-              {deleteExpiredLoader[cell.row.original.id] ? (
-                <>
-                  <span>Deleting</span>
-                  <CircularProgress size={20} color="inherit" />
-                </>
-              ) : (
-                "Delete Policy"
-              )}
-            </button>
-          </Box>
-        ),
+        size: 80,
+        Cell: ({ cell }) => {
+          const [anchorEl, setAnchorEl] = useState(null);
+          const open = Boolean(anchorEl);
+          const row = cell.row.original;
+
+          const handleOpen = (e) => setAnchorEl(e.currentTarget);
+          const handleClose = () => setAnchorEl(null);
+
+          return (
+            <>
+              <IconButton size="small" onClick={handleOpen}>
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    slideModalOpen(row);
+                    handleClose();
+                  }}
+                >
+                  View Policy
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleExpiredDeleteClick(row);
+                    handleClose();
+                  }}
+                  sx={{ color: (theme) => theme.palette.error.main }}
+                >
+                  Delete Policy
+                </MenuItem>
+              </Menu>
+            </>
+          );
+        },
       },
     ],
     [deleteExpiredLoader]
@@ -1094,8 +1189,6 @@ const QuotesPage = () => {
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
-        <ToastContainer />
-
         <div className="w-[90%] grid md:grid-cols-2 gap-5 grid-cols-1 lg:grid-cols-3 justify-center items-center">
           <div
             className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
@@ -1308,6 +1401,7 @@ const QuotesPage = () => {
                 <MaterialReactTable
                   columns={policy_bound_columns}
                   data={policy_bound_data}
+                  initialState={{ density: "compact" }}
                 />
               </div>
             ) : (
@@ -1329,6 +1423,7 @@ const QuotesPage = () => {
                 <MaterialReactTable
                   columns={policy_history_columns}
                   data={policy_history_data}
+                  initialState={{ density: "compact" }}
                 />
               </div>
             ) : (
@@ -1451,6 +1546,15 @@ const QuotesPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <AttachReferralModal
+        open={refModalOpen}
+        onClose={() => {
+          setRefModalOpen(false);
+          getAllPolicyBoundData();
+        }}
+        policy={selectedPolicyReferral}
+      />
     </>
   );
 };

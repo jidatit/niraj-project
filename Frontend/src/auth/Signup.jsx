@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { auth, db } from "../../db";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { hasEmptyValue } from "../utils/helperSnippets";
 import { CircularProgress } from "@mui/material";
@@ -39,8 +39,12 @@ const Signup = () => {
     e.preventDefault(); // Prevent default form submission
     try {
       setLoader(true);
-      const { confirmPassword, password, dateOfBirth, ...userDataWithoutPasswords } =
-        userData;
+      const {
+        confirmPassword,
+        password,
+        dateOfBirth,
+        ...userDataWithoutPasswords
+      } = userData;
       if (confirmPassword !== password) {
         toast.error("Password Not Matched!");
         setLoader(false);
@@ -184,7 +188,6 @@ const Signup = () => {
           </Link>
         </div>
       </div>
-      <ToastContainer />
     </>
   );
 };

@@ -17,7 +17,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import CloseIcon from "@mui/icons-material/Close";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const StandardTemplateModal = ({
   open,

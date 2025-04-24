@@ -14,7 +14,6 @@ const {
 const { db } = require("./firebase.js");
 const fetch = require("node-fetch");
 const { checkForActivePolicy } = require("./utils/checkActivePolicies.js");
-
 require("./cronJobs");
 
 app.use(CORS());
@@ -40,6 +39,7 @@ app.post("/webhook", async (req, res) => {
     // Add metadata
     payload.receivedAt = timestamp;
     payload.isRenewal = hasActivePolicy;
+    payload.processed = false;
 
     // Store in appropriate collection
     await addDoc(collection(db, collectionName), payload);
@@ -201,6 +201,7 @@ app.post("/policy_info", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 app.listen(PORT, () => {
   console.log(`Server is live @ ${HOSTURL}`);
 });

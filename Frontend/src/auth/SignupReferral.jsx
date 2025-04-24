@@ -5,7 +5,7 @@ import CreatableSelect from "react-select/creatable";
 import { auth, db } from "../../db";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { hasEmptyValue } from "../utils/helperSnippets";
 import { CircularProgress } from "@mui/material";
@@ -233,7 +233,6 @@ const SignupReferral = () => {
           </Link>
         </div>
       </div>
-      <ToastContainer />
     </>
   );
 };

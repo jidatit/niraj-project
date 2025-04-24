@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { formatDate, getType } from "../../utils/helperSnippets";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Container,
@@ -180,7 +180,6 @@ const UploadInspections = () => {
   return (
     <>
       <Container className="min-h-screen flex flex-col justify-center items-center">
-        <ToastContainer />
         {loading ? (
           <div className="flex flex-col justify-center items-center w-full">
             <CircularProgress color="primary" />

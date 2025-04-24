@@ -17,7 +17,7 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import { useDropzone } from "react-dropzone";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import tickicon from "../../../assets/dash/tick.png";
 import { useAuth } from "../../../AuthContext";
@@ -376,7 +376,6 @@ const HomeForm = ({ selectedUser }) => {
   return (
     <>
       <div className="w-full flex flex-col justify-center items-center gap-5">
-        <ToastContainer />
         <div className="w-full flex flex-col justify-center items-start">
           <h1 className="font-bold lg:text-[25px]">
             Fill out Form for Home Quote

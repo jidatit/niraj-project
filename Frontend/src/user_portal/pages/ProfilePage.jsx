@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { doc, updateDoc } from "firebase/firestore";
 
 import { TextField } from "@mui/material";
@@ -205,7 +205,6 @@ const ProfilePage = () => {
           </form>
         </div>
       </div>
-      <ToastContainer />
     </>
   );
 };

@@ -2,7 +2,7 @@ import React from "react";
 import logo from "../../assets/dash/modal/logo.png";
 import { Modal, Slide } from "@mui/material";
 import CustomTablePreviewAdmin from "./CustomTablePreviewAdmin";
-import { formatKey } from "../../utils/helperSnippets";
+import { formatDate, formatKey } from "../../utils/helperSnippets";
 
 const DeliveredQuotePreviewAdmin = ({
   data,
@@ -77,28 +77,28 @@ const DeliveredQuotePreviewAdmin = ({
                   <h1 className="font-bold underline text-[20px]">Agent:</h1>
                   <div className="w-full flex flex-col text-[16px] font-normal justify-start items-start gap-1">
                     <p>
-                      {data.agent.company_name ||
+                      {data?.agent.company_name ||
                         "The John Galt Insurance Agency"}
                     </p>
                     <p>
-                      {data.agent.company_address ||
+                      {data?.agent.company_address ||
                         "3303 W Commercial Blvd Suite 200 Fort Lauderdale, FL 33309"}
                     </p>
                     <p>
                       <span className="font-medium">Agent: </span>
-                      {data.agent.name || "Niraj Thaker"}
+                      {data?.agent.name || "Niraj Thaker"}
                     </p>
                     <p>
                       <span className="font-medium">Email: </span>
-                      {data.agent.email || "nirajt@john-galt.com"}
+                      {data?.agent.email || "nirajt@john-galt.com"}
                     </p>
                     <p>
                       <span className="font-medium">Phone 1: </span>
-                      {data.agent.phone_1 || "N/A"}
+                      {data?.agent.phone_1 || "N/A"}
                     </p>
                     <p>
                       <span className="font-medium">Phone 2: </span>
-                      {data.agent.phone_2 || "N/A"}
+                      {data?.agent.phone_2 || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -169,7 +169,7 @@ const DeliveredQuotePreviewAdmin = ({
                   </span>
                 </h2>
                 <p className="lg:text-[26px] font-semibold">
-                  {data.date || "03 / 18 / 2024"}
+                  {formatDate(data?.date) || "No date available"}
                 </p>
               </div>
             )}

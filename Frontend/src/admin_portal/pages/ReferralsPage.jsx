@@ -13,17 +13,21 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import StandardTemplateModal from "../components/StandartTempModal";
-import { ToastContainer } from "react-toastify";
+
 import CustomTemplateModal from "../components/CustomTempModal";
 // import StandardTemplateModal from "../components/StandardTemplateModal";
 import AddPersonnelModal from "../components/PersonnelModal";
 import EditTemplateModal from "../components/EditTemplateModal";
 import { Box, Chip } from "@mui/material";
+import RenewalQuoteTemplateModal from "../components/RenewalQuoteModel";
 
 const ReferralsPage = () => {
   const [selectedTab, setSelectedTab] = useState("referralPartners");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  //fpr the renewal template model
+  const [openRenewalModal, setOpenRenewalModal] = useState(false);
 
   // State for personnel data
   const [personnelData, setPersonnelData] = useState([]);
@@ -212,7 +216,6 @@ const ReferralsPage = () => {
 
   return (
     <>
-      <ToastContainer />
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
         <div className="w-[90%] grid md:grid-cols-2 gap-5 grid-cols-1 lg:grid-cols-3 justify-center items-center">
           {/* Referral Partners Tab */}
@@ -272,6 +275,15 @@ const ReferralsPage = () => {
             </Button>
           </div>
         )}
+        <div className="w-full flex justify-end mt-4 gap-4">
+          <Button
+            variant="contained"
+            onClick={() => setOpenRenewalModal(true)}
+            style={{ backgroundColor: "#003049", color: "white" }}
+          >
+            Edit Renewal Template
+          </Button>
+        </div>
         {/* Table */}
         <div className="w-full flex flex-col justify-center items-center mt-[30px]">
           {selectedTab === "referralPartners" ? (
@@ -309,6 +321,12 @@ const ReferralsPage = () => {
         handleClose={handleCloseAddPersonnelModal}
         db={db}
         fetchPersonnelData={fetchPersonnelData}
+      />
+
+      <RenewalQuoteTemplateModal
+        open={openRenewalModal}
+        handleClose={() => setOpenRenewalModal(false)}
+        db={db}
       />
       <StandardTemplateModal
         open={openModal}

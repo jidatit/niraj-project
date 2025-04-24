@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { db } from "../../../db";
 import { getDocs, collection } from "firebase/firestore";
@@ -64,7 +64,6 @@ const PolicyQuoteResults = () => {
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
-        <ToastContainer />
         {alreadyBindreq === false ? (
           <>
             <div className="w-[95%] flex flex-col gap-5 justify-center items-start">

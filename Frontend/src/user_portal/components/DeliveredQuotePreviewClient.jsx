@@ -1,7 +1,7 @@
 import React from "react";
 import logo from "../../assets/dash/modal/logo.png";
 import CustomTablePreviewClient from "./CustomTablePreviewClient";
-import { formatKey } from "../../utils/helperSnippets";
+import { formatDate, formatKey } from "../../utils/helperSnippets";
 import ClientNotesView from "./ClientNotesView";
 
 const DeliveredQuotePreviewClient = ({ data }) => {
@@ -145,7 +145,7 @@ const DeliveredQuotePreviewClient = ({ data }) => {
               </span>
             </h2>
             <p className="lg:text-[26px] font-semibold">
-              {data.date || "03 / 18 / 2024"}
+              {formatDate(data?.date) || "No date available"}
             </p>
           </div>
         )}

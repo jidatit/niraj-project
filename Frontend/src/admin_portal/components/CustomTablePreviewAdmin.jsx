@@ -16,7 +16,7 @@ import {
 import { ImCross } from "react-icons/im";
 import { FaSearch } from "react-icons/fa";
 import Button from "../../user_portal/components/Button";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import {
   addDoc,
   collection,
@@ -301,7 +301,6 @@ const CustomTablePreviewAdmin = ({
 
   return (
     <>
-      <ToastContainer className={"z-50"} />
       <div className="w-full flex mt-[20px] flex-col justify-center items-start">
         {table_columns_2 && table2_data && (
           <div className="w-full">

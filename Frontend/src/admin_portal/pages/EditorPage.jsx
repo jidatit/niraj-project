@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
 import CustomTable from "../components/CustomTable";
@@ -226,8 +226,6 @@ const EditorPage = () => {
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
-        <ToastContainer />
-
         {IsLoading ? (
           <CircularProgress />
         ) : IsDelivered ? (

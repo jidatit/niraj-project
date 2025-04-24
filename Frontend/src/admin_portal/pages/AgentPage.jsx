@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { TextField, Box } from "@mui/material";
 import Button from "../components/Button";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   addDoc,
@@ -141,7 +141,6 @@ const AgentPage = () => {
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
-        <ToastContainer />
         <div className="w-[90%] flex flex-col gap-5 justify-center items-start">
           <button
             className="w-auto font-semibold rounded-[25px] bg-[#003049] text-white text-[14px] lg:text-[18px] py-2 px-4 hover:bg-[#00263d] transition-all duration-300 shadow-md hover:shadow-lg"

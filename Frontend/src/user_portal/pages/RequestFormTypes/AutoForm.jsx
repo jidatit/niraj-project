@@ -17,7 +17,7 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import { useDropzone } from "react-dropzone";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import tickicon from "../../../assets/dash/tick.png";
 import { useAuth } from "../../../AuthContext";
@@ -124,7 +124,7 @@ const AutoForm = ({ selectedUser }) => {
       if (files.length === 0) {
         let nofilesformData = {
           ...formData,
-          status: "pending",
+          status: "completed",
           status_step: "1",
         };
         await addDoc(collection(db, "auto_quotes"), {
@@ -390,7 +390,6 @@ const AutoForm = ({ selectedUser }) => {
   return (
     <>
       <div className="w-full flex flex-col justify-center items-center gap-5">
-        <ToastContainer />
         <div className="w-full flex flex-col justify-center items-start">
           <h1 className="font-bold lg:text-[25px]">
             Fill out Form for Auto Quote
@@ -1012,21 +1011,11 @@ const AutoForm = ({ selectedUser }) => {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            Submit Quote Without Inspections?
+            Submit Quote Without Documents?
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              Are you sure you want to submit the quote without inspections?
-            </DialogContentText>
-            <DialogContentText
-              sx={{
-                fontSize: "14px",
-                marginTop: "10px",
-              }}
-              id="alert-dialog-description"
-            >
-              Note: The request will be submitted but your quote will not begin
-              until the inspections are uploaded.
+              Are you sure you want to submit the quote without documents?
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -1034,13 +1023,13 @@ const AutoForm = ({ selectedUser }) => {
               onClick={addFormToDb}
               className="px-5 bg-[#17A600] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-white"
             >
-              Upload Anyway
+              Submit Anyway
             </button>
             <button
               onClick={() => setConfirmDialogOpen(false)}
               className="px-5 bg-[#F77F00] flex flex-row justify-center items-center gap-2 py-3 rounded-md font-bold text-white"
             >
-              Add Inspections
+              Upload document
             </button>
           </DialogActions>
         </Dialog>

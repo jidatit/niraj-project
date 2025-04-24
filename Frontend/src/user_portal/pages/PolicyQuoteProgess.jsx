@@ -4,7 +4,7 @@ import reqicon from "../../assets/dash/progress/req.png";
 import progicon from "../../assets/dash/progress/prog.png";
 import delicon from "../../assets/dash/progress/del.png";
 import boundicon from "../../assets/dash/progress/bound.png";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { db } from "../../../db";
 import { getDoc, doc } from "firebase/firestore";
@@ -85,7 +85,6 @@ const PolicyQuoteProgress = () => {
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
-        <ToastContainer />
         {loading ? (
           <CircularProgress />
         ) : currentStep !== null ? (

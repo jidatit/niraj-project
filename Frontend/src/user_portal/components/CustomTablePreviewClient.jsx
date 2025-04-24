@@ -14,7 +14,7 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { db } from "../../../db";
 import {
@@ -42,6 +42,8 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
   const [SlideModal, setSlideModal] = useState(false);
 
   const [formData, setFormData] = useState({
+    policy_number: "", // ← new 4/24/2025
+    insured_address: "", // ← new
     effective_date: "",
     isMortgageOrLienholder: "", // only in Home, if yes then below values
     company_name: "",
@@ -233,6 +235,21 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
   const [bindingDisable, setBindingDisable] = useState(false);
 
   const handleBindQuote = async () => {
+    // --- validation ---
+    if (!formData.effective_date) {
+      toast.error("Effective date is required");
+      return;
+    }
+    if (!formData.exp_date) {
+      toast.error("Expiry date is required");
+      return;
+    }
+    if (!formData.policy_number) {
+      return toast.error("Policy number is required");
+    }
+    if (!formData.insured_address) {
+      return toast.error("Insured address is required");
+    }
     try {
       setBindingDisable(true);
       await addDoc(collection(db, "bind_req_quotes"), {
@@ -312,7 +329,6 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
   return (
     <>
       <div className="w-full flex mt-[20px] flex-col justify-center items-start">
-        <ToastContainer />
         {table_columns_2 && table2_data && (
           <div className="w-full">
             <MaterialReactTable
@@ -434,12 +450,13 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
 
               <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
                 <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
-                  Confirm the effective date of the policy
+                  Confirm the effective date of the policy *
                 </p>
                 <TextField
                   className="w-full"
                   id="effective_date"
                   type="date"
+                  required
                   value={formData.effective_date}
                   onChange={(e) => handleChange(e)}
                   name="effective_date"
@@ -447,15 +464,43 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
               </div>
               <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
                 <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
-                  Confirm the epxpiry date of the policy
+                  Confirm the epxpiry date of the policy *
                 </p>
                 <TextField
                   className="w-full"
                   id="exp_date"
                   type="date"
+                  required
                   value={formData.exp_date}
                   onChange={(e) => handleChange(e)}
                   name="exp_date"
+                />
+              </div>
+              {/* Policy Number */}
+              <div className="w-full flex mt-[20px] mb-[20px] flex-col">
+                <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                  Policy Number *
+                </p>
+                <TextField
+                  className="w-full"
+                  name="policy_number"
+                  value={formData.policy_number}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {/* Insured Address */}
+              <div className="w-full flex mt-[20px] mb-[20px] flex-col">
+                <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                  Insured Address *
+                </p>
+                <TextField
+                  className="w-full"
+                  name="insured_address"
+                  value={formData.insured_address}
+                  onChange={handleChange}
+                  required
                 />
               </div>
 

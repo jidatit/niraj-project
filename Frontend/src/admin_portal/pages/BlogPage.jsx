@@ -9,7 +9,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import Button from "../components/Button";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   addDoc,
@@ -253,7 +253,6 @@ const BlogPage = () => {
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
-        <ToastContainer />
         <div className="w-[90%] flex flex-col gap-5 justify-center items-start">
           <button
             type="button"

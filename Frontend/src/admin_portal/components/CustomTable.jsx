@@ -13,7 +13,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import axiosInstance from "../../utils/axiosConfig";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const CustomTable = ({ QSR, tableData, user }) => {
@@ -512,7 +512,6 @@ const CustomTable = ({ QSR, tableData, user }) => {
   return (
     <>
       <div className="w-[90%] flex mt-[20px] flex-col justify-center items-start">
-        <ToastContainer />
         <div className="mt-5 mb-5 flex flex-row justify-between items-center w-full">
           <SubOptButton actionType={handleActionChange} />
           <Button
