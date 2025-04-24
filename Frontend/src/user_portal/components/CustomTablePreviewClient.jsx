@@ -33,7 +33,13 @@ import { useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 
-const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
+const CustomTablePreviewClient = ({
+  qid,
+  qsr_type,
+  table2_data,
+  user,
+  quote,
+}) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [tableCols1, setTableCols1] = useState(null);
@@ -43,7 +49,7 @@ const CustomTablePreviewClient = ({ qid, qsr_type, table2_data, user }) => {
 
   const [formData, setFormData] = useState({
     policy_number: "", // ← new 4/24/2025
-    insured_address: "", // ← new
+    insured_address: quote?.insured_address, // ← new
     effective_date: "",
     isMortgageOrLienholder: "", // only in Home, if yes then below values
     company_name: "",

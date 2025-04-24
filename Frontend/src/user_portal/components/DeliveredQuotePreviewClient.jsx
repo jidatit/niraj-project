@@ -158,6 +158,7 @@ const DeliveredQuotePreviewClient = ({ data }) => {
               table1_data={data.tablesData.table_1}
               table2_data={data.tablesData.table_2}
               user={data.user}
+              quote={data}
             />
           )}
         </div>

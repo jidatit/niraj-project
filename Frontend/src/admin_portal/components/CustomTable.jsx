@@ -649,6 +649,16 @@ export const AddWordRowModal = ({ open, columns, onClose, onSubmit }) => {
                   setValues({ ...values, [e.target.name]: e.target.value });
                   setErrors({ ...errors, [e.target.name]: "" });
                 }}
+                sx={{
+                  mt: 1,
+                  width: "100%",
+                  // make the InputLabel never wrap:
+                  "& .MuiInputLabel-root": {
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  },
+                }}
                 required
                 error={Boolean(errors[column.accessorKey])}
                 helperText={errors[column.accessorKey]}

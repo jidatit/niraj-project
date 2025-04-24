@@ -139,6 +139,7 @@ const EditorPage = () => {
       const inuser = await getQuoteDetails(qsrTypeParam, q_id);
       setFormData((prevData) => ({
         ...prevData,
+        insured_address: inuser?.address,
         user: inuser,
         byReferral: inuser?.byReferral || false,
         ReferralId: inuser?.ReferralId || "",
