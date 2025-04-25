@@ -85,7 +85,7 @@ export function getCurrentDate(type) {
 }
 
 export function getType(t) {
-  let type = t.toLowerCase();
+  let type = t?.toLowerCase();
   switch (type) {
     case "home":
       return "home_quotes";

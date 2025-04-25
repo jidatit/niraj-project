@@ -19,6 +19,7 @@ const PolicyQuoteResults = () => {
     setId(IdParam);
     const fetchData = async () => {
       const alreadyRequested = await checkAlreadyQuoteRequested(IdParam);
+
       if (!alreadyRequested) {
         getQuoteRes(IdParam);
       }
@@ -34,6 +35,7 @@ const PolicyQuoteResults = () => {
         const docData = doc.data();
         if (docData.q_id === id) {
           const quoteDetails = { ...docData, id: doc.id };
+
           setQuoteDetails(quoteDetails);
         }
       });

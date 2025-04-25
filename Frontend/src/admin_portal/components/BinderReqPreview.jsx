@@ -83,7 +83,8 @@ const BinderReqPreview = ({ data, isSlideModalOpen, onClose }) => {
                   />
                 </div>
 
-                {data.qsr_type && data.qsr_type.toLowerCase() === "home" && (
+                {((data.qsr_type && data.qsr_type.toLowerCase() === "home") ||
+                  data?.isRenewal) && (
                   <>
                     <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
                       <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">

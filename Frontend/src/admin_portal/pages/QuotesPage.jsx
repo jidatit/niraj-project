@@ -784,9 +784,9 @@ const QuotesPage = () => {
         size: 100,
         Cell: ({ cell }) => (
           <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
+            {cell?.getValue()?.length > 100
+              ? cell?.getValue()?.slice(0, 100) + "..."
+              : cell?.getValue()}
           </Box>
         ),
       },
@@ -877,34 +877,7 @@ const QuotesPage = () => {
           return <Box>{v.length > 30 ? v.slice(0, 30) + "…" : v}</Box>;
         },
       },
-      {
-        accessorKey: "Refe",
-        header: "Referral",
-        size: 120,
-        Cell: ({ row }) => {
-          const data = row?.original;
-          return data?.byReferral ? (
-            <Box>{data?.Referral?.name}</Box>
-          ) : (
-            <Button
-              size="small"
-              onClick={() => {
-                setSelectedPolicyReferral(data);
-                setRefModalOpen(true);
-              }}
-              variant="contained"
-              sx={{
-                bgcolor: "#005270",
-                "&:hover": { bgcolor: "#003049" },
-                borderRadius: "8px",
-                textTransform: "none",
-              }}
-            >
-              Attach
-            </Button>
-          );
-        },
-      },
+
       {
         accessorKey: "policy_number",
         header: "Policy Number",
@@ -948,6 +921,34 @@ const QuotesPage = () => {
         header: "Expiration Date",
         size: 100,
         Cell: ({ cell }) => <Box>{formatDate(cell.getValue())}</Box>,
+      },
+      {
+        accessorKey: "Refe",
+        header: "Referral",
+        size: 120,
+        Cell: ({ row }) => {
+          const data = row?.original;
+          return data?.byReferral ? (
+            <Box>{data?.Referral?.name}</Box>
+          ) : (
+            <Button
+              size="small"
+              onClick={() => {
+                setSelectedPolicyReferral(data);
+                setRefModalOpen(true);
+              }}
+              variant="contained"
+              sx={{
+                bgcolor: "#005270",
+                "&:hover": { bgcolor: "#003049" },
+                borderRadius: "8px",
+                textTransform: "none",
+              }}
+            >
+              Attach
+            </Button>
+          );
+        },
       },
       {
         id: "actions",

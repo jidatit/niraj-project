@@ -8,9 +8,11 @@ import {
   updateDoc,
   getFirestore,
   serverTimestamp,
+  query,
+  where,
 } from "firebase/firestore";
 import { db, storage } from "../../../db";
-import { Modal, Slide, Box, TextField } from "@mui/material";
+import { Modal, Slide, Box, TextField, Tabs, Tab } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip"; // Importing MUI Tooltip
 import resicon from "../../assets/dash/modal/res.png";
 import progicon from "../../assets/dash/modal/prog.png";
@@ -51,6 +53,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import newlogo from "../../assets/newlogo.png";
 import PolicyDetailsModal from "../components/PolicyDetailsModal";
 import { CiCircleRemove } from "react-icons/ci";
+import { formatDate } from "../../utils/helperSnippets";
 
 const ViewPolicyQuote = () => {
   const [AllQuotes, setAllQuotes] = useState([]);
@@ -210,7 +213,6 @@ const ViewPolicyQuote = () => {
   };
 
   const handleOpenModalWithData = (data) => {
-    console.log("data", data);
     setSelectedRowData(data);
     setopenModal(true);
     setPopupData(data);
@@ -395,75 +397,6 @@ const ViewPolicyQuote = () => {
     []
   );
 
-  // const getUserQuotes = async () => {
-  //   try {
-  //     const homeQuotesCollection = collection(db, "home_quotes");
-  //     const autoQuotesCollection = collection(db, "auto_quotes");
-  //     const liabilityQuotesCollection = collection(db, "liability_quotes");
-  //     const floodQuotesCollection = collection(db, "flood_quotes");
-
-  //     const hqsnapshot = await getDocs(homeQuotesCollection);
-  //     const aqsnapshot = await getDocs(autoQuotesCollection);
-  //     const lqsnapshot = await getDocs(liabilityQuotesCollection);
-  //     const fqsnapshot = await getDocs(floodQuotesCollection);
-
-  //     const homeQuotesData = hqsnapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-  //     const autoQuotesData = aqsnapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-  //     const liabilityQuotesData = lqsnapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-  //     const floodQuotesData = fqsnapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-
-  //     let filteredhomeQuotesData =
-  //       currentUser &&
-  //       homeQuotesData &&
-  //       homeQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
-  //     let filteredautoQuotesData =
-  //       currentUser &&
-  //       autoQuotesData &&
-  //       autoQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
-  //     let filteredliabilityQuotesData =
-  //       currentUser &&
-  //       liabilityQuotesData &&
-  //       liabilityQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
-  //     let filteredfloodQuotesData =
-  //       currentUser &&
-  //       floodQuotesData &&
-  //       floodQuotesData?.filter((obj) => obj.user.id === currentUser.uid);
-
-  //     // Combine all quotes
-  //     const allQts = [
-  //       ...filteredhomeQuotesData,
-  //       ...filteredautoQuotesData,
-  //       ...filteredliabilityQuotesData,
-  //       ...filteredfloodQuotesData,
-  //     ];
-
-  //     // Sort by createdAt, latest first
-  //     const sortedQuotes = allQts.sort((a, b) => {
-  //       const dateA = a.createdAt?.toMillis?.() || 0; // Use 0 if createdAt is missing
-  //       const dateB = b.createdAt?.toMillis?.() || 0;
-
-  //       // Sort by createdAt descending, pushing missing dates to the bottom
-  //       return dateB - dateA;
-  //     });
-
-  //     setAllQuotes(sortedQuotes);
-  //   } catch (error) {
-  //     toast.error("Error fetching quotes!");
-  //   }
-  // };
-
   const getUserQuotes = async () => {
     setLoading(true);
     try {
@@ -558,6 +491,117 @@ const ViewPolicyQuote = () => {
     getUserQuotes();
   }, []);
 
+  //for renewal quotes
+  const [tabIndex, setTabIndex] = useState(0);
+  const [prepQuotes, setPrepQuotes] = useState([]);
+  const [renewalloading, setRenewalLoading] = useState(false);
+  const prepColumns = [
+    {
+      // Use formatDate instead of raw string
+      accessorFn: (row) => formatDate(row.date),
+      id: "date",
+      header: "Date",
+    },
+    {
+      accessorKey: "qid",
+      header: "Quote ID",
+    },
+
+    {
+      // show referral name or “No Referral”
+      accessorFn: (row) =>
+        row.byReferral
+          ? (row.Referral && row.Referral.name) || "—"
+          : "No Referral",
+      id: "referral",
+      header: "Referral",
+    },
+    {
+      // first address from table_2, or dash
+      accessorFn: (row) =>
+        (row.tablesData &&
+          row.tablesData.table_2 &&
+          row.tablesData.table_2[0] &&
+          row.tablesData.table_2[0].address) ||
+        "—",
+      id: "address",
+      header: "Address",
+    },
+
+    {
+      // count of source IDs
+      accessorFn: (row) =>
+        (row.renewalSourceIds && row.renewalSourceIds.length) || 0,
+      id: "sources",
+      header: "# of Sources",
+    },
+    {
+      accessorKey: "actions",
+      header: "", // No header for actions column
+      size: 200,
+      sortable: false,
+      Cell: ({ row }) => {
+        const { status_step } = row.original;
+
+        return (
+          <Box
+            display="flex"
+            alignItems="center"
+            gap="18px"
+            sx={{
+              "@media (max-width: 1000px)": {
+                flexDirection: "column",
+                gap: "10px",
+                alignItems: "flex-start",
+              },
+            }}
+          >
+            <button
+              disabled={status_step !== "4"}
+              onClick={() => handleOpenModalWithDataPolicy(row.original)}
+              className={`${
+                status_step !== "4" ? "bg-[#d2ccc4]" : "bg-[#F77F00]"
+              } rounded-[18px] px-[16px] py-[4px] text-white text-[10px] lg:text-[14px] lg:font-bold`}
+            >
+              View Policy
+            </button>
+            <button
+              onClick={() => handleOpenModalWithData(row.original)}
+              className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px] lg:text-[14px] lg:font-bold"
+            >
+              View Quote
+            </button>
+          </Box>
+        );
+      },
+    },
+  ];
+
+  const getPrepQuotes = async () => {
+    if (!currentUser?.email) return;
+    setRenewalLoading(true);
+    try {
+      const q = query(
+        collection(db, "prep_quotes"),
+        where("user.email", "==", currentUser.email)
+      );
+      const snap = await getDocs(q);
+      const data = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setPrepQuotes(data);
+    } catch (err) {
+      console.error("Error fetching prep_quotes:", err);
+    } finally {
+      setRenewalLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getPrepQuotes();
+  }, [currentUser?.email]);
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
@@ -568,11 +612,18 @@ const ViewPolicyQuote = () => {
             </button>
           </Link>
         </div>
+        <Box sx={{ width: "100%" }}>
+          <Tabs
+            value={tabIndex}
+            onChange={(_, idx) => setTabIndex(idx)}
+            aria-label="quote-type-tabs"
+          >
+            <Tab label="New Quotes" />
+            <Tab label="Renewal Quotes" />
+          </Tabs>
 
-        <div className="flex flex-col mb-4 w-full">
-          {/* Table Container */}
-          {AllQuotes && (
-            <div className="table w-full">
+          <Box sx={{ mt: 2 }}>
+            {tabIndex === 0 && (
               <MaterialReactTable
                 columns={columns}
                 data={AllQuotes}
@@ -588,9 +639,27 @@ const ViewPolicyQuote = () => {
                   ],
                 }}
               />
-            </div>
-          )}
-        </div>
+            )}
+            {tabIndex === 1 && (
+              <MaterialReactTable
+                columns={prepColumns}
+                data={prepQuotes}
+                state={{ isLoading: renewalloading }}
+                initialState={{
+                  density: "compact",
+                  columnOrder: [
+                    "quoteType",
+                    "inspectionStatus",
+                    "mailingAddress",
+                    "address",
+                    "inspection",
+                  ],
+                }}
+              />
+            )}
+          </Box>
+        </Box>
+
         <Modal
           open={openModal}
           onClose={onClose}
@@ -616,26 +685,42 @@ const ViewPolicyQuote = () => {
                 isReferral ? "grid-cols-2" : "grid-cols-3"
               } justify-center rounded-md shadow-lg items-center`}
             >
-              {PopupData && (
-                <Link
-                  to={`/user_portal/pq_progress?type=${PopupData.policyType}&id=${PopupData.id}`}
-                >
-                  <div className="w-full group py-[30px] border-r-[1px] rounded-md cursor-pointer hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5">
+              {PopupData &&
+                (PopupData.isRenewal ? (
+                  <div className="w-full group py-[30px] rounded-md h-full flex flex-col justify-center items-center text-gray-500">
                     <img
-                      className="group-hover:animate-pulse w-16 h-16"
+                      className="w-16 h-16 opacity-50"
                       src={progicon}
-                      alt="Quote Progress Icon"
+                      alt="No Progress Icon"
                     />
                     <p className="font-bold text-[16px] text-center">
-                      Quote Progress
+                      No Progress
                     </p>
                   </div>
-                </Link>
-              )}
+                ) : (
+                  <Link
+                    to={`/user_portal/pq_progress?type=${PopupData.policyType}&id=${PopupData.id}`}
+                  >
+                    <div className="w-full group py-[30px] border-r-[1px] rounded-md cursor-pointer hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5">
+                      <img
+                        className="group-hover:animate-pulse w-16 h-16"
+                        src={progicon}
+                        alt="Quote Progress Icon"
+                      />
+                      <p className="font-bold text-[16px] text-center">
+                        Quote Progress
+                      </p>
+                    </div>
+                  </Link>
+                ))}
 
               {PopupData && !isReferral && (
                 <Link
-                  to={`/user_portal/pq_results?type=${PopupData.policyType}&id=${PopupData.id}`}
+                  to={
+                    PopupData?.isRenewal
+                      ? `/user_portal/pq_results?id=${PopupData?.id}`
+                      : `/user_portal/pq_results?type=${PopupData?.policyType}&id=${PopupData?.id}`
+                  }
                 >
                   <div className="w-full border-r-[1px] group py-[30px] cursor-pointer rounded-md hover:bg-slate-50 transition-all ease-in-out delay-200 h-full flex flex-col justify-center items-center gap-5">
                     <img
@@ -1048,7 +1133,6 @@ const DropdownPolicy = ({ popup_data }) => {
   return (
     <>
       <div className="w-full flex-col justify-center items-center rounded-md">
-  
         <div className="w-full flex flex-col justify-center rounded-t-md items-center py-4 bg-[#003049] text-white">
           <p className="text-center font-semibold text-[24px]">
             Select your action

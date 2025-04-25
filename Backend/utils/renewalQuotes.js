@@ -11,6 +11,7 @@ const {
   startAfter,
   writeBatch,
   doc,
+  setDoc,
 } = require("firebase/firestore");
 const { db } = require("../firebase");
 const {
@@ -27,8 +28,9 @@ async function processRenewalQuotes() {
     // Query unprocessed renewal quotes older than 24 hours
     const renewalQuotesQuery = query(
       collection(db, "renewal_quotes"),
-      // where("receivedAt", "<=", twentyFourHoursAgo),
+      where("receivedAt", "<=", twentyFourHoursAgo),
       where("processed", "==", false)
+      // where("Email", "==", "client@client.com")
     );
 
     const renewalQuotesSnapshot = await getDocs(renewalQuotesQuery);
@@ -155,13 +157,15 @@ async function createNewPrepQuoteFromRenewal(renewalQuote) {
       zipCode: rq.zipCode || userData.zipCode,
       email: rq.Email || userData.email,
     }));
-
+    const qid = generateQid();
     // 5. Create the new prep_quote
     const newPrepQuote = {
+      q_id: qid,
       date: moment().format("MM/DD/YYYY"),
       isRenewal: true,
       renewalSourceIds: allRenewalQuotes.map((q) => q.id),
       user: userData,
+      status_step: "3",
       tablesData: {
         table_1: table1Data, // Empty if no previous quote
         table_2: newTable2,
@@ -175,8 +179,11 @@ async function createNewPrepQuoteFromRenewal(renewalQuote) {
 
     console.log("New prep quote:", JSON.stringify(newPrepQuote, null, 2));
 
-    // // 6. Save to Firestore and mark renewals as processed
-    // await addDoc(collection(db, "prep_quotes"), newPrepQuote);
+    // // // 6. Save to Firestore and mark renewals as processed
+    // await setDoc(
+    //   doc(db, "prep_quotes", qid), // ← this line sets the Firestore doc ID
+    //   newPrepQuote
+    // );
     // const updatePromises = allRenewalQuotes.map(async (rq) => {
     //   const renewalQuoteRef = doc(db, "renewal_quotes", rq.id);
     //   await updateDoc(renewalQuoteRef, {
@@ -198,4 +205,11 @@ async function createNewPrepQuoteFromRenewal(renewalQuote) {
   }
 }
 
+function generateQid(randomCharsCount = 6) {
+  const tsPart = Date.now().toString(36); // timestamp in base36
+  const randPart = Array.from({ length: randomCharsCount })
+    .map(() => Math.floor(Math.random() * 36).toString(36)) // random base36 chars
+    .join("");
+  return `${tsPart}${randPart}`;
+}
 module.exports = { processRenewalQuotes };

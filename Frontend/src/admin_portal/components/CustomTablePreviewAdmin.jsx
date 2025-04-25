@@ -23,8 +23,11 @@ import {
   doc,
   getDoc,
   getDocs,
+  query,
   serverTimestamp,
   updateDoc,
+  where,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../../../db";
 import { getType } from "../../utils/helperSnippets";
@@ -38,6 +41,7 @@ const CustomTablePreviewAdmin = ({
   user,
   getAllDeliveredQuotes,
   getAllBinderRequestedQuotes,
+  quote,
 }) => {
   const [tableCols1, setTableCols1] = useState(null);
 
@@ -183,13 +187,13 @@ const CustomTablePreviewAdmin = ({
 
   useEffect(() => {
     let columns;
-    if (qsr_type.toLowerCase() === "liability") {
+    if (qsr_type?.toLowerCase() === "liability") {
       columns = table_columns_lia;
-    } else if (qsr_type.toLowerCase() === "auto") {
+    } else if (qsr_type?.toLowerCase() === "auto") {
       columns = table_columns_auto;
-    } else if (qsr_type.toLowerCase() === "flood") {
+    } else if (qsr_type?.toLowerCase() === "flood") {
       columns = table_columns_flood;
-    } else if (qsr_type.toLowerCase() === "home") {
+    } else if (qsr_type?.toLowerCase() === "home") {
       columns = table_columns_home;
     } else {
       columns = null;
@@ -235,8 +239,12 @@ const CustomTablePreviewAdmin = ({
       await addDoc(collection(db, "bind_req_quotes"), {
         ...formData,
         qid,
-        qsr_type,
+        ...(qsr_type ? { qsr_type } : {}),
         user: { ...user },
+        byReferral: user?.byReferral || false,
+        ReferralId: user?.ReferralId || null,
+        Referral: user?.Referral || null,
+        isRenewal: quote?.isRenewal || false,
         bound_status: "pending",
         boundBy: "Admin",
         createdAt: serverTimestamp(),
@@ -256,36 +264,41 @@ const CustomTablePreviewAdmin = ({
     }
   };
   const updateStatusStep = async (type, id) => {
+    // 1) Update the main document’s status_step
     try {
       const collectionRef = getType(type);
       const docRef = doc(db, collectionRef, id);
       const docSnap = await getDoc(docRef);
-
       if (docSnap.exists()) {
-        await updateDoc(docRef, {
-          status_step: "3",
-        });
-
-        const prepQuotesRef = collection(db, "prep_quotes");
-        const querySnapshot = await getDocs(prepQuotesRef);
-
-        querySnapshot.forEach(async (doc) => {
-          if (doc.data().q_id === id) {
-            const prepQuoteRef = doc.ref;
-            await updateDoc(prepQuoteRef, {
-              isBounded: true,
-              boundBy: "Admin",
-            });
-          }
-        });
-        toast.success("Status and quote update successful!");
-      } else {
-        toast.error("Document not found!");
+        await updateDoc(docRef, { status_step: "3" });
       }
-    } catch (error) {
-      console.log("error updating", error);
-      toast.error("Error updating status and quote!");
+    } catch (err) {
+      console.error("Error updating status_step:", err);
     }
+
+    // 2) Independently mark any matching prep_quotes as bounded
+    try {
+      const prepQ = query(
+        collection(db, "prep_quotes"),
+        where("q_id", "==", id)
+      );
+      const snap = await getDocs(prepQ);
+      if (!snap.empty) {
+        const batch = writeBatch(db);
+        snap.forEach((d) =>
+          batch.update(d.ref, {
+            isBounded: true,
+            boundBy: "Client",
+          })
+        );
+        await batch.commit();
+      }
+    } catch (err) {
+      console.error("Error updating prep_quotes:", err);
+    }
+
+    // 3) Single success toast
+    toast.success("Update process completed!");
   };
 
   const [FilteredSearchCarriers, setFilteredSearchCarriers] =
@@ -428,13 +441,12 @@ const CustomTablePreviewAdmin = ({
                   className="w-full"
                   id="effective_date"
                   type="date"
-                  value={formData.effective_date}
+                  value={formData?.effective_date}
                   onChange={(e) => handleChange(e)}
                   name="effective_date"
                 />
               </div>
-
-              {qsr_type && qsr_type.toLowerCase() === "home" && (
+              {(qsr_type?.toLowerCase() === "home" || quote?.isRenewal) && (
                 <>
                   <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
                     <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
