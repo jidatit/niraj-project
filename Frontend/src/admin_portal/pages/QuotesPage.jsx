@@ -1337,126 +1337,126 @@ const QuotesPage = () => {
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
-        <div className="w-[90%] grid md:grid-cols-2 gap-5 grid-cols-1 lg:grid-cols-3 justify-center items-center">
+        <div className="w-[95%] mx-auto grid grid-cols-1 md:grid-cols-3 gap-3">
+          {/* First Row: Quotes and Binder */}
           <div
-            className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
+            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
               selectedButton === "requestedQuotes"
                 ? "bg-[#003049] text-white"
-                : ""
+                : "bg-white"
             }`}
             onClick={() => handleButtonClick("requestedQuotes")}
           >
-            <div className="flex w-[60%] flex-col justify-center items-center lg:items-start gap-1">
-              <p className="lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white">
+            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
+              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
                 Requested Quotes
               </p>
-              <p className="lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white">
-                You have {req_quotes && req_quotes.length} Quotes Requested
+              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
+                {req_quotes?.length || 0} Quotes Requested
               </p>
             </div>
-            <img src={papericon} alt="" />
+            <img src={papericon} alt="Paper icon" className="w-8 h-8" />
           </div>
 
           <div
-            className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
+            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
               selectedButton === "deliveredQuotes"
                 ? "bg-[#003049] text-white"
-                : ""
+                : "bg-white"
             }`}
             onClick={() => handleButtonClick("deliveredQuotes")}
           >
-            <div className="flex w-[60%] flex-col justify-center items-center lg:items-start gap-1">
-              <p className="lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white">
+            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
+              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
                 Delivered Quotes
               </p>
-              <p className="lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white">
-                {del_quotes && del_quotes.length} Quotes have been successfully
-                Delivered
+              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
+                {del_quotes?.length || 0} Quotes Delivered
               </p>
             </div>
-            <img src={boxicon} alt="" />
-          </div>
-
-          <div
-            className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
-              selectedButton === "binderRequested"
-                ? "bg-[#003049] text-white"
-                : ""
-            }`}
-            onClick={() => handleButtonClick("binderRequested")}
-          >
-            <div className="flex w-[60%] flex-col justify-center items-center lg:items-start gap-1">
-              <p className="lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white">
-                Binder Requested
-              </p>
-              <p className="lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white">
-                {binder_req_quotes && binder_req_quotes.length} Binder have been
-                requested
-              </p>
-            </div>
-            <img src={tickicon} alt="" />
-          </div>
-        </div>
-
-        <div className="w-[90%] flex flex-col lg:flex-row gap-5 mt-[30px] justify-center items-center mb-4">
-          <div
-            className={`group w-full lg:w-[33%] hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
-              selectedButton === "policyBound" ? "bg-[#003049] text-white" : ""
-            }`}
-            onClick={() => handleButtonClick("policyBound")}
-          >
-            <div className="flex w-[60%] flex-col justify-center items-center lg:items-start gap-1">
-              <p className="lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white">
-                Active Policies
-              </p>
-              <p className="lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white">
-                {policy_bound_data && policy_bound_data.length} active policies
-                available
-              </p>
-            </div>
-            <img src={peopleicon} alt="Icon for active policies" />
-          </div>
-
-          <div
-            className={`group w-full lg:w-[33%] hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
-              selectedButton === "policyHistory"
-                ? "bg-[#003049] text-white"
-                : ""
-            }`}
-            onClick={() => handleButtonClick("policyHistory")}
-          >
-            <div className="flex w-[60%] flex-col justify-center items-center lg:items-start gap-1">
-              <p className="lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white">
-                Expired Policies
-              </p>
-              <p className="lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white">
-                {policy_history_data && policy_history_data.length} Policies
-                have been expired
-              </p>
-            </div>
-            <img src={historyicon} alt="" />
+            <img src={boxicon} alt="Box icon" className="w-8 h-8" />
           </div>
           <div
-            className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
+            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
               selectedButton === "renewalQuotes"
                 ? "bg-[#003049] text-white"
-                : ""
+                : "bg-white"
             }`}
             onClick={() => handleButtonClick("renewalQuotes")}
           >
-            <div className="flex w-full lg:w-3/5 flex-col justify-center items-center lg:items-start gap-1">
-              <p className="lg:text-lg text-center font-bold group-hover:text-white">
+            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
+              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
                 Renewal Quotes
               </p>
-              <p className="lg:text-sm lg:w-4/5 lg:text-start text-center font-light group-hover:text-white">
-                {totalQuotes} Quotes pending renewal
+              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
+                {totalQuotes || 0} Quotes Pending Renewal
               </p>
             </div>
-            <img src={boxicon} alt="Delivery box icon" />
+            <img src={boxicon} alt="Box icon" className="w-8 h-8" />
           </div>
         </div>
 
-        <div className="flex gap-4 w-full justify-end">
+        <div className="w-[95%] mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          {/* Second Row: Policies and Renewal */}
+          <div
+            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
+              selectedButton === "policyBound"
+                ? "bg-[#003049] text-white"
+                : "bg-white"
+            }`}
+            onClick={() => handleButtonClick("policyBound")}
+          >
+            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
+              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
+                Active Policies
+              </p>
+              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
+                {policy_bound_data?.length || 0} Active Policies
+              </p>
+            </div>
+            <img src={peopleicon} alt="People icon" className="w-8 h-8" />
+          </div>
+
+          <div
+            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
+              selectedButton === "policyHistory"
+                ? "bg-[#003049] text-white"
+                : "bg-white"
+            }`}
+            onClick={() => handleButtonClick("policyHistory")}
+          >
+            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
+              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
+                Expired Policies
+              </p>
+              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
+                {policy_history_data?.length || 0} Policies Expired
+              </p>
+            </div>
+            <img src={historyicon} alt="History icon" className="w-8 h-8" />
+          </div>
+
+          <div
+            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
+              selectedButton === "binderRequested"
+                ? "bg-[#003049] text-white"
+                : "bg-white"
+            }`}
+            onClick={() => handleButtonClick("binderRequested")}
+          >
+            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
+              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
+                Binder Requested
+              </p>
+              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
+                {binder_req_quotes?.length || 0} Binders Requested
+              </p>
+            </div>
+            <img src={tickicon} alt="Tick icon" className="w-8 h-8" />
+          </div>
+        </div>
+
+        <div className="flex gap-4 w-full justify-end mt-4">
           <Tooltip title="Submit A Quote For Client/Referral" placement="top">
             <Button
               onClick={() => setOpenQuoteModal(true)}
@@ -1664,6 +1664,7 @@ const QuotesPage = () => {
           />
         )}
       </div>
+
       <Dialog
         fullWidth
         open={openExpiredDialog}
