@@ -3,10 +3,19 @@ import { toast } from "react-toastify";
 import {
   Box,
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Paper,
+  Skeleton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Tooltip,
 } from "@mui/material";
 import { Menu, MenuItem, IconButton } from "@mui/material";
@@ -30,6 +39,9 @@ import {
   deleteDoc,
   orderBy,
   serverTimestamp,
+  getCountFromServer,
+  limit,
+  startAfter,
 } from "firebase/firestore";
 import { db } from "../../../db";
 import HomePolicyPreview from "./QuotePoliciesPreviews/HomePolicyPreview";
@@ -1187,6 +1199,141 @@ const QuotesPage = () => {
 
   const [openQuoteModal, setOpenQuoteModal] = useState(false);
   const [openPolicyModal, setOpenPolicyModal] = useState(false);
+
+  //for renewal quotes
+  const [renewalQuotes, setRenewalQuotes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalQuotes, setTotalQuotes] = useState(0);
+  const renewalColumns = [
+    {
+      accessorKey: "date",
+      header: "Date",
+      size: 120,
+    },
+    {
+      accessorKey: "user.name",
+      header: "Client",
+      size: 200,
+    },
+    {
+      // show referral name or “No Referral”
+      accessorFn: (row) =>
+        row.byReferral
+          ? (row.Referral && row.Referral.name) || "—"
+          : "No Referral",
+      id: "referral",
+      header: "Referral",
+    },
+    {
+      accessorFn: (row) => (row.isBounded ? "Activated" : "Not Yet Activated"),
+      id: "isBounded",
+      header: "Bounded",
+      size: 120,
+    },
+    {
+      accessorFn: (row) =>
+        (row.renewalSourceIds && row.renewalSourceIds.length) || 0,
+      id: "sources",
+      header: "# of Sources",
+    },
+  ];
+  const handleViewQuote = (quote) => {};
+  // Fetch total count of quotes
+  const fetchTotalQuotes = async () => {
+    try {
+      const q = query(
+        collection(db, "prep_quotes"),
+        where("isRenewal", "==", true)
+      );
+      const snapshot = await getCountFromServer(q);
+      setTotalQuotes(snapshot.data().count);
+    } catch (error) {
+      console.error("Error fetching total renewal quotes count:", error);
+    }
+  };
+
+  // Fetch quotes for the current page
+  const fetchRenewalQuotes = async () => {
+    try {
+      setLoading(true);
+
+      // Create query to fetch all documents, ordered by date
+      const q = query(
+        collection(db, "prep_quotes"),
+        where("isRenewal", "==", true),
+        orderBy("date", "desc")
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      // Map documents to data objects
+      const quotes = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setRenewalQuotes(quotes);
+    } catch (error) {
+      console.error("Error fetching renewal quotes:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch total count on component mount
+  useEffect(() => {
+    fetchTotalQuotes();
+  }, []);
+
+  // Fetch total count and initial quotes when selectedButton changes
+  useEffect(() => {
+    if (selectedButton === "renewalQuotes") {
+      fetchRenewalQuotes();
+    }
+  }, [selectedButton]);
+  const renderSkeleton = () => {
+    return (
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>
+                <Skeleton variant="text" />
+              </TableCell>
+              <TableCell>
+                <Skeleton variant="text" />
+              </TableCell>
+              <TableCell>
+                <Skeleton variant="text" />
+              </TableCell>
+              <TableCell>
+                <Skeleton variant="text" />
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {[1, 2, 3].map((row) => (
+              <TableRow key={row}>
+                <TableCell>
+                  <Skeleton variant="text" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton variant="text" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton variant="text" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton variant="text" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  };
+
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
@@ -1289,6 +1436,24 @@ const QuotesPage = () => {
             </div>
             <img src={historyicon} alt="" />
           </div>
+          <div
+            className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
+              selectedButton === "renewalQuotes"
+                ? "bg-[#003049] text-white"
+                : ""
+            }`}
+            onClick={() => handleButtonClick("renewalQuotes")}
+          >
+            <div className="flex w-full lg:w-3/5 flex-col justify-center items-center lg:items-start gap-1">
+              <p className="lg:text-lg text-center font-bold group-hover:text-white">
+                Renewal Quotes
+              </p>
+              <p className="lg:text-sm lg:w-4/5 lg:text-start text-center font-light group-hover:text-white">
+                {totalQuotes} Quotes pending renewal
+              </p>
+            </div>
+            <img src={boxicon} alt="Delivery box icon" />
+          </div>
         </div>
 
         <div className="flex gap-4 w-full justify-end">
@@ -1339,7 +1504,11 @@ const QuotesPage = () => {
           <div className="w-full flex flex-col justify-center items-center mt-[30px]">
             {req_quotes && req_quotes.length > 0 ? (
               <div className="table w-full">
-                <MaterialReactTable columns={req_columns} data={req_quotes} />
+                <MaterialReactTable
+                  columns={req_columns}
+                  data={req_quotes}
+                  initialState={{ density: "compact" }}
+                />
               </div>
             ) : (
               <EmptyState message="No Quotes Found" icon="inbox" />
@@ -1351,7 +1520,11 @@ const QuotesPage = () => {
           <div className="w-full flex flex-col justify-center items-center mt-[30px]">
             {del_quotes && del_quotes.length > 0 ? (
               <div className="table w-full">
-                <MaterialReactTable columns={del_columns} data={del_quotes} />
+                <MaterialReactTable
+                  columns={del_columns}
+                  data={del_quotes}
+                  initialState={{ density: "compact" }}
+                />
               </div>
             ) : (
               <EmptyState message="No Quotes Found" icon="inbox" />
@@ -1381,6 +1554,7 @@ const QuotesPage = () => {
                 <MaterialReactTable
                   columns={binder_req_columns}
                   data={binder_req_quotes}
+                  initialState={{ density: "compact" }}
                 />
               </div>
             ) : (
@@ -1436,6 +1610,28 @@ const QuotesPage = () => {
               isSlideModalOpen={slideModal}
               onClose={slideModalClose}
             />
+          </div>
+        )}
+        {selectedButton === "renewalQuotes" && (
+          <div className="w-full flex flex-col justify-center items-center mt-8">
+            {loading ? (
+              <div className="w-full text-center py-8">{renderSkeleton()}</div>
+            ) : renewalQuotes.length > 0 ? (
+              <div className="w-full">
+                <MaterialReactTable
+                  columns={renewalColumns}
+                  data={renewalQuotes}
+                  muiToolbarAlertBannerProps={
+                    loading
+                      ? { color: "info", children: "Loading data..." }
+                      : undefined
+                  }
+                  initialState={{ density: "compact" }}
+                />
+              </div>
+            ) : (
+              <EmptyState message="No Renewal Quotes Found" icon="inbox" />
+            )}
           </div>
         )}
 
