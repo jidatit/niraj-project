@@ -18,6 +18,7 @@ import {
   Autocomplete,
   Tooltip,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 
 import {
@@ -216,30 +217,77 @@ const PolicyCreationModal = ({
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.user) newErrors.user = "Client is required";
-    if (!formData.policy_number)
-      newErrors.policy_number = "Policy number is required";
-    if (!formData.insured_address)
-      newErrors.insured_address = "Insured address is required";
-    if (!formData.qsr_type) newErrors.qsr_type = "Policy type is required";
-    if (!formData.carrier) newErrors.carrier = "Carrier is required";
-    if (!formData.effective_date)
-      newErrors.effective_date = "Effective date is required";
-    if (!formData.exp_date) newErrors.exp_date = "Expiry date is required";
+    const errorMessages = [];
 
+    // Required field validations
+    if (!formData.user) {
+      newErrors.user = "Client is required";
+      errorMessages.push("Client is required");
+    }
+    if (!formData.policy_number) {
+      newErrors.policy_number = "Policy number is required";
+      errorMessages.push("Policy number is required");
+    }
+    if (!formData.insured_address) {
+      newErrors.insured_address = "Insured address is required";
+      errorMessages.push("Insured address is required");
+    }
+    if (!formData.qsr_type) {
+      newErrors.qsr_type = "Policy type is required";
+      errorMessages.push("Policy type is required");
+    }
+    if (!formData.carrier) {
+      newErrors.carrier = "Carrier is required";
+      errorMessages.push("Carrier is required");
+    }
+    if (!formData.effective_date) {
+      newErrors.effective_date = "Effective date is required";
+      errorMessages.push("Effective date is required");
+    }
+    if (!formData.exp_date) {
+      newErrors.exp_date = "Expiry date is required";
+      errorMessages.push("Expiry date is required");
+    }
+
+    // Mortgage/lienholder specific validations
     if (
       formData.qsr_type === "Home" &&
       formData.isMortgageOrLienholder === "yes"
     ) {
-      if (!formData.company_name)
+      if (!formData.company_name) {
         newErrors.company_name = "Company name is required";
-      // ...
-      if (!formData.responsible_payment)
+        errorMessages.push("Company name is required for mortgage/lienholder");
+      }
+      if (!formData.responsible_payment) {
         newErrors.responsible_payment = "Responsible payment is required";
+        errorMessages.push(
+          "Responsible payment is required for mortgage/lienholder"
+        );
+      }
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+
+    // Show toast with all validation errors if any
+    if (errorMessages.length > 0) {
+      toast.error(
+        <div>
+          <strong>Please fix the following errors:</strong>
+          <ul style={{ marginTop: "8px", paddingLeft: "20px" }}>
+            {errorMessages.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>,
+        {
+          autoClose: 5000, // Stay open longer for multiple errors
+          style: { maxWidth: "400px" },
+        }
+      );
+      return false;
+    }
+
+    return true;
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -360,12 +408,24 @@ const PolicyCreationModal = ({
                   </Typography>
                   <Autocomplete
                     options={users}
-                    getOptionLabel={(u) => u.name}
+                    getOptionLabel={(option) => option?.name || ""} // Safely get name
+                    renderOption={(props, option) => (
+                      <li {...props}>
+                        <Box>
+                          <Typography>{option.name}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {option.email}
+                          </Typography>
+                        </Box>
+                      </li>
+                    )}
                     loading={loadingUsers}
                     inputValue={inputValue}
-                    onInputChange={(e, v, r) =>
-                      r === "input" && setInputValue(v)
-                    }
+                    onInputChange={(e, v, r) => {
+                      if (r === "input") {
+                        setInputValue(v);
+                      }
+                    }}
                     ListboxProps={{
                       onScroll: (e) => {
                         const node = e.currentTarget;
@@ -379,29 +439,54 @@ const PolicyCreationModal = ({
                       },
                       style: { maxHeight: 200, overflow: "auto" },
                     }}
-                    renderInput={(p) => (
+                    renderInput={(params) => (
                       <TextField
-                        {...p}
+                        {...params}
                         label="Search clients..."
                         error={!!errors.user}
                         helperText={errors.user}
                       />
                     )}
-                    onChange={(_, v) => setFormData((f) => ({ ...f, user: v }))}
+                    onChange={(_, v) => {
+                      setFormData((f) => ({ ...f, user: v }));
+                      // Update input value when selection changes
+                      if (v) {
+                        setInputValue(v.name);
+                      }
+                    }}
                     value={formData.user}
                     fullWidth
                     disabled={isEditMode}
+                    isOptionEqualToValue={(option, value) =>
+                      option?.id === value?.id
+                    }
                   />
                 </Box>
 
                 <Box mb={2}>
-                  <Typography>Attach Referral (optional)</Typography>
+                  <Typography variant="h6" fontWeight="semibold" gutterBottom>
+                    Attach Referral (optional)
+                  </Typography>
                   <Autocomplete
                     options={referrals}
-                    getOptionLabel={(r) => r.name}
+                    getOptionLabel={(option) => option?.name || ""} // Safely get name
+                    renderOption={(props, option) => (
+                      <li {...props}>
+                        <Box>
+                          <Typography>{option.name}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {option.email}
+                          </Typography>
+                        </Box>
+                      </li>
+                    )}
                     loading={loadingRefs}
                     inputValue={inputRef}
-                    onInputChange={(e, v, r) => r === "input" && setInputRef(v)}
+                    onInputChange={(e, v, r) => {
+                      if (r === "input") {
+                        setInputRef(v);
+                      }
+                    }}
                     ListboxProps={{
                       onScroll: (e) => {
                         const node = e.currentTarget;
@@ -415,15 +500,36 @@ const PolicyCreationModal = ({
                       },
                       style: { maxHeight: 200, overflow: "auto" },
                     }}
-                    renderInput={(p) => (
-                      <TextField {...p} label="Search referrals..." />
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Search referrals..."
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loadingRefs && (
+                                <CircularProgress color="inherit" size={20} />
+                              )}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
                     )}
-                    onChange={(_, v) =>
-                      setFormData((f) => ({ ...f, referral: v }))
-                    }
+                    onChange={(_, v) => {
+                      setFormData((f) => ({ ...f, referral: v }));
+                      // Update input value when selection changes
+                      if (v) {
+                        setInputRef(v.name);
+                      }
+                    }}
                     value={formData.referral}
                     fullWidth
                     disabled={isEditMode}
+                    isOptionEqualToValue={(option, value) =>
+                      option?.id === value?.id
+                    }
                   />
                 </Box>
                 {/* Policy Number */}
