@@ -29,6 +29,7 @@ import {
   orderBy,
   limit,
   startAfter,
+  getCountFromServer,
 } from "firebase/firestore";
 import {
   FaChevronRight,
@@ -73,12 +74,42 @@ const AdminUserSelectDialog = ({
   const [activeStep, setActiveStep] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [totalCounts, setTotalCounts] = useState({
+    clients: 0,
+    referrals: 0,
+  });
 
   useEffect(() => {
     if (open) {
+      fetchTotalCounts();
       fetchAllUsers();
     }
   }, [open]);
+
+  const fetchTotalCounts = async () => {
+    try {
+      const clientsQuery = query(
+        collection(db, "users"),
+        where("signupType", "==", "Client")
+      );
+      const referralsQuery = query(
+        collection(db, "users"),
+        where("signupType", "==", "Referral")
+      );
+
+      const [clientsSnapshot, referralsSnapshot] = await Promise.all([
+        getCountFromServer(clientsQuery),
+        getCountFromServer(referralsQuery),
+      ]);
+
+      setTotalCounts({
+        clients: clientsSnapshot.data().count,
+        referrals: referralsSnapshot.data().count,
+      });
+    } catch (error) {
+      console.error("Error fetching counts:", error);
+    }
+  };
 
   const fetchAllUsers = async (searchTerm = "") => {
     setLoading(true);
@@ -369,7 +400,7 @@ const AdminUserSelectDialog = ({
                         <FaUsers size={20} color="#005270" />
                       </ListItemIcon>
                       <ListItemText
-                        primary={`Clients (${users.clients.length})`}
+                        primary={`Clients (${users.clients.length} / ${totalCounts.clients})`}
                         primaryTypographyProps={{
                           sx: { color: "#005270", fontWeight: 500 },
                         }}
@@ -408,7 +439,7 @@ const AdminUserSelectDialog = ({
                         <FaUsers size={20} color="#005270" />
                       </ListItemIcon>
                       <ListItemText
-                        primary={`Referrals (${users.referrals.length})`}
+                        primary={`Referrals (${users.referrals.length} / ${totalCounts.referrals})`}
                         primaryTypographyProps={{
                           sx: { color: "#005270", fontWeight: 500 },
                         }}
