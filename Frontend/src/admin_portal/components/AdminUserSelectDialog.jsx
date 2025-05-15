@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -21,7 +21,15 @@ import {
   StepLabel,
   Stack,
 } from "@mui/material";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit,
+  startAfter,
+} from "firebase/firestore";
 import {
   FaChevronRight,
   FaChevronDown,
@@ -36,6 +44,7 @@ import {
 import RequestPage from "../../user_portal/pages/RequestPage";
 
 const steps = ["Select User", "Submit Quote"];
+const ITEMS_PER_PAGE = 15;
 
 const AdminUserSelectDialog = ({
   onUserSelect,
@@ -44,48 +53,40 @@ const AdminUserSelectDialog = ({
   open,
   setOpen,
 }) => {
-  // const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState([]);
   const [users, setUsers] = useState({ clients: [], referrals: [] });
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [allUsers, setAllUsers] = useState({ clients: [], referrals: [] });
+  const [lastVisible, setLastVisible] = useState({
+    clients: null,
+    referrals: null,
+  });
+  const [isLoading, setIsLoading] = useState({
+    clients: false,
+    referrals: false,
+  });
+  const [hasMore, setHasMore] = useState({
+    clients: true,
+    referrals: true,
+  });
   const [selectedUser, setSelectedUser] = useState(null);
   const [activeStep, setActiveStep] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+
   useEffect(() => {
     if (open) {
       fetchAllUsers();
     }
   }, [open]);
 
-  const fetchAllUsers = async () => {
+  const fetchAllUsers = async (searchTerm = "") => {
     setLoading(true);
     try {
-      // Fetch Clients
-      const clientsQuery = query(
-        collection(db, "users"),
-        where("signupType", "==", "Client")
-      );
-      const clientsSnapshot = await getDocs(clientsQuery);
-      const clientsList = clientsSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      // Fetch Referrals
-      const referralsQuery = query(
-        collection(db, "users"),
-        where("signupType", "==", "Referral")
-      );
-      const referralsSnapshot = await getDocs(referralsQuery);
-      const referralsList = referralsSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setAllUsers({ clients: clientsList, referrals: referralsList });
-      setUsers({ clients: clientsList, referrals: referralsList });
+      await Promise.all([
+        fetchUsers("Client", searchTerm),
+        fetchUsers("Referral", searchTerm),
+      ]);
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {
@@ -93,35 +94,86 @@ const AdminUserSelectDialog = ({
     }
   };
 
-  const handleSearch = (event) => {
-    const query = event.target.value.toLowerCase();
-    setSearchQuery(query);
+  const fetchUsers = async (type, searchTerm = "", loadMore = false) => {
+    setIsLoading((prev) => ({ ...prev, [type.toLowerCase() + "s"]: true }));
 
-    if (query.trim() === "") {
-      setUsers(allUsers);
-      return;
+    try {
+      let baseQuery = query(
+        collection(db, "users"),
+        where("signupType", "==", type),
+        orderBy("name"),
+        limit(ITEMS_PER_PAGE)
+      );
+
+      if (searchTerm) {
+        baseQuery = query(
+          collection(db, "users"),
+          where("signupType", "==", type),
+          where("name", ">=", searchTerm),
+          where("name", "<=", searchTerm + "\uf8ff"),
+          limit(ITEMS_PER_PAGE)
+        );
+      }
+
+      if (loadMore && lastVisible[type.toLowerCase() + "s"]) {
+        baseQuery = query(
+          baseQuery,
+          startAfter(lastVisible[type.toLowerCase() + "s"])
+        );
+      }
+
+      const snapshot = await getDocs(baseQuery);
+      const fetchedUsers = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setLastVisible((prev) => ({
+        ...prev,
+        [type.toLowerCase() + "s"]: snapshot.docs[snapshot.docs.length - 1],
+      }));
+
+      setHasMore((prev) => ({
+        ...prev,
+        [type.toLowerCase() + "s"]: snapshot.docs.length === ITEMS_PER_PAGE,
+      }));
+
+      setUsers((prev) => ({
+        ...prev,
+        [type.toLowerCase() + "s"]: loadMore
+          ? [...prev[type.toLowerCase() + "s"], ...fetchedUsers]
+          : fetchedUsers,
+      }));
+    } catch (error) {
+      console.error(`Error fetching ${type}:`, error);
+    } finally {
+      setIsLoading((prev) => ({ ...prev, [type.toLowerCase() + "s"]: false }));
     }
+  };
 
-    const filteredUsers = {
-      clients: allUsers.clients.filter(
-        (client) =>
-          client.name?.toLowerCase().includes(query) ||
-          client.email?.toLowerCase().includes(query)
-      ),
-      referrals: allUsers.referrals.filter(
-        (referral) =>
-          referral.name?.toLowerCase().includes(query) ||
-          referral.email?.toLowerCase().includes(query)
-      ),
-    };
+  const handleSearch = useCallback((searchValue) => {
+    setSearchQuery(searchValue);
+    if (searchValue.trim() === "") {
+      fetchAllUsers();
+    } else {
+      fetchAllUsers(searchValue);
+    }
+  }, []);
 
-    setUsers(filteredUsers);
+  const debouncedSearch = useCallback(
+    debounce((searchValue) => {
+      handleSearch(searchValue);
+    }, 500),
+    []
+  );
 
-    // Auto-expand categories if there are search results
-    const newExpanded = [];
-    if (filteredUsers.clients.length > 0) newExpanded.push("Client");
-    if (filteredUsers.referrals.length > 0) newExpanded.push("Referral");
-    setExpanded(newExpanded);
+  const handleLoadMore = async (type) => {
+    if (
+      !isLoading[type.toLowerCase() + "s"] &&
+      hasMore[type.toLowerCase() + "s"]
+    ) {
+      await fetchUsers(type, searchQuery, true);
+    }
   };
 
   const handleCategoryClick = (category) => {
@@ -134,14 +186,10 @@ const AdminUserSelectDialog = ({
   };
 
   const handleUserSelect = (user) => {
-    // onUserSelect(user);
     setSelectedUser(user);
-
     setActiveStep(1);
-    // setOpen(false);
-    // setSearchQuery("");
-    // setExpanded([]);
   };
+
   const handleBack = () => {
     setActiveStep(0);
     setSelectedUser(null);
@@ -154,8 +202,9 @@ const AdminUserSelectDialog = ({
     setSelectedUser(null);
     setActiveStep(0);
   };
+
   const renderCategoryContent = (type, userList) => {
-    if (loading) {
+    if (loading && !userList.length) {
       return (
         <Box display="flex" justifyContent="center" p={2}>
           <CircularProgress size={24} sx={{ color: "#005270" }} />
@@ -163,44 +212,56 @@ const AdminUserSelectDialog = ({
       );
     }
 
-    if (userList.length === 0) {
-      return (
-        <Box pl={4} py={1}>
-          <Typography color="text.secondary" variant="body2">
-            No users found
-          </Typography>
-        </Box>
-      );
-    }
+    return (
+      <>
+        {userList.map((user) => (
+          <ListItem key={user.id} disablePadding>
+            <ListItemButton
+              onClick={() => handleUserSelect(user)}
+              sx={{
+                borderRadius: "8px",
+                "&:hover": {
+                  bgcolor: "rgba(0, 82, 112, 0.08)",
+                },
+              }}
+            >
+              <ListItemIcon>
+                <FaUser size={16} color="#005270" />
+              </ListItemIcon>
+              <ListItemText
+                primary={user.name || user.email}
+                secondary={user.email}
+                primaryTypographyProps={{
+                  sx: { fontWeight: 500 },
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
 
-    return userList.map((user) => (
-      <ListItem key={user.id} disablePadding>
-        <ListItemButton
-          onClick={() => handleUserSelect(user)}
-          sx={{
-            borderRadius: "8px",
-            "&:hover": {
-              bgcolor: "rgba(0, 82, 112, 0.08)",
-            },
-          }}
-        >
-          <ListItemIcon>
-            <FaUser size={16} color="#005270" />
-          </ListItemIcon>
-          <ListItemText
-            primary={user.name || user.email}
-            secondary={user.email}
-            primaryTypographyProps={{
-              sx: { fontWeight: 500 },
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
-    ));
+        {hasMore[type.toLowerCase() + "s"] && (
+          <Box display="flex" justifyContent="center" p={1}>
+            <Button
+              onClick={() => handleLoadMore(type)}
+              disabled={isLoading[type.toLowerCase() + "s"]}
+              startIcon={
+                isLoading[type.toLowerCase() + "s"] && (
+                  <CircularProgress size={20} />
+                )
+              }
+            >
+              {isLoading[type.toLowerCase() + "s"] ? "Loading..." : "Load More"}
+            </Button>
+          </Box>
+        )}
+      </>
+    );
   };
+
   const toggleFullScreen = () => {
     setIsFullScreen(!isFullScreen);
   };
+
   return (
     <>
       <Dialog
@@ -263,8 +324,12 @@ const AdminUserSelectDialog = ({
                 fullWidth
                 size="small"
                 placeholder="Search users..."
-                value={searchQuery}
-                onChange={handleSearch}
+                value={inputValue}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setInputValue(newValue);
+                  debouncedSearch(newValue);
+                }}
                 sx={{ mb: 2 }}
                 InputProps={{
                   startAdornment: (
@@ -372,5 +437,18 @@ const AdminUserSelectDialog = ({
     </>
   );
 };
+
+// Debounce utility function
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 export default AdminUserSelectDialog;
