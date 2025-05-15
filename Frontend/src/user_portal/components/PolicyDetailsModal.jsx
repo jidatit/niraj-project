@@ -259,6 +259,8 @@ const PolicyDetailsModal = ({ open, onClose, selectedRow }) => {
                     "Is this home built before 2005?",
                     selectedRow.ishomebuild
                   )}
+                {selectedRow.isCondo &&
+                  renderTextField("Is this home a condo?", selectedRow.isCondo)}
                 {selectedRow.newPurchase &&
                   renderTextField("New Purchase?", selectedRow.newPurchase)}
               </div>

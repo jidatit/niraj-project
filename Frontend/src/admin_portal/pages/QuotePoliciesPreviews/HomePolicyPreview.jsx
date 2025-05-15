@@ -17,6 +17,7 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
     expiryDate,
     mailingAddress,
     occupancy,
+    isCondo,
   } = data;
 
   const renderTextField = (label, value) => (
@@ -169,7 +170,9 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
           <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
             {ishomebuild &&
               renderTextField("Is this home built before 2005?", ishomebuild)}
+
             {newPurchase && renderTextField("New Purchase?", newPurchase)}
+            {isCondo && renderTextField("Is this home a condo?", isCondo)}
           </div>
 
           <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
