@@ -291,7 +291,11 @@ const ReferralsPage = () => {
               renderSkeleton()
             ) : data.length > 0 ? (
               <div className="table w-full">
-                <MaterialReactTable columns={columns} data={data} />
+                <MaterialReactTable
+                  columns={columns}
+                  data={data}
+                  initialState={{ density: "compact" }}
+                />
               </div>
             ) : (
               <p className="text-center mt-5">No Referral Partners Found....</p>
@@ -303,6 +307,7 @@ const ReferralsPage = () => {
               <MaterialReactTable
                 columns={personnelColumns}
                 data={personnelData}
+                initialState={{ density: "compact" }}
               />
             </div>
           ) : (

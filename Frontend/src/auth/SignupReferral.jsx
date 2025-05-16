@@ -84,7 +84,12 @@ const SignupReferral = () => {
         userData.email,
         userData.password
       );
-      await setDoc(doc(db, "users", user.uid), userDataWithoutPasswords);
+      // Adding nameInLower field before saving for searching purposes
+      const userDataToSave = {
+        ...userDataWithoutPasswords,
+        nameInLower: userData?.name?.toLowerCase(),
+      };
+      await setDoc(doc(db, "users", user.uid), userDataToSave);
       setLoader(false);
       toast.success("User registered!");
     } catch (error) {

@@ -60,7 +60,12 @@ const Signup = () => {
         userData.email,
         userData.password
       );
-      await setDoc(doc(db, "users", user.uid), userDataWithoutPasswords);
+      // Add nameInLower field before saving
+      const userDataToSave = {
+        ...userDataWithoutPasswords,
+        nameInLower: userData?.name?.toLowerCase(),
+      };
+      await setDoc(doc(db, "users", user.uid), userDataToSave);
       setLoader(false);
       toast.success("User registered!");
     } catch (error) {

@@ -132,7 +132,7 @@ const AdminUserSelectDialog = ({
       let baseQuery = query(
         collection(db, "users"),
         where("signupType", "==", type),
-        orderBy("name"),
+        orderBy("nameInLower"),
         limit(ITEMS_PER_PAGE)
       );
 
@@ -140,8 +140,8 @@ const AdminUserSelectDialog = ({
         baseQuery = query(
           collection(db, "users"),
           where("signupType", "==", type),
-          where("name", ">=", searchTerm),
-          where("name", "<=", searchTerm + "\uf8ff"),
+          where("nameInLower", ">=", searchTerm?.toLowerCase()),
+          where("nameInLower", "<=", searchTerm?.toLowerCase() + "\uf8ff"),
           limit(ITEMS_PER_PAGE)
         );
       }

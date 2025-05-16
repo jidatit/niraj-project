@@ -110,12 +110,15 @@ const PolicyCreationModal = ({
     let baseQuery = query(
       collection(db, "users"),
       where("signupType", "==", isRef ? "Referral" : "Client"),
-      orderBy("name"),
+      orderBy("nameInLower"),
       limit(PAGE_SIZE)
     );
 
     if (search) {
-      baseQuery = query(baseQuery, where("name", ">=", search));
+      baseQuery = query(
+        baseQuery,
+        where("nameInLower", ">=", search?.toLowerCase())
+      );
     }
     if (cursor) {
       baseQuery = query(baseQuery, startAfter(cursor));
