@@ -6,6 +6,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  getFirestore,
   query,
   updateDoc,
   where,
@@ -24,6 +25,8 @@ import {
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import "react-toastify/dist/ReactToastify.css";
+import { ClientQuoteInspectionUploaded } from "../../utils/mailingFuncs";
+import { useAuth } from "../../AuthContext";
 
 const UploadInspections = () => {
   const navigate = useNavigate();
@@ -31,6 +34,29 @@ const UploadInspections = () => {
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [adminEmail, setAdminEmail] = useState("");
+  const { currentUser } = useAuth();
+
+  useEffect(() => {
+    const fetchAdminEmail = async () => {
+      const db = getFirestore();
+      try {
+        const adminCollection = collection(db, "admins");
+        const adminSnapshot = await getDocs(adminCollection);
+        const adminData = adminSnapshot.docs.map((doc) => doc.data());
+
+        // Assuming the admin collection has only one document with the email
+        if (adminData.length > 0) {
+          setAdminEmail(adminData[0].email); // Adjust this based on your data structure
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+      }
+    };
+
+    fetchAdminEmail();
+  }, []);
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -107,6 +133,12 @@ const UploadInspections = () => {
             fulfilled: true,
           });
         });
+
+        ClientQuoteInspectionUploaded(
+          currentUser?.data?.name,
+          adminEmail,
+          type
+        );
 
         toast.success("Inspections uploaded.");
         setTimeout(() => {
