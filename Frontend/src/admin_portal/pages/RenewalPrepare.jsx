@@ -13,6 +13,10 @@ import {
   updateDoc,
   getDoc,
   serverTimestamp,
+  query,
+  where,
+  limit,
+  setDoc,
 } from "firebase/firestore";
 
 import { db } from "../../../db";
@@ -25,23 +29,29 @@ import { AdminPrepareQuoteMail } from "../../utils/mailingFuncs";
 import { useNavigate } from "react-router-dom";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import NotesSection from "../components/NotesSection";
-
-const EditorPage = () => {
+import { fetchQuotesByEmail } from "../../utils/fetchQuotes";
+import { sendRenewalQuoteNotifications } from "../../utils/EmailNotification";
+function generateQid(randomCharsCount = 6) {
+  const tsPart = Date.now().toString(36); // timestamp in base36
+  const randPart = Array.from({ length: randomCharsCount })
+    .map(() => Math.floor(Math.random() * 36).toString(36)) // random base36 chars
+    .join("");
+  return `${tsPart}${randPart}`;
+}
+const RenewalPrepare = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [QSR_Type, setQSR_Type] = useState("");
   const [Q_id, setQ_id] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const [buttonText, setButtonText] = useState("Submit Quote");
   const [Agents, setAgents] = useState([]);
   const [IsDelivered, setIsDelivered] = useState(false);
   const [IsLoading, setIsLoading] = useState(true);
-
-  const checkAlreadyDeliveredQuote = async (type, id) => {
+  const [renewalQuote, setRenewalQuote] = useState([]);
+  const checkAlreadyDeliveredQuote = async (isProcessed) => {
     try {
-      const collectionRef = getType(type);
-      const docRef = doc(db, collectionRef, id);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists() && docSnap.data().status_step === "2") {
+      if (isProcessed === true) {
         setIsDelivered(true);
       } else {
         setIsDelivered(false);
@@ -54,8 +64,10 @@ const EditorPage = () => {
   };
 
   useEffect(() => {
-    if ((QSR_Type, Q_id)) checkAlreadyDeliveredQuote(QSR_Type, Q_id);
-  }, [QSR_Type, Q_id]);
+    if (renewalQuote?.[0]) {
+      checkAlreadyDeliveredQuote(renewalQuote[0]?.isProcessed);
+    }
+  }, [renewalQuote]);
 
   const [formData, setFormData] = useState({
     user: {},
@@ -123,16 +135,100 @@ const EditorPage = () => {
       console.log("error getting document: ", error);
     }
   };
+  const getQuoteDetailsByEmail = async (renewalQuote) => {
+    const email = renewalQuote?.email?.toLowerCase();
+    if (!email) {
+      console.warn("No email provided for getQuoteDetailsByEmail");
+      return null;
+    }
 
+    try {
+      // 1. Try to fetch most recent quote from prep_quotes
+      const previousQuotesQuery = query(
+        collection(db, "prep_quotes"),
+        where("user.email", "==", email)
+      );
+
+      const previousQuotesSnapshot = await getDocs(previousQuotesQuery);
+      const previousQuotes = previousQuotesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const mostRecentQuote = previousQuotes.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      )[0];
+
+      let userData = null;
+
+      let byReferral = false;
+      let ReferralId = "";
+      let Referral = "";
+
+      if (!mostRecentQuote) {
+        // 2. Fallback: check bound_policies
+        const boundPoliciesQuery = query(
+          collection(db, "bound_policies"),
+          where("user.email", "==", email),
+          limit(1)
+        );
+
+        const boundPoliciesSnapshot = await getDocs(boundPoliciesQuery);
+
+        if (!boundPoliciesSnapshot.empty) {
+          const latestPolicy = boundPoliciesSnapshot.docs[0].data();
+          userData = latestPolicy.user;
+          byReferral = latestPolicy.user?.byReferral || false;
+          ReferralId = latestPolicy.user?.ReferralId || "";
+          Referral = latestPolicy.user?.Referral || "";
+        } else {
+          // 3. Final fallback: use minimal info from renewalQuote
+          userData = {
+            email: renewalQuote.Email,
+            name: "",
+            address: renewalQuote.Address || "",
+            zipCode: renewalQuote.zipCode || "",
+            phoneNumber: "",
+            mailingAddress: renewalQuote.Address || "",
+            label: renewalQuote.Email,
+            value: renewalQuote.Email,
+          };
+        }
+      } else {
+        // Use data from existing prep quote
+        userData = mostRecentQuote.user;
+        byReferral = mostRecentQuote.user?.byReferral || false;
+        ReferralId = mostRecentQuote.user?.ReferralId || "";
+        Referral = mostRecentQuote.user?.Referral || "";
+      }
+
+      return {
+        ...userData,
+        label: userData?.email,
+        value: userData?.email,
+        address: userData?.address || userData?.garaging_address || "",
+        mailingAddress: userData?.mailingAddress || "",
+        byReferral,
+        ReferralId,
+        Referral,
+      };
+    } catch (error) {
+      console.error("Error getting quote details by email:", error);
+      return null;
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       const searchParams = new URLSearchParams(location.search);
       const qsrTypeParam = searchParams.get("qsr_type");
-      const q_id = searchParams.get("q_id");
+      const q_id = generateQid();
+      const email = searchParams.get("email");
 
       setQ_id(q_id);
+      setUserEmail(email);
       setQSR_Type(qsrTypeParam);
-
+      const results = await fetchQuotesByEmail(email);
+      setRenewalQuote(results);
       setFormData((prevData) => {
         const updated = {
           ...prevData,
@@ -142,7 +238,7 @@ const EditorPage = () => {
         return updated;
       });
 
-      const inuser = await getQuoteDetails(qsrTypeParam, q_id);
+      const inuser = await getQuoteDetailsByEmail(results[0]);
 
       setFormData((prevData) => {
         const updated = {
@@ -184,6 +280,15 @@ const EditorPage = () => {
 
   const handlePrepQuote = async () => {
     try {
+      const updatedFormData = {
+        ...formData,
+        status_step: "3",
+        isRenewal: true,
+        renewalSourceIds: Array.isArray(renewalQuote)
+          ? renewalQuote.map((quote) => quote.id)
+          : [],
+      };
+
       setSubBtnDisabler(true);
       if (Object.keys(formData?.user).length === 0) {
         toast.warn("Select a user!");
@@ -197,17 +302,20 @@ const EditorPage = () => {
         toast.warn("Table 1 has empty value(s)");
         return;
       }
+
       setButtonText("Submitting Quote");
-      await addDoc(collection(db, "prep_quotes"), formData);
 
-      await updateStatusStep(QSR_Type, Q_id);
+      await setDoc(doc(db, "prep_quotes", Q_id), updatedFormData);
 
-      AdminPrepareQuoteMail(
-        formData?.user?.name,
-        formData?.user?.email,
-        QSR_Type
-      );
-      toast.success("Quote prepared successfully!");
+      await updateStatusStep(renewalQuote);
+
+      //   AdminPrepareQuoteMail(
+      //     formData?.user?.name,
+      //     formData?.user?.email,
+      //     QSR_Type
+      //   );
+      await sendRenewalQuoteNotifications(updatedFormData, renewalQuote);
+      toast.success("Renewal Quote prepared successfully!");
       setButtonText("Submit Quote");
       setTimeout(() => {
         navigate("/admin_portal");
@@ -219,17 +327,21 @@ const EditorPage = () => {
     }
   };
 
-  const updateStatusStep = async (type, id) => {
+  const updateStatusStep = async (renewalQuotes = []) => {
+    if (!Array.isArray(renewalQuotes) || renewalQuotes.length === 0) return;
+
     try {
-      const collectionRef = getType(type);
-      const docRef = doc(db, collectionRef, id);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        await updateDoc(docRef, {
-          status_step: "2",
+      const updatePromises = renewalQuotes.map(async (rq) => {
+        const renewalQuoteRef = doc(db, "renewal_quotes", rq?.id);
+        await updateDoc(renewalQuoteRef, {
+          processed: true,
+          processedAt: new Date().toISOString(),
         });
-      }
+      });
+
+      await Promise.all(updatePromises);
     } catch (error) {
+      console.error("Error updating renewal quotes:", error);
       toast.error("Error updating status!");
     }
   };
@@ -253,7 +365,7 @@ const EditorPage = () => {
                 boxShadow: 2,
               }}
             >
-              Quote Already Delivered for type:{" "}
+              Renewal Quote Already Delivered for type:{" "}
               <span style={{ fontWeight: "bold" }}>{QSR_Type}</span> and Id:{" "}
               <span style={{ fontWeight: "bold" }}>{Q_id}</span>
             </Typography>
@@ -326,6 +438,8 @@ const EditorPage = () => {
                 QSR={QSR_Type}
                 tableData={getDatafromTable}
                 user={formData.user}
+                isRenewal={true}
+                renewalQuote={renewalQuote}
               />
             )}
 
@@ -345,4 +459,4 @@ const EditorPage = () => {
   );
 };
 
-export default EditorPage;
+export default RenewalPrepare;

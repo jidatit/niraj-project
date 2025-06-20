@@ -33,6 +33,7 @@ import ForgotPasswordClient from "./auth/ForgotPasswordClient";
 import ForgotPasswordReferral from "./auth/ForgotPasswordReferral";
 import ProfilePage from "./user_portal/pages/ProfilePage";
 import ReferralsPage from "./admin_portal/pages/ReferralsPage";
+import RenewalPrepare from "./admin_portal/pages/RenewalPrepare";
 function App() {
   return (
     <>
@@ -70,6 +71,8 @@ function App() {
             <Route path="policy_changes" element={<PolicyChanges />} />
             <Route path="agents" element={<AgentPage />} />
             <Route path="editor" element={<EditorPage />} />
+            <Route path="renewal" element={<RenewalPrepare />} />
+
             <Route path="logout" element={<Logout />} />
           </Route>
 

@@ -16,7 +16,7 @@ import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const CustomTable = ({ QSR, tableData, user }) => {
+const CustomTable = ({ QSR, tableData, user, isRenewal, renewalQuote }) => {
   const homeCarriers = [
     "All Risks",
     "Allstate",
@@ -493,11 +493,10 @@ const CustomTable = ({ QSR, tableData, user }) => {
   };
 
   useEffect(() => {
-    if ((user.email, user.zipCode)) {
+    if (user && user.email && user.zipCode && isRenewal !== true) {
       fetchCmsData(user.email.toLowerCase(), user.zipCode.toLowerCase());
     }
-  }, [user.email, user.zipCode]);
-
+  }, [user.email, user.zipCode, user.isRenewal]);
   const handleWordRowDelete = (id) => {
     const updatedData = tableData2 && tableData2.filter((row) => row.id !== id);
     setTableData2(updatedData);
@@ -509,27 +508,38 @@ const CustomTable = ({ QSR, tableData, user }) => {
     tableData(tableData1, 1);
   }, [tableData2, tableData1]);
 
+  useEffect(() => {
+    if (isRenewal === true) {
+      setTableData2(renewalQuote);
+    }
+  }, []);
+
   return (
     <>
       <div className="w-[90%] flex mt-[20px] flex-col justify-center items-start">
         <div className="mt-5 mb-5 flex flex-row justify-between items-center w-full">
           <SubOptButton actionType={handleActionChange} />
-          <Button
-            onClick={() =>
-              fetchCmsData(user.email.toLowerCase(), user.zipCode.toLowerCase())
-            }
-            variant="contained"
-            color="success"
-          >
-            {loading ? (
-              <>
-                <CircularProgress color="inherit" size={15} />
-                <span className="ml-2">Fetching</span>
-              </>
-            ) : (
-              "Fetch Latest Data"
-            )}
-          </Button>
+          {!isRenewal && (
+            <Button
+              onClick={() =>
+                fetchCmsData(
+                  user.email.toLowerCase(),
+                  user.zipCode.toLowerCase()
+                )
+              }
+              variant="contained"
+              color="success"
+            >
+              {loading ? (
+                <>
+                  <CircularProgress color="inherit" size={15} />
+                  <span className="ml-2">Fetching</span>
+                </>
+              ) : (
+                "Fetch Latest Data"
+              )}
+            </Button>
+          )}
         </div>
 
         {tableCols1 && tableData1 && (

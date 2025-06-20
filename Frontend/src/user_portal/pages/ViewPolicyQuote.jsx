@@ -109,7 +109,6 @@ const ViewPolicyQuote = () => {
   const removeFile = (index) => {
     setFiles((prevFiles) => {
       const updatedFiles = prevFiles.filter((_, i) => i !== index);
-
       return updatedFiles;
     });
   };
@@ -502,10 +501,10 @@ const ViewPolicyQuote = () => {
       id: "date",
       header: "Date",
     },
-    {
-      accessorKey: "qid",
-      header: "Quote ID",
-    },
+    // {
+    //   accessorKey: "q_id",
+    //   header: "Quote ID",
+    // },
 
     {
       // show referral name or “No Referral”
@@ -527,7 +526,6 @@ const ViewPolicyQuote = () => {
       id: "address",
       header: "Address",
     },
-
     {
       // count of source IDs
       accessorFn: (row) =>

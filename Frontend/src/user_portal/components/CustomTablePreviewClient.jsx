@@ -46,6 +46,7 @@ const CustomTablePreviewClient = ({
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [tableCols1, setTableCols1] = useState(null);
+  const isAdmin = currentUser?.data?.signupType === "admin";
 
   const [openbindoptions, setopenbindoptions] = useState(false);
   const [SlideModal, setSlideModal] = useState(false);
@@ -541,33 +542,37 @@ const CustomTablePreviewClient = ({
                       </Select>
                     </FormControl>
                   </div>
-                  <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
-                    <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
-                      AC Age in Years
-                    </p>
-                    <TextField
-                      className="w-full"
-                      id="ac_age"
-                      type="number"
-                      value={formData.ac_age}
-                      onChange={(e) => handleChange(e)}
-                      name="ac_age"
-                    />
-                  </div>
+                  {isAdmin && (
+                    <>
+                      <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                        <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                          AC Age in Years
+                        </p>
+                        <TextField
+                          className="w-full"
+                          id="ac_age"
+                          type="number"
+                          value={formData.ac_age}
+                          onChange={(e) => handleChange(e)}
+                          name="ac_age"
+                        />
+                      </div>
 
-                  <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
-                    <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
-                      Roof Age in Years
-                    </p>
-                    <TextField
-                      className="w-full"
-                      id="roof_age"
-                      type="number"
-                      value={formData.roof_age}
-                      onChange={(e) => handleChange(e)}
-                      name="roof_age"
-                    />
-                  </div>
+                      <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
+                        <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
+                          Roof Age in Years
+                        </p>
+                        <TextField
+                          className="w-full"
+                          id="roof_age"
+                          type="number"
+                          value={formData.roof_age}
+                          onChange={(e) => handleChange(e)}
+                          name="roof_age"
+                        />
+                      </div>
+                    </>
+                  )}
                   <div className="w-full flex mt-[20px] mb-[20px] gap-2 flex-col justify-center items-start">
                     <p className="lg:text-[22px] md:text-start text-center font-semibold md:text-[18px] text-[13px]">
                       Purchase Date

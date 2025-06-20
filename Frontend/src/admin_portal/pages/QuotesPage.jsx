@@ -8,6 +8,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Modal,
   Paper,
   Skeleton,
   Table,
@@ -16,6 +17,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Tooltip,
 } from "@mui/material";
 import { Menu, MenuItem, IconButton } from "@mui/material";
@@ -42,13 +44,14 @@ import {
   getCountFromServer,
   limit,
   startAfter,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../../../db";
 import HomePolicyPreview from "./QuotePoliciesPreviews/HomePolicyPreview";
 import AutoPolicyPreview from "./QuotePoliciesPreviews/AutoPolicyPreview";
 import LiabilityPolicyPreview from "./QuotePoliciesPreviews/LiabilityPolicyPreview";
 import FloodPolicyPreview from "./QuotePoliciesPreviews/FloodPolicyPreview";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DeliveredQuotePreviewAdmin from "../components/DeliveredQuotePreviewAdmin";
 import BinderReqPreview from "../components/BinderReqPreview";
 import {
@@ -67,8 +70,15 @@ import PolicyCreationModal from "../components/PolicyCreateModal";
 import AdminUserSelectDialog from "../components/AdminUserSelectDialog";
 import EmptyState from "../../components/EmptyState";
 import { AttachReferralModal } from "../components/AttachReferral";
+import { useQuotesStore } from "../../utils/quotesStore";
 
 const QuotesPage = () => {
+  const {
+    quotes: preAssignQuotes,
+    loading: quotesLoading,
+    fetchQuotes,
+  } = useQuotesStore();
+
   const [selectedButton, setSelectedButton] = useState(null);
   const [openModal, setopenModal] = useState(false);
   const [popupValue, setPopupvalue] = useState(null);
@@ -751,7 +761,7 @@ const QuotesPage = () => {
       console.log(error);
     }
   };
-
+  const [bindQid, setBindQid] = useState();
   const binder_req_columns = useMemo(
     () => [
       {
@@ -805,36 +815,90 @@ const QuotesPage = () => {
       {
         header: "Actions",
         size: 200,
-        Cell: ({ cell }) => (
-          <Box display="flex" alignItems="center" gap="18px">
-            <button
-              onClick={() => slideModalOpen(cell.row.original)}
-              className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
-            >
-              View Binder
-            </button>
-            <button
-              disabled={boundLoader[cell.row.original.id]}
-              onClick={() =>
-                handleBoundPolicy(cell.row.original, cell.row.original.id)
-              }
-              className="bg-[#17A600] rounded-[18px] flex flex-row justify-center items-center gap-1 px-[16px] py-[4px] text-white text-[10px]"
-            >
-              {boundLoader[cell.row.original.id] ? (
-                <>
-                  <span>Binding</span>
-                  <CircularProgress size={20} color="inherit" />
-                </>
-              ) : (
-                "Bind Policy"
+        Cell: ({ cell }) => {
+          const row = cell.row.original;
+          const missingAges = !row.ac_age || !row.roof_age;
+          return (
+            <Box display="flex" alignItems="center" gap="18px">
+              <button
+                onClick={() => slideModalOpen(row)}
+                className="bg-[#003049] rounded-[18px] px-[16px] py-[4px] text-white text-[10px]"
+              >
+                View Binder
+              </button>
+              <button
+                disabled={boundLoader[row.id]}
+                onClick={() => handleBoundPolicy(row, row.id)}
+                className="bg-[#17A600] rounded-[18px] flex flex-row justify-center items-center gap-1 px-[16px] py-[4px] text-white text-[10px]"
+              >
+                {boundLoader[row.id] ? (
+                  <>
+                    <span>Binding</span>
+                    <CircularProgress size={20} color="inherit" />
+                  </>
+                ) : (
+                  "Bind Policy"
+                )}
+              </button>
+              {missingAges && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="warning"
+                  onClick={() => {
+                    setAgeModalOpen(true);
+                    setBindQid(row.id);
+                  }}
+                  sx={{ fontSize: 10, ml: 1 }}
+                >
+                  {!row.ac_age && !row.roof_age
+                    ? "Add AC & Roof Age"
+                    : !row.ac_age
+                    ? "Add AC Age"
+                    : "Add Roof Age"}
+                </Button>
               )}
-            </button>
-          </Box>
-        ),
+            </Box>
+          );
+        },
       },
     ],
     [boundLoader]
   );
+
+  const [ageModalOpen, setAgeModalOpen] = useState(false);
+  const [ageFields, setAgeFields] = useState({
+    ac_age: "",
+    roof_age: "",
+  });
+  const [ageLoading, setAgeLoading] = useState(false);
+  const handleAgeSubmit = async () => {
+    if (!ageFields.ac_age || !ageFields.roof_age) {
+      toast.error("Both AC Age and Roof Age are required.");
+      return;
+    }
+
+    try {
+      setAgeLoading(true);
+
+      const docRef = doc(db, "bind_req_quotes", bindQid);
+      await updateDoc(docRef, {
+        ac_age: ageFields.ac_age,
+        roof_age: ageFields.roof_age,
+      });
+
+      toast.success("Ages updated!");
+
+      setAgeModalOpen(false);
+      getAllBinderRequestedQuotes();
+      setBindQid(null);
+    } catch (err) {
+      console.error("Error updating ages:", err);
+      toast.error("Error updating ages.");
+    } finally {
+      setAgeLoading(false);
+    }
+  };
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedPolicy, setSelectedPolicy] = useState(null);
@@ -1333,6 +1397,66 @@ const QuotesPage = () => {
       </TableContainer>
     );
   };
+  const navigate = useNavigate();
+  const preRenewalColumns = [
+    {
+      accessorKey: "Name",
+      header: "Client Name",
+      size: 200,
+    },
+    {
+      accessorKey: "Email",
+      header: "Email",
+      size: 220,
+    },
+    {
+      accessorKey: "Carrier",
+      header: "Carrier",
+      size: 180,
+    },
+    {
+      accessorKey: "zipCode",
+      header: "Zip Code",
+      size: 100,
+    },
+    {
+      accessorKey: "receivedAt",
+      header: "Received At",
+      size: 150,
+      cell: (info) => new Date(info.getValue()).toLocaleDateString(),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      size: 140,
+      enableColumnFilter: false,
+      enableSorting: false,
+      Cell: ({ row }) => {
+        const email = row.original.Email;
+        return (
+          <Button
+            size="sm"
+            variant="contained"
+            sx={{
+              bgcolor: "#005270",
+              "&:hover": { bgcolor: "#003049" },
+              borderRadius: "8px",
+              textTransform: "none",
+            }}
+            onClick={() =>
+              navigate(
+                `/admin_portal/renewal?email=${encodeURIComponent(
+                  email
+                )}&qsr_type=Home`
+              )
+            }
+          >
+            Send Quote
+          </Button>
+        );
+      },
+    },
+  ];
 
   return (
     <>
@@ -1453,6 +1577,24 @@ const QuotesPage = () => {
               </p>
             </div>
             <img src={tickicon} alt="Tick icon" className="w-8 h-8" />
+          </div>
+          <div
+            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
+              selectedButton === "preAssignQuotes"
+                ? "bg-[#003049] text-white"
+                : "bg-white"
+            }`}
+            onClick={() => handleButtonClick("preAssignQuotes")}
+          >
+            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
+              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
+                Pre Renewal Quotes
+              </p>
+              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
+                {preAssignQuotes?.length || 0} Pre Quotes Pending
+              </p>
+            </div>
+            <img src={boxicon} alt="Box icon" className="w-8 h-8" />
           </div>
         </div>
 
@@ -1634,6 +1776,52 @@ const QuotesPage = () => {
             )}
           </div>
         )}
+        {selectedButton === "preAssignQuotes" && (
+          <div className="w-full flex flex-col justify-center items-center mt-4">
+            {quotesLoading ? (
+              <div className="w-full text-center py-10">{renderSkeleton()}</div>
+            ) : preAssignQuotes.length > 0 ? (
+              <>
+                <div className="flex justify-end w-full max-w-7xl mb-4">
+                  <Button onClick={fetchQuotes} variant="outline">
+                    🔄 Refresh Quotes
+                  </Button>
+                </div>
+
+                <div className="w-full ">
+                  <MaterialReactTable
+                    columns={preRenewalColumns}
+                    data={preAssignQuotes}
+                    muiToolbarAlertBannerProps={
+                      quotesLoading
+                        ? { color: "info", children: "Loading data..." }
+                        : undefined
+                    }
+                    initialState={{ density: "compact" }}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-6 mt-16">
+                <div className="text-center">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                    No Pre-Renewal Quotes Yet
+                  </h3>
+                  <p className="text-gray-500">
+                    Click the button below to fetch the latest renewal quotes.
+                  </p>
+                </div>
+
+                <Button
+                  onClick={fetchQuotes}
+                  className="px-6 py-3 text-base bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition-all duration-200"
+                >
+                  📥 Fetch Renewal Quotes
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
 
         {selectedPolicyType === "Home" && (
           <HomePolicyPreview
@@ -1664,6 +1852,68 @@ const QuotesPage = () => {
           />
         )}
       </div>
+      <Modal
+        open={ageModalOpen}
+        onClose={() => setAgeModalOpen(false)}
+        aria-labelledby="add-ages-modal"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Box
+          sx={{
+            bgcolor: "background.paper",
+            p: 4,
+            borderRadius: 2,
+            boxShadow: 24,
+            minWidth: 320,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          <h2 className="font-bold text-lg mb-2">Add AC Age and Roof Age</h2>
+          <TextField
+            label="AC Age (years)"
+            type="number"
+            value={ageFields.ac_age}
+            onChange={(e) =>
+              setAgeFields((prev) => ({ ...prev, ac_age: e.target.value }))
+            }
+            fullWidth
+          />
+          <TextField
+            label="Roof Age (years)"
+            type="number"
+            value={ageFields.roof_age}
+            onChange={(e) =>
+              setAgeFields((prev) => ({ ...prev, roof_age: e.target.value }))
+            }
+            fullWidth
+          />
+          <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+            <Button
+              size="sm"
+              color="error"
+              onClick={() => setAgeModalOpen(false)}
+              disabled={ageLoading}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outlined"
+              onClick={handleAgeSubmit}
+              disabled={ageLoading}
+            >
+              {ageLoading ? "Saving..." : "Save"}
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
 
       <Dialog
         fullWidth
@@ -1753,6 +2003,8 @@ const QuotesPage = () => {
         }}
         policy={selectedPolicyReferral}
       />
+
+      {/* AC Age and Roof Age check */}
     </>
   );
 };
