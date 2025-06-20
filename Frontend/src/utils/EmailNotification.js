@@ -2,7 +2,7 @@ import emailjs from "@emailjs/browser";
 import { doc, getDoc } from "firebase/firestore";
 
 import { db } from "../../db";
-import { formatEmailBody } from "../../../Backend/utils/formateEmail";
+import { formatEmailBody } from "./formatEmailBody";
 
 // Utility to send renewal quote email and optionally notify referral
 export async function sendRenewalQuoteNotifications(
