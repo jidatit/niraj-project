@@ -1420,7 +1420,7 @@ const QuotesPage = () => {
       size: 100,
     },
     {
-      accessorKey: "receivedAt",
+      accessorKey: "receivedAtFormatted",
       header: "Received At",
       size: 150,
       cell: (info) => new Date(info.getValue()).toLocaleDateString(),

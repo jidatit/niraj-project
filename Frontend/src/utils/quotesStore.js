@@ -15,7 +15,6 @@ export const useQuotesStore = create(
         try {
           const snapshot = await fetchAllQuotesFromFirebase();
           const allQuotes = snapshot.docs.map((doc) => doc.data());
-          console.log("all quotes", allQuotes);
 
           // Deduplicate by Email (keep latest by receivedAt)
           const emailMap = new Map();
@@ -28,9 +27,18 @@ export const useQuotesStore = create(
               emailMap.set(quote.Email, quote);
             }
           });
+          const dedupedQuotes = Array.from(emailMap.values()).map((quote) => {
+            const date = new Date(quote.receivedAt);
+            const mm = (date.getMonth() + 1).toString().padStart(2, "0");
+            const dd = date.getDate().toString().padStart(2, "0");
+            const yyyy = date.getFullYear();
 
-          const dedupedQuotes = Array.from(emailMap.values());
-          console.log("deputedQuotes", dedupedQuotes);
+            return {
+              ...quote,
+              receivedAtFormatted: `${mm}/${dd}/${yyyy}`,
+            };
+          });
+
           set({ quotes: dedupedQuotes, loading: false });
         } catch (err) {
           console.error(err);
