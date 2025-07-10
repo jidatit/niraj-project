@@ -1405,8 +1405,8 @@ const QuotesPage = () => {
       size: 200,
     },
     {
-      accessorKey: "Email",
-      header: "Email",
+      accessorKey: "Address",
+      header: "Property Address",
       size: 220,
     },
     {

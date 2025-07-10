@@ -529,7 +529,7 @@ const PolicyCreationModal = ({
                     }}
                     value={formData.referral}
                     fullWidth
-                    disabled={isEditMode}
+                    // disabled={isEditMode}
                     isOptionEqualToValue={(option, value) =>
                       option?.id === value?.id
                     }
