@@ -170,8 +170,8 @@ const PolicyCreationModal = ({
       });
 
       // *** ADD THESE TWO LINES ***
-      setInputValue(editData.user?.name ?? "N/A");
-      setInputRef(editData.Referral?.name ?? "N/A");
+      setInputValue(editData.user?.name ?? "");
+      setInputRef(editData.Referral?.name ?? "");
     } else {
       setFormData({
         user: null,
