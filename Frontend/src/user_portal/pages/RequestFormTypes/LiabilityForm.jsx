@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment } from "@mui/material";
 
-const LiabilityForm = ({ selectedUser }) => {
+const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
   const [adminEmail, setAdminEmail] = useState("");
 
@@ -103,6 +103,7 @@ const LiabilityForm = ({ selectedUser }) => {
         address: formData.mailingAddress,
         status: "completed",
         status_step: "1",
+        ...(PreRenwalQuote && { PreRenwalQuote }),
         inuser: formData.persons[0],
         ...(currentUser?.data?.signupType === "Referral" && {
           byReferral: true,

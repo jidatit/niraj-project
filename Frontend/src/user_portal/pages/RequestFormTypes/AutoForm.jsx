@@ -35,7 +35,7 @@ import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment, Tooltip } from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
 
-const AutoForm = ({ selectedUser }) => {
+const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
 
   const redirectFunc = (path) => {
@@ -131,6 +131,7 @@ const AutoForm = ({ selectedUser }) => {
           ...nofilesformData, // Include the existing form data
           createdAt: serverTimestamp(), // Automatically add the creation timestamp
           updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
+          ...(PreRenwalQuote && { PreRenwalQuote }),
           ...(currentUser?.data?.signupType === "Referral" && {
             byReferral: true,
             ReferralId: currentUser?.uid,
@@ -192,6 +193,7 @@ const AutoForm = ({ selectedUser }) => {
         inuser: formDataWithUrls.drivers[0],
         createdAt: serverTimestamp(), // Automatically add the current timestamp
         updatedAt: serverTimestamp(), // Set initial updatedAt to the same timestamp
+        ...(PreRenwalQuote && { PreRenwalQuote }),
         ...(currentUser?.data?.signupType === "Referral" && {
           byReferral: true,
           ReferralId: currentUser?.uid,

@@ -9,7 +9,7 @@ import AutoForm from "./RequestFormTypes/AutoForm";
 import LiabilityForm from "./RequestFormTypes/LiabilityForm";
 import FloodForm from "./RequestFormTypes/FloodForm";
 
-const RequestPage = ({ selectedUser }) => {
+const RequestPage = ({ selectedUser, PreRenwalQuote }) => {
   const [selectedValue, setSelectedValue] = useState({
     label: "Home Policy",
     value: "Home",
@@ -36,16 +36,28 @@ const RequestPage = ({ selectedUser }) => {
           </div>
 
           {selectedValue && selectedValue.value === "Home" && (
-            <HomeForm selectedUser={selectedUser} />
+            <HomeForm
+              selectedUser={selectedUser}
+              PreRenwalQuote={PreRenwalQuote}
+            />
           )}
           {selectedValue && selectedValue.value === "Auto" && (
-            <AutoForm selectedUser={selectedUser} />
+            <AutoForm
+              selectedUser={selectedUser}
+              PreRenwalQuote={PreRenwalQuote}
+            />
           )}
           {selectedValue && selectedValue.value === "Liability" && (
-            <LiabilityForm selectedUser={selectedUser} />
+            <LiabilityForm
+              selectedUser={selectedUser}
+              PreRenwalQuote={PreRenwalQuote}
+            />
           )}
           {selectedValue && selectedValue.value === "Flood" && (
-            <FloodForm selectedUser={selectedUser} />
+            <FloodForm
+              selectedUser={selectedUser}
+              PreRenwalQuote={PreRenwalQuote}
+            />
           )}
         </div>
       </div>

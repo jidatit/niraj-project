@@ -120,6 +120,8 @@ const QuotesPage = () => {
   };
 
   const [req_quotes, setReqQuotes] = useState([]);
+  //this is for the pre rennewal quotes
+  const [preRenewalQuotes, setPreRenewalQuotes] = useState([]);
   const [del_quotes, setDelQuotes] = useState([]);
   const [binder_req_quotes, setBinderReqQuotes] = useState([]);
   const [policy_bound_data, setpolicy_bound_data] = useState([]);
@@ -167,10 +169,13 @@ const QuotesPage = () => {
       const liabilityQuotesCollection = collection(db, "liability_quotes");
       const floodQuotesCollection = collection(db, "flood_quotes");
 
-      const hqsnapshot = await getDocs(homeQuotesCollection);
-      const aqsnapshot = await getDocs(autoQuotesCollection);
-      const lqsnapshot = await getDocs(liabilityQuotesCollection);
-      const fqsnapshot = await getDocs(floodQuotesCollection);
+      const [hqsnapshot, aqsnapshot, lqsnapshot, fqsnapshot] =
+        await Promise.all([
+          getDocs(homeQuotesCollection),
+          getDocs(autoQuotesCollection),
+          getDocs(liabilityQuotesCollection),
+          getDocs(floodQuotesCollection),
+        ]);
 
       const homeQuotesData = hqsnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -195,26 +200,35 @@ const QuotesPage = () => {
         ...liabilityQuotesData,
         ...floodQuotesData,
       ];
-      let allReqQuotes = [];
-      allQuotes?.forEach((quote) => {
+
+      // Split into pre-renewal and non-pre-renewal
+      const reqQuotes = [];
+      const preRenewalQuotes = [];
+
+      allQuotes.forEach((quote) => {
         if (quote.status_step === "1") {
-          allReqQuotes.push(quote);
+          if (quote?.PreRenwalQuote === true) {
+            preRenewalQuotes.push(quote);
+          } else {
+            reqQuotes.push(quote);
+          }
         }
       });
-      // Sort by createdAt, latest first
-      const sortedQuotes = allQuotes.sort((a, b) => {
-        const dateA = a.createdAt?.toMillis?.() || 0; // Use 0 if createdAt is missing
+
+      const sortByCreatedAtDesc = (a, b) => {
+        const dateA = a.createdAt?.toMillis?.() || 0;
         const dateB = b.createdAt?.toMillis?.() || 0;
-
-        // Sort by createdAt descending, pushing missing dates to the bottom
         return dateB - dateA;
-      });
+      };
 
-      setReqQuotes(sortedQuotes);
+      setReqQuotes(reqQuotes.sort(sortByCreatedAtDesc));
+      setPreRenewalQuotes(preRenewalQuotes.sort(sortByCreatedAtDesc));
     } catch (error) {
       toast.error("Error Fetching Requested Quotes!");
+      console.error("getAllReqQuoteTypes error:", error);
     }
   };
+
   const getAllDeliveredQuotes = async () => {
     try {
       const DeliveredQuotesCollection = collection(db, "prep_quotes");
@@ -1355,6 +1369,11 @@ const QuotesPage = () => {
       fetchRenewalQuotes();
     }
   }, [selectedButton]);
+
+  //Pre renewal quotes submission ,using same component that we were using for simple quote submission
+  const [openPreRenewalQuoteModal, setOpenPreRenewalQuoteModal] =
+    useState(false);
+
   const renderSkeleton = () => {
     return (
       <TableContainer component={Paper}>
@@ -1461,143 +1480,284 @@ const QuotesPage = () => {
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
-        <div className="w-[95%] mx-auto grid grid-cols-1 md:grid-cols-3 gap-3">
-          {/* First Row: Quotes and Binder */}
-          <div
-            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
-              selectedButton === "requestedQuotes"
-                ? "bg-[#003049] text-white"
-                : "bg-white"
-            }`}
-            onClick={() => handleButtonClick("requestedQuotes")}
-          >
-            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
-              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
-                Requested Quotes
-              </p>
-              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
-                {req_quotes?.length || 0} Quotes Requested
-              </p>
+        {/* <div className="w-[95%] mx-auto flex flex-wrap gap-2">
+          {[
+            {
+              key: "requestedQuotes",
+              label: "Requested Quotes",
+              count: req_quotes?.length || 0,
+              icon: papericon,
+            },
+            {
+              key: "preRenewalQuotes",
+              label: "Pre-Renewal Quotes",
+              count: preRenewalQuotes?.length || 0,
+              icon: papericon,
+            },
+            {
+              key: "deliveredQuotes",
+              label: "Delivered Quotes",
+              count: del_quotes?.length || 0,
+              icon: boxicon,
+            },
+            {
+              key: "policyBound",
+              label: "Active Policies",
+              count: policy_bound_data?.length || 0,
+              icon: peopleicon,
+            },
+            {
+              key: "policyHistory",
+              label: "Expired Policies",
+              count: policy_history_data?.length || 0,
+              icon: historyicon,
+            },
+            {
+              key: "binderRequested",
+              label: "Binder Requested",
+              count: binder_req_quotes?.length || 0,
+              icon: tickicon,
+            },
+            {
+              key: "preAssignQuotes",
+              label: "Pre Renewal Quotes",
+              count: preAssignQuotes?.length || 0,
+              icon: boxicon,
+            },
+            {
+              key: "renewalQuotes",
+              label: "Renewal Quotes",
+              count: totalQuotes || 0,
+              icon: boxicon,
+            },
+          ].map(({ key, label, count, icon }) => (
+            <button
+              key={key}
+              className={`flex items-center gap-2 px-3 py-2 rounded-t-lg transition-all duration-75 cursor-pointer ${
+                selectedButton === key
+                  ? "bg-[#003049] text-white"
+                  : "bg-white text-gray-800 hover:bg-[#003049] hover:text-white"
+              }`}
+              onClick={() => handleButtonClick(key)}
+            >
+              <img src={icon} alt={`${label} icon`} className="w-6 h-6" />
+              <span className="text-sm font-semibold">{label}</span>
+              <span className="bg-gray-200 text-gray-800 text-xs font-light px-2 py-0.5 rounded-full">
+                {count}
+              </span>
+            </button>
+          ))}
+        </div> */}
+        {/* <div className="w-[95%] mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+          {[
+            {
+              key: "requestedQuotes",
+              label: "Requested Quotes",
+              count: req_quotes?.length || 0,
+              icon: papericon,
+            },
+            {
+              key: "preRenewalQuotes",
+              label: "Pre-Renewal Quotes",
+              count: preRenewalQuotes?.length || 0,
+              icon: papericon,
+            },
+            {
+              key: "deliveredQuotes",
+              label: "Delivered Quotes",
+              count: del_quotes?.length || 0,
+              icon: boxicon,
+            },
+            {
+              key: "policyBound",
+              label: "Active Policies",
+              count: policy_bound_data?.length || 0,
+              icon: peopleicon,
+            },
+            {
+              key: "policyHistory",
+              label: "Expired Policies",
+              count: policy_history_data?.length || 0,
+              icon: historyicon,
+            },
+            {
+              key: "binderRequested",
+              label: "Binder Requested",
+              count: binder_req_quotes?.length || 0,
+              icon: tickicon,
+            },
+            {
+              key: "preAssignQuotes",
+              label: "Pre Renewal Quotes",
+              count: preAssignQuotes?.length || 0,
+              icon: boxicon,
+            },
+            {
+              key: "renewalQuotes",
+              label: "Renewal Quotes",
+              count: totalQuotes || 0,
+              icon: boxicon,
+            },
+          ].map(({ key, label, count, icon }) => (
+            <div
+              key={key}
+              className={`group hover:bg-[#003049] p-2 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex items-center gap-2 ${
+                selectedButton === key
+                  ? "bg-[#003049] text-white"
+                  : "bg-white text-gray-800"
+              }`}
+              onClick={() => handleButtonClick(key)}
+              role="button"
+              aria-label={`View ${label}`}
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && handleButtonClick(key)}
+            >
+              <img src={icon} alt={`${label} icon`} className="w-6 h-6" />
+              <div className="flex flex-col">
+                <p className="text-sm font-semibold group-hover:text-white">
+                  {label}
+                </p>
+                <p className="text-xs font-light group-hover:text-white">
+                  {count}
+                </p>
+              </div>
             </div>
-            <img src={papericon} alt="Paper icon" className="w-8 h-8" />
-          </div>
+          ))}
+        </div> */}
+        <div className="w-[95%] mx-auto">
+          {/* Desktop/Tablet Grid */}
+          <div className="hidden sm:grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              {
+                key: "requestedQuotes",
+                label: "Requested Quotes",
+                count: req_quotes?.length || 0,
+                icon: papericon,
+              },
+              {
+                key: "preRenewalQuotes",
+                label: "Pre-Renewal Requested",
+                count: preRenewalQuotes?.length || 0,
+                icon: papericon,
+              },
+              {
+                key: "deliveredQuotes",
+                label: "Delivered Quotes",
+                count: del_quotes?.length || 0,
+                icon: boxicon,
+              },
+              {
+                key: "binderRequested",
+                label: "Binder Req.",
+                count: binder_req_quotes?.length || 0,
+                icon: tickicon,
+              },
+              {
+                key: "policyBound",
+                label: "Active Policies",
+                count: policy_bound_data?.length || 0,
+                icon: peopleicon,
+              },
+              {
+                key: "policyHistory",
+                label: "Expired",
+                count: policy_history_data?.length || 0,
+                icon: historyicon,
+              },
 
-          <div
-            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
-              selectedButton === "deliveredQuotes"
-                ? "bg-[#003049] text-white"
-                : "bg-white"
-            }`}
-            onClick={() => handleButtonClick("deliveredQuotes")}
-          >
-            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
-              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
-                Delivered Quotes
-              </p>
-              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
-                {del_quotes?.length || 0} Quotes Delivered
-              </p>
-            </div>
-            <img src={boxicon} alt="Box icon" className="w-8 h-8" />
+              {
+                key: "preAssignQuotes",
+                label: "CMS Quotes",
+                count: preAssignQuotes?.length || 0,
+                icon: boxicon,
+              },
+              {
+                key: "renewalQuotes",
+                label: "Renewal",
+                count: totalQuotes || 0,
+                icon: boxicon,
+              },
+            ].map(({ key, label, count, icon }) => (
+              <button
+                key={key}
+                className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg transition-all duration-75 cursor-pointer shadow-sm ${
+                  selectedButton === key
+                    ? "bg-[#003049] text-white"
+                    : "bg-white text-gray-800 hover:bg-[#003049] hover:text-white"
+                }`}
+                onClick={() => handleButtonClick(key)}
+                role="tab"
+                aria-label={`View ${label}`}
+                aria-selected={selectedButton === key}
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && handleButtonClick(key)}
+              >
+                <div className="flex items-center gap-1.5">
+                  <img src={icon} alt={`${label} icon`} className="w-5 h-5" />
+                  <span className="text-md font-medium truncate">{label}</span>
+                </div>
+                <span className="bg-gray-200 text-gray-800 text-xs font-light px-1.5 py-0.5 rounded-full group-hover:bg-white group-hover:text-gray-800">
+                  {count}
+                </span>
+              </button>
+            ))}
           </div>
-          <div
-            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
-              selectedButton === "renewalQuotes"
-                ? "bg-[#003049] text-white"
-                : "bg-white"
-            }`}
-            onClick={() => handleButtonClick("renewalQuotes")}
-          >
-            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
-              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
-                Renewal Quotes
-              </p>
-              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
-                {totalQuotes || 0} Quotes Pending Renewal
-              </p>
-            </div>
-            <img src={boxicon} alt="Box icon" className="w-8 h-8" />
+          {/* Mobile Dropdown */}
+          <div className="sm:hidden">
+            <select
+              className="w-full p-2 rounded-lg border border-gray-200 bg-white text-gray-800 text-sm"
+              onChange={(e) => handleButtonClick(e.target.value)}
+              value={selectedButton}
+            >
+              {[
+                {
+                  key: "requestedQuotes",
+                  label: "Requested Quotes",
+                  count: req_quotes?.length || 0,
+                },
+                {
+                  key: "preRenewalQuotes",
+                  label: "Pre-Renewal Quotes",
+                  count: preRenewalQuotes?.length || 0,
+                },
+                {
+                  key: "deliveredQuotes",
+                  label: "Delivered Quotes",
+                  count: del_quotes?.length || 0,
+                },
+                {
+                  key: "policyBound",
+                  label: "Active Policies",
+                  count: policy_bound_data?.length || 0,
+                },
+                {
+                  key: "policyHistory",
+                  label: "Expired Policies",
+                  count: policy_history_data?.length || 0,
+                },
+                {
+                  key: "binderRequested",
+                  label: "Binder Requested",
+                  count: binder_req_quotes?.length || 0,
+                },
+                {
+                  key: "preAssignQuotes",
+                  label: "Pre Renewal Quotes",
+                  count: preAssignQuotes?.length || 0,
+                },
+                {
+                  key: "renewalQuotes",
+                  label: "Renewal Quotes",
+                  count: totalQuotes || 0,
+                },
+              ].map(({ key, label, count }) => (
+                <option key={key} value={key}>
+                  {label} ({count})
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-
-        <div className="w-[95%] mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
-          {/* Second Row: Policies and Renewal */}
-          <div
-            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
-              selectedButton === "policyBound"
-                ? "bg-[#003049] text-white"
-                : "bg-white"
-            }`}
-            onClick={() => handleButtonClick("policyBound")}
-          >
-            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
-              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
-                Active Policies
-              </p>
-              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
-                {policy_bound_data?.length || 0} Active Policies
-              </p>
-            </div>
-            <img src={peopleicon} alt="People icon" className="w-8 h-8" />
-          </div>
-
-          <div
-            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
-              selectedButton === "policyHistory"
-                ? "bg-[#003049] text-white"
-                : "bg-white"
-            }`}
-            onClick={() => handleButtonClick("policyHistory")}
-          >
-            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
-              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
-                Expired Policies
-              </p>
-              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
-                {policy_history_data?.length || 0} Policies Expired
-              </p>
-            </div>
-            <img src={historyicon} alt="History icon" className="w-8 h-8" />
-          </div>
-
-          <div
-            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
-              selectedButton === "binderRequested"
-                ? "bg-[#003049] text-white"
-                : "bg-white"
-            }`}
-            onClick={() => handleButtonClick("binderRequested")}
-          >
-            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
-              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
-                Binder Requested
-              </p>
-              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
-                {binder_req_quotes?.length || 0} Binders Requested
-              </p>
-            </div>
-            <img src={tickicon} alt="Tick icon" className="w-8 h-8" />
-          </div>
-          <div
-            className={`group hover:bg-[#003049] px-2 py-3 transition-all duration-75 cursor-pointer rounded-lg shadow-sm flex flex-col md:flex-row gap-2 justify-center items-center ${
-              selectedButton === "preAssignQuotes"
-                ? "bg-[#003049] text-white"
-                : "bg-white"
-            }`}
-            onClick={() => handleButtonClick("preAssignQuotes")}
-          >
-            <div className="flex w-full md:w-[65%] flex-col justify-center items-center md:items-start gap-0.5">
-              <p className="text-base md:text-lg text-center md:text-left font-semibold group-hover:text-white">
-                Pre Renewal Quotes
-              </p>
-              <p className="text-xs md:text-sm text-center md:text-left font-light group-hover:text-white">
-                {preAssignQuotes?.length || 0} Pre Quotes Pending
-              </p>
-            </div>
-            <img src={boxicon} alt="Box icon" className="w-8 h-8" />
-          </div>
-        </div>
-
         <div className="flex gap-4 w-full justify-end mt-4">
           <Tooltip title="Submit A Quote For Client/Referral" placement="top">
             <Button
@@ -1613,6 +1773,24 @@ const QuotesPage = () => {
               Submit Quote
             </Button>
           </Tooltip>
+          <Tooltip
+            title="Submit a pre-renewal quote for a client/referral"
+            placement="top"
+          >
+            <Button
+              onClick={() => setOpenPreRenewalQuoteModal(true)}
+              variant="contained"
+              sx={{
+                bgcolor: "#005270",
+                "&:hover": { bgcolor: "#003049" },
+                borderRadius: "8px",
+                textTransform: "none",
+              }}
+            >
+              Pre-Renewal Quote
+            </Button>
+          </Tooltip>
+
           <Tooltip title="Create a new policy for Client" placement="top">
             <Button
               onClick={handleCreatePolicy}
@@ -1634,6 +1812,13 @@ const QuotesPage = () => {
           open={openQuoteModal}
           setOpen={setOpenQuoteModal}
         />
+        <AdminUserSelectDialog
+          db={db}
+          buttonText="Submit Quote"
+          open={openPreRenewalQuoteModal}
+          setOpen={setOpenPreRenewalQuoteModal}
+          PreRenwalQuote={true}
+        />
         <PolicyCreationModal
           getAllPolicyBoundData={getAllPolicyBoundData}
           isOpen={openPolicyModal}
@@ -1649,6 +1834,21 @@ const QuotesPage = () => {
                 <MaterialReactTable
                   columns={req_columns}
                   data={req_quotes}
+                  initialState={{ density: "compact" }}
+                />
+              </div>
+            ) : (
+              <EmptyState message="No Quotes Found" icon="inbox" />
+            )}
+          </div>
+        )}
+        {selectedButton === "preRenewalQuotes" && (
+          <div className="w-full flex flex-col justify-center items-center mt-[30px]">
+            {preRenewalQuotes && preRenewalQuotes.length > 0 ? (
+              <div className="table w-full">
+                <MaterialReactTable
+                  columns={req_columns}
+                  data={preRenewalQuotes}
                   initialState={{ density: "compact" }}
                 />
               </div>

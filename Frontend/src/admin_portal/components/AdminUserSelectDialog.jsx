@@ -53,6 +53,7 @@ const AdminUserSelectDialog = ({
   buttonText = "Select User",
   open,
   setOpen,
+  PreRenwalQuote,
 }) => {
   const [expanded, setExpanded] = useState([]);
   const [users, setUsers] = useState({ clients: [], referrals: [] });
@@ -326,7 +327,9 @@ const AdminUserSelectDialog = ({
                 letterSpacing: "1px",
               }}
             >
-              Submit A Quote For Client/Referral
+              {`Submit ${
+                PreRenwalQuote ? "Pre-Renwal" : ""
+              } Quote For Client/Referral`}{" "}
             </Typography>
             <Stack direction="row" spacing={1}>
               <IconButton onClick={toggleFullScreen} sx={{ color: "#005270" }}>
@@ -461,7 +464,10 @@ const AdminUserSelectDialog = ({
               </Box>
             </>
           ) : (
-            <RequestPage selectedUser={selectedUser} />
+            <RequestPage
+              selectedUser={selectedUser}
+              PreRenwalQuote={PreRenwalQuote}
+            />
           )}
         </DialogContent>
       </Dialog>

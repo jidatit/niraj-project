@@ -35,7 +35,7 @@ import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment, Tooltip } from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
 
-const FloodForm = ({ selectedUser }) => {
+const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
 
   const redirectFunc = (path) => {
@@ -174,6 +174,7 @@ const FloodForm = ({ selectedUser }) => {
           inuser: nofilesformData.persons[0],
           createdAt: serverTimestamp(), // Automatically add the creation timestamp
           updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
+          ...(PreRenwalQuote && { PreRenwalQuote }),
           ...(currentUser?.data?.signupType === "Referral" && {
             byReferral: true,
             ReferralId: currentUser?.uid,
@@ -217,6 +218,7 @@ const FloodForm = ({ selectedUser }) => {
         inuser: formDataWithUrls.persons[0],
         createdAt: serverTimestamp(), // Automatically add the creation timestamp
         updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
+        ...(PreRenwalQuote && { PreRenwalQuote }),
         ...(currentUser?.data?.signupType === "Referral" && {
           byReferral: true,
           ReferralId: currentUser?.uid,

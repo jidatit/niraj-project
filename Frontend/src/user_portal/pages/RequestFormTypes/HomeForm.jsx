@@ -42,7 +42,7 @@ import {
 import { CiCircleRemove } from "react-icons/ci";
 import { data } from "autoprefixer";
 
-const HomeForm = ({ selectedUser }) => {
+const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
 
   const redirectFunc = (path) => {
@@ -204,6 +204,7 @@ const HomeForm = ({ selectedUser }) => {
           inuser: formDataToSave.persons[0],
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
+          ...(PreRenwalQuote && { PreRenwalQuote }),
           ...(currentUser.data.signupType === "Referral" && {
             byReferral: true,
             ReferralId: currentUser?.uid,
@@ -268,6 +269,7 @@ const HomeForm = ({ selectedUser }) => {
         inuser: formDataWithUrls.persons[0],
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
+        ...(PreRenwalQuote && { PreRenwalQuote }),
         ...(currentUser.data.signupType === "Referral" && {
           byReferral: true,
           ReferralId: currentUser?.uid,
