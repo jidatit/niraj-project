@@ -182,17 +182,25 @@ const RenewalPrepare = () => {
           ReferralId = latestPolicy.user?.ReferralId || "";
           Referral = latestPolicy.user?.Referral || "";
         } else {
+          console.log(
+            "No previous quotes or bound policies found for email:",
+            email
+          );
           // 3. Final fallback: use minimal info from renewalQuote
           userData = {
-            email: renewalQuote.Email,
+            email: renewalQuote.email,
             name: "",
-            address: renewalQuote.Address || "",
+            address: renewalQuote.address || "",
             zipCode: renewalQuote.zipCode || "",
             phoneNumber: "",
             mailingAddress: renewalQuote.Address || "",
-            label: renewalQuote.Email,
-            value: renewalQuote.Email,
+            label: renewalQuote.email,
+            value: renewalQuote.email,
           };
+          console.log(
+            "No previous quotes or bound policies found for email:",
+            renewalQuote
+          );
         }
       } else {
         // Use data from existing prep quote
@@ -228,6 +236,7 @@ const RenewalPrepare = () => {
       setUserEmail(email);
       setQSR_Type(qsrTypeParam);
       const results = await fetchQuotesByEmail(email);
+      console.log("results", results);
       setRenewalQuote(results);
       setFormData((prevData) => {
         const updated = {
@@ -239,6 +248,7 @@ const RenewalPrepare = () => {
       });
 
       const inuser = await getQuoteDetailsByEmail(results[0]);
+      console.log("inuser", inuser);
 
       setFormData((prevData) => {
         const updated = {
@@ -304,7 +314,7 @@ const RenewalPrepare = () => {
       }
 
       setButtonText("Submitting Quote");
-
+      console.log("formData", updatedFormData);
       await setDoc(doc(db, "prep_quotes", Q_id), updatedFormData);
 
       await updateStatusStep(renewalQuote);
@@ -321,6 +331,7 @@ const RenewalPrepare = () => {
         navigate("/admin_portal");
       }, 2000);
     } catch (error) {
+      console.log("Error preparing quote:", error);
       toast.error("Error preparing quote!");
     } finally {
       setSubBtnDisabler(false);

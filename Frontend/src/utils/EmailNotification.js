@@ -56,8 +56,9 @@ export async function sendRenewalQuoteNotifications(
     const clientParams = {
       from_name: "FL Insurance Hub",
       name: "FL Insurance Hub",
-      // to_email: renewalQuote?.[0]?.email,
-      to_email: "zubair-zahid@jidatit.uk",
+      to_email: renewalQuote?.[0]?.email,
+      //for testing purposes
+      // to_email: "zubair-zahid@jidatit.uk",
       subject,
       body: finalBody,
     };
