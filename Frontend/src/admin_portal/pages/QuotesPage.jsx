@@ -1294,6 +1294,11 @@ const QuotesPage = () => {
       size: 200,
     },
     {
+      accessorKey: "user.email",
+      header: "Client Email",
+      size: 200,
+    },
+    {
       // show referral name or “No Referral”
       accessorFn: (row) =>
         row.byReferral
@@ -1421,6 +1426,11 @@ const QuotesPage = () => {
     {
       accessorKey: "Name",
       header: "Client Name",
+      size: 200,
+    },
+    {
+      accessorKey: "Email",
+      header: "Client Email",
       size: 200,
     },
     {
