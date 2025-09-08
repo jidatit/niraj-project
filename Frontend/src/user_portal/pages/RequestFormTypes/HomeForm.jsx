@@ -72,14 +72,14 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
     mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
     persons: isClient
       ? [
-          {
-            name: currentUser?.data?.name || "",
-            dob: currentUser?.data?.dateOfBirth || "",
-            email: currentUser?.data?.email || "",
-            phoneNumber: currentUser?.data?.phoneNumber || "",
-            zipCode: currentUser?.data?.zipCode || "",
-          },
-        ]
+        {
+          name: currentUser?.data?.name || "",
+          dob: currentUser?.data?.dateOfBirth || "",
+          email: currentUser?.data?.email || "",
+          phoneNumber: currentUser?.data?.phoneNumber || "",
+          zipCode: currentUser?.data?.zipCode || "",
+        },
+      ]
       : [{ name: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
     files: [],
     user: { ...currentUser.data, id: currentUser.uid },
@@ -584,7 +584,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           {/* ✅ Is Condo Select Dropdown */}
           <div className="flex flex-col gap-2">
             <InputLabel htmlFor="isCondo-select" className="text-gray-700">
-              Is this home a condo? (Optional)
+              Is this home a condo?
             </InputLabel>
             <FormControl className="w-full" variant="outlined">
               <InputLabel id="binary-select2">Yes / No</InputLabel>
