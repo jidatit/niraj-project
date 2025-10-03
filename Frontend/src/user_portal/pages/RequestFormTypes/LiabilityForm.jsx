@@ -19,7 +19,7 @@ import {
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../../AuthContext";
-import { ClientQuoteReqMail } from "../../../utils/mailingFuncs";
+import { ClientQuoteWithoutInspection } from "../../../utils/mailingFuncs";
 import { useNavigate } from "react-router-dom";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment } from "@mui/material";
@@ -70,23 +70,23 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
     mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
     persons: isClient
       ? [
-          {
-            name: currentUser?.data?.name || "",
-            dob: currentUser?.data?.dateOfBirth || "",
-            email: currentUser?.data?.email || "",
-            phoneNumber: currentUser?.data?.phoneNumber || "",
-            zipCode: currentUser?.data?.zipCode || "",
-          },
-        ]
+        {
+          name: currentUser?.data?.name || "",
+          dob: currentUser?.data?.dateOfBirth || "",
+          email: currentUser?.data?.email || "",
+          phoneNumber: currentUser?.data?.phoneNumber || "",
+          zipCode: currentUser?.data?.zipCode || "",
+        },
+      ]
       : [
-          {
-            name: "",
-            dob: "",
-            email: "",
-            phoneNumber: "",
-            zipCode: "",
-          },
-        ],
+        {
+          name: "",
+          dob: "",
+          email: "",
+          phoneNumber: "",
+          zipCode: "",
+        },
+      ],
     addresses: [{ address: "" }],
     autos: { cars: "", boats: "", motorcycles: "", golf_carts: "" },
     user: { ...currentUser.data, id: currentUser.uid },
@@ -134,16 +134,16 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
       });
 
       if (currentUser.data.signupType === "Referral") {
-        ClientQuoteReqMail(
-          formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
+        ClientQuoteWithoutInspection(
+          formData.persons.map((p) => p.name).join(", "),
           adminEmail,
           "Liability",
           currentUser.data.name,
           currentUser.data.name
         );
       } else {
-        ClientQuoteReqMail(
-          formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
+        ClientQuoteWithoutInspection(
+          formData.persons.map((p) => p.name).join(", "),
           adminEmail,
           "Liability",
           "None",

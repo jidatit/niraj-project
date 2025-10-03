@@ -132,43 +132,8 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
           status_step: "1",
         };
 
-        if (formData.cert_elevation === "yes") {
-          if (currentUser.data.signupType === "Referral") {
-            ClientQuoteWithoutInspection(
-              formData.persons.map((driver) => driver.name).join(", "),
-              adminEmail,
-              "Flood",
-              currentUser.data.name,
-              currentUser.data.name
-            );
-          } else {
-            ClientQuoteWithoutInspection(
-              formData.persons.map((driver) => driver.name).join(", "),
-              adminEmail,
-              "Flood",
-              "None",
-              currentUser.data.name
-            );
-          }
-        } else {
-          if (currentUser.data.signupType === "Referral") {
-            ClientQuoteReqMail(
-              formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
-              adminEmail,
-              "Flood",
-              currentUser.data.name,
-              currentUser.data.name
-            );
-          } else {
-            ClientQuoteReqMail(
-              formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
-              adminEmail,
-              "Flood",
-              "None",
-              currentUser.data.name
-            );
-          }
-        }
+
+
         await addDoc(collection(db, "flood_quotes"), {
           ...nofilesformData,
           inuser: nofilesformData.persons[0],
@@ -181,6 +146,24 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
             Referral: currentUser?.data,
           }),
         });
+        // 🔹 Send WITHOUT inspection mail
+        if (currentUser.data.signupType === "Referral") {
+          ClientQuoteWithoutInspection(
+            formData.persons.map((p) => p.name).join(", "),
+            adminEmail,
+            "Flood",
+            currentUser.data.name,
+            currentUser.data.name
+          );
+        } else {
+          ClientQuoteWithoutInspection(
+            formData.persons.map((p) => p.name).join(", "),
+            adminEmail,
+            "Flood",
+            "None",
+            currentUser.data.name
+          );
+        }
         toast.success("Application submitted with success.");
         setbuttonstate("Submit");
         if (!selectedUser) {
@@ -245,42 +228,23 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
       });
       setFiles([]);
 
-      if (formData.cert_elevation === "yes") {
-        if (currentUser.data.signupType === "Referral") {
-          ClientQuoteWithoutInspection(
-            formData.persons.map((driver) => driver.name).join(", "),
-            adminEmail,
-            "Flood",
-            currentUser.data.name,
-            currentUser.data.name
-          );
-        } else {
-          ClientQuoteWithoutInspection(
-            formData.persons.map((driver) => driver.name).join(", "),
-            adminEmail,
-            "Flood",
-            "None",
-            currentUser.data.name
-          );
-        }
+      // 🔹 Send WITH inspection mail
+      if (currentUser.data.signupType === "Referral") {
+        ClientQuoteReqMail(
+          formData.persons.map((p) => p.name).join(", "),
+          adminEmail,
+          "Flood",
+          currentUser.data.name,
+          currentUser.data.name
+        );
       } else {
-        if (currentUser.data.signupType === "Referral") {
-          ClientQuoteReqMail(
-            formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
-            adminEmail,
-            "Flood",
-            currentUser.data.name,
-            currentUser.data.name
-          );
-        } else {
-          ClientQuoteReqMail(
-            formData.persons.map((driver) => driver.name).join(", "), // Concatenate all names
-            adminEmail,
-            "Flood",
-            "None",
-            currentUser.data.name
-          );
-        }
+        ClientQuoteReqMail(
+          formData.persons.map((p) => p.name).join(", "),
+          adminEmail,
+          "Flood",
+          "None",
+          currentUser.data.name
+        );
       }
 
       toast.success("Application submitted with success.");
@@ -300,23 +264,23 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
     mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
     persons: isClient
       ? [
-          {
-            name: currentUser?.data?.name || "",
-            dob: currentUser?.data?.dateOfBirth || "",
-            email: currentUser?.data?.email || "",
-            phoneNumber: currentUser?.data?.phoneNumber || "",
-            zipCode: currentUser?.data?.zipCode || "",
-          },
-        ]
+        {
+          name: currentUser?.data?.name || "",
+          dob: currentUser?.data?.dateOfBirth || "",
+          email: currentUser?.data?.email || "",
+          phoneNumber: currentUser?.data?.phoneNumber || "",
+          zipCode: currentUser?.data?.zipCode || "",
+        },
+      ]
       : [
-          {
-            name: "",
-            dob: "",
-            email: "",
-            phoneNumber: "",
-            zipCode: "",
-          },
-        ],
+        {
+          name: "",
+          dob: "",
+          email: "",
+          phoneNumber: "",
+          zipCode: "",
+        },
+      ],
     address: "",
     mailing: false,
     cert_elevation: "",

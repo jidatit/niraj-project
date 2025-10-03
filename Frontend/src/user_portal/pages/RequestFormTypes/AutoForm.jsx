@@ -138,23 +138,17 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
             Referral: currentUser?.data,
           }),
         });
-        if (currentUser.data.signupType === "Referral") {
-          ClientQuoteWithoutInspection(
-            formData.drivers.map((driver) => driver.name).join(", "),
-            adminEmail,
-            "Auto",
-            currentUser.data.name,
-            currentUser.data.name
-          );
-        } else {
-          ClientQuoteWithoutInspection(
-            formData.drivers.map((driver) => driver.name).join(", "),
-            adminEmail,
-            "Auto",
-            "None",
-            currentUser.data.name
-          );
-        }
+        // ✅ Send "Without Inspection" mail
+        ClientQuoteWithoutInspection(
+          formData.drivers.map((driver) => driver.name).join(", "),
+          adminEmail,
+          "Auto",
+          currentUser.data.signupType === "Referral"
+            ? currentUser.data.name
+            : "None",
+          currentUser.data.name
+        );
+
         // ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Auto");
         toast.success("Application submitted with success.");
         setbuttonstate("Submit");
@@ -200,23 +194,17 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
           Referral: currentUser?.data,
         }),
       });
-      if (currentUser.data.signupType === "Referral") {
-        ClientQuoteReqMail(
-          formData.drivers.map((driver) => driver.name).join(", "), // Concatenate all names
-          adminEmail,
-          "Auto",
-          currentUser.data.name,
-          currentUser.data.name
-        );
-      } else {
-        ClientQuoteReqMail(
-          formData.drivers.map((driver) => driver.name).join(", "), // Concatenate all names
-          adminEmail,
-          "Auto",
-          "None",
-          currentUser.data.name
-        );
-      }
+
+      // ✅ Send "With Inspection" mail
+      ClientQuoteReqMail(
+        formData.drivers.map((driver) => driver.name).join(", "),
+        adminEmail,
+        "Auto",
+        currentUser.data.signupType === "Referral"
+          ? currentUser.data.name
+          : "None",
+        currentUser.data.name
+      );
 
       setFormData({
         policyType: "Auto",
@@ -274,25 +262,25 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
     mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
     drivers: isClient
       ? [
-          {
-            name: currentUser?.data?.name || "",
-            dob: currentUser?.data?.dateOfBirth || "",
-            email: currentUser?.data?.email || "",
-            phoneNumber: currentUser?.data?.phoneNumber || "",
-            zipCode: currentUser?.data?.zipCode || "",
-            LN: currentUser?.data?.driversLicense || "",
-          },
-        ]
+        {
+          name: currentUser?.data?.name || "",
+          dob: currentUser?.data?.dateOfBirth || "",
+          email: currentUser?.data?.email || "",
+          phoneNumber: currentUser?.data?.phoneNumber || "",
+          zipCode: currentUser?.data?.zipCode || "",
+          LN: currentUser?.data?.driversLicense || "",
+        },
+      ]
       : [
-          {
-            name: "",
-            dob: "",
-            email: "",
-            phoneNumber: "",
-            zipCode: "",
-            LN: "",
-          },
-        ],
+        {
+          name: "",
+          dob: "",
+          email: "",
+          phoneNumber: "",
+          zipCode: "",
+          LN: "",
+        },
+      ],
     garaging_address: "",
     mailing: false,
     vehicles: [

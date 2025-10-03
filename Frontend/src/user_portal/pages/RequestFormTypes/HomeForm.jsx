@@ -199,6 +199,8 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           ...prevData,
           files: [], // Clear files when isCondo is "yes" or no files
         }));
+
+
         await addDoc(collection(db, "home_quotes"), {
           ...formDataToSave,
           inuser: formDataToSave.persons[0],
@@ -212,9 +214,9 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           }),
         });
 
-        // Send email based on isHomeBuild value
-        if (isHomeBuild) {
-          ClientQuoteWithoutInspection(
+        // ✅ Send email based on files
+        if (files.length > 0) {
+          ClientQuoteReqMail(
             formData.persons.map((driver) => driver.name).join(", "),
             adminEmail,
             "Home",
@@ -224,7 +226,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
             currentUser.data.name
           );
         } else {
-          ClientQuoteReqMail(
+          ClientQuoteWithoutInspection(
             formData.persons.map((driver) => driver.name).join(", "),
             adminEmail,
             "Home",
@@ -277,9 +279,9 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         }),
       });
 
-      // Send email based on isHomeBuild value
-      if (isHomeBuild) {
-        ClientQuoteWithoutInspection(
+      // ✅ Send email based on files
+      if (files.length > 0) {
+        ClientQuoteReqMail(
           formData.persons.map((driver) => driver.name).join(", "),
           adminEmail,
           "Home",
@@ -289,7 +291,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           currentUser.data.name
         );
       } else {
-        ClientQuoteReqMail(
+        ClientQuoteWithoutInspection(
           formData.persons.map((driver) => driver.name).join(", "),
           adminEmail,
           "Home",
