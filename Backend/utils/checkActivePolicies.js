@@ -37,6 +37,26 @@ async function checkForActivePolicy(payload) {
   return !snap.empty;
 }
 
+// ✅ Returns bound policy document if found, otherwise null
+async function getBoundPolicy(payload) {
+  if (!payload.Email) return null;
+
+  const emailToMatch = payload.Email.toLowerCase();
+
+  const q = query(
+    collection(db, "bound_policies"),
+    where("bound_status", "==", "bounded"),
+    where("user.email", "==", emailToMatch),
+    limit(1)
+  );
+
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+
+  const boundDoc = snap.docs[0];
+  return { id: boundDoc.id, data: boundDoc.data() };
+}
+
 async function runTests() {
   console.log("Running policy checks...");
 
@@ -51,4 +71,4 @@ async function runTests() {
   console.log("Tests completed");
 }
 
-module.exports = { runTests, checkForActivePolicy };
+module.exports = { runTests, checkForActivePolicy, getBoundPolicy };

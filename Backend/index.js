@@ -13,7 +13,10 @@ const {
 } = require("firebase/firestore");
 const { db } = require("./firebase.js");
 const fetch = require("node-fetch");
-const { checkForActivePolicy } = require("./utils/checkActivePolicies.js");
+const {
+  checkForActivePolicy,
+  getBoundPolicy,
+} = require("./utils/checkActivePolicies.js");
 
 require("./cronJobs");
 
@@ -27,30 +30,41 @@ app.post("/webhook", async (req, res) => {
 
     console.log(`[${timestamp}] Received webhook payload`);
 
-    // Normalize email if present
+    // Normalize email
     if (payload.Email) {
       payload.Email = payload.Email.toLowerCase();
     }
+
     console.log(`Payload is ${JSON.stringify(payload)}`);
 
-    // Check for active policy
-    const hasActivePolicy = await checkForActivePolicy(payload);
-    const collectionName = hasActivePolicy ? "renewal_quotes" : "cms_quotes";
+    // Check for active policy (and return the policy doc if found)
+    const boundPolicy = await getBoundPolicy(payload);
+
+    // Determine collection name
+    const collectionName = boundPolicy ? "renewal_quotes" : "cms_quotes";
 
     // Add metadata
     payload.receivedAt = timestamp;
-    payload.isRenewal = hasActivePolicy;
+    payload.isRenewal = !!boundPolicy;
     payload.processed = false;
 
-    // Store in appropriate collection
+    // If renewal, attach bound policy info directly
+    if (boundPolicy) {
+      payload.boundPolicyId = boundPolicy.id;
+      payload.boundPolicyCarrier =
+        boundPolicy.data.Carrier || boundPolicy.data.carrier || "";
+      payload.boundPolicyEffectiveDate = boundPolicy.data.effective_date || "";
+    }
+
+    // Store payload
     await addDoc(collection(db, collectionName), payload);
 
     console.log(`Stored in ${collectionName} collection`);
 
     res.status(201).json({
-      message: `Quote stored as ${hasActivePolicy ? "renewal" : "new"} quote`,
+      message: `Quote stored as ${boundPolicy ? "renewal" : "new"} quote`,
       status: "201",
-      isRenewal: hasActivePolicy,
+      isRenewal: !!boundPolicy,
       payload,
     });
   } catch (error) {
