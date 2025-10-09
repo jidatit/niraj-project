@@ -4,7 +4,7 @@
  */
 
 const express = require("express");
-const { validate } = require("uuid");
+// const { validate } = require("uuid");
 const { buildPayload } = require("./payloadBuilder");
 const { submitToQuoteRush } = require("./apiClient");
 const { logSubmission } = require("./loggingService");
