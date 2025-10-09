@@ -23,6 +23,7 @@ import { ClientQuoteWithoutInspection } from "../../../utils/mailingFuncs";
 import { useNavigate } from "react-router-dom";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment } from "@mui/material";
+import { getReferralMeta } from "../../../utils/referralUtils";
 
 const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
@@ -98,6 +99,8 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
   const addFormToDb = async () => {
     try {
       setbuttonstate("Submitting...");
+      const referralMeta = await getReferralMeta(currentUser);
+
       await addDoc(collection(db, "liability_quotes"), {
         ...formData,
         address: formData.mailingAddress,
@@ -105,11 +108,12 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
         status_step: "1",
         ...(PreRenwalQuote && { PreRenwalQuote }),
         inuser: formData.persons[0],
-        ...(currentUser?.data?.signupType === "Referral" && {
-          byReferral: true,
-          ReferralId: currentUser?.uid,
-          Referral: currentUser?.data,
-        }),
+        // ...(currentUser?.data?.signupType === "Referral" && {
+        //   byReferral: true,
+        //   ReferralId: currentUser?.uid,
+        //   Referral: currentUser?.data,
+        // }),
+        ...referralMeta, // 👈 automatically adds correct referral info
         createdAt: serverTimestamp(), // Automatically add the creation timestamp
         updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
       });

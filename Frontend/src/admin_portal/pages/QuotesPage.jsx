@@ -79,6 +79,7 @@ const QuotesPage = () => {
     fetchQuotes,
   } = useQuotesStore();
 
+
   const [selectedButton, setSelectedButton] = useState(null);
   const [openModal, setopenModal] = useState(false);
   const [popupValue, setPopupvalue] = useState(null);
@@ -407,9 +408,9 @@ const QuotesPage = () => {
 
           const name =
             policyType === "Auto" &&
-            Array.isArray(drivers) &&
-            drivers.length > 0 &&
-            drivers[0]?.name
+              Array.isArray(drivers) &&
+              drivers.length > 0 &&
+              drivers[0]?.name
               ? drivers[0]?.name
               : inuser?.name;
 
@@ -449,8 +450,8 @@ const QuotesPage = () => {
           // Choose the email based on policy type (use email from inuser or drivers)
           const email =
             policyType === "Auto" &&
-            Array.isArray(drivers) &&
-            drivers.length > 0
+              Array.isArray(drivers) &&
+              drivers.length > 0
               ? drivers[0]?.email
               : inuser?.email;
 
@@ -721,7 +722,6 @@ const QuotesPage = () => {
         await updateStatusStep(data.qsr_type, data.qid);
         await updateBoundStatus(rowdocid);
         //Policy Bind Mail
-
         // AdminBindConfirmQuoteMail(
         //   data.user?.name,
         //   data.user?.email,
@@ -868,8 +868,8 @@ const QuotesPage = () => {
                   {!row.ac_age && !row.roof_age
                     ? "Add AC & Roof Age"
                     : !row.ac_age
-                    ? "Add AC Age"
-                    : "Add Roof Age"}
+                      ? "Add AC Age"
+                      : "Add Roof Age"}
                 </Button>
               )}
             </Box>
@@ -1287,6 +1287,7 @@ const QuotesPage = () => {
       accessorKey: "date",
       header: "Date",
       size: 120,
+      Cell: ({ cell }) => <Box>{formatDate(cell.getValue())}</Box>,
     },
     {
       accessorKey: "user.name",
@@ -1320,7 +1321,7 @@ const QuotesPage = () => {
       header: "# of Sources",
     },
   ];
-  const handleViewQuote = (quote) => {};
+  const handleViewQuote = (quote) => { };
   // Fetch total count of quotes
   const fetchTotalQuotes = async () => {
     try {
@@ -1690,11 +1691,10 @@ const QuotesPage = () => {
             ].map(({ key, label, count, icon }) => (
               <button
                 key={key}
-                className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg transition-all duration-75 cursor-pointer shadow-sm ${
-                  selectedButton === key
-                    ? "bg-[#003049] text-white"
-                    : "bg-white text-gray-800 hover:bg-[#003049] hover:text-white"
-                }`}
+                className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg transition-all duration-75 cursor-pointer shadow-sm ${selectedButton === key
+                  ? "bg-[#003049] text-white"
+                  : "bg-white text-gray-800 hover:bg-[#003049] hover:text-white"
+                  }`}
                 onClick={() => handleButtonClick(key)}
                 role="tab"
                 aria-label={`View ${label}`}

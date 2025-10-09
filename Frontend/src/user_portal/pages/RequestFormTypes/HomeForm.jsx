@@ -41,6 +41,12 @@ import {
 } from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
 import { data } from "autoprefixer";
+import InspectionModalFlood from "../../components/InspectionModalFlood";
+import { getReferralMeta } from "../../../utils/referralUtils";
+
+//submit for the Flood inspections:
+
+
 
 const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
@@ -58,6 +64,15 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
     ? { uid: selectedUser?.id, data: selectedUser }
     : currentUser;
   const isClient = currentUser?.data?.signupType === "Client";
+  const [includeFlood, setIncludeFlood] = useState(false);
+
+
+
+
+  //for flood inspection modal
+  const [floodFileModal, setFloodFileModal] = useState(false);
+  const [floodInspectionFiles, setFloodInspectionFiles] = useState([]);
+
 
   const [formData, setFormData] = useState({
     policyType: "Home",
@@ -81,7 +96,11 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         },
       ]
       : [{ name: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
-    files: [],
+    files: [],// Home inspection files
+    floodData: {
+      cert_elevation: "",
+      floodFiles: [], // Flood inspection files
+    },
     user: { ...currentUser.data, id: currentUser.uid },
     occupancy: "Primary",
   });
@@ -150,6 +169,10 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
       toast.warn("is this home built before 2005?");
       return;
     }
+    if (PreRenwalQuote) {
+      addFormToDb();
+      return;
+    }
     if (
       formData.ishomebuild === "yes" &&
       formData.files.length === 0 &&
@@ -161,147 +184,265 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
     }
   };
 
+  const submitFloodQuote = async (formData) => {
+    try {
+      //  Validate persons array early
+      if (!Array.isArray(formData?.persons) || formData.persons.length === 0) {
+        toast.error("At least one person is required for flood quote.");
+        return;
+      }
+      const referralMeta = await getReferralMeta(currentUser);
+      const isPreRenewal = Boolean(PreRenwalQuote); // 👈 added
+
+
+
+      const floodFiles = floodInspectionFiles || [];
+      const hasFiles = floodFiles.length > 0;
+      const hasCert = formData?.floodData?.cert_elevation === "yes";
+
+      // Default flood status
+      let floodStatus = "completed";
+      if (hasCert && !hasFiles && !isPreRenewal) floodStatus = "pending";
+
+      //  Safely construct flood data
+      const floodDataToSave = {
+        policyType: "Flood",
+        persons: formData.persons || [],
+        mailingAddress: formData.mailingAddress || "",
+        address: formData.address || "",
+        mailing: formData.mailing || false,
+        user: formData.user || {},
+        occupancy: formData.occupancy || "Primary",
+        cert_elevation: formData?.floodData?.cert_elevation || "no",
+        files: [],
+        status: floodStatus,
+        status_step: "1",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        ...(PreRenwalQuote && { PreRenwalQuote }),
+        // ...(currentUser?.data?.signupType === "Referral" && {
+        //   byReferral: true,
+        //   ReferralId: currentUser?.uid,
+        //   Referral: currentUser?.data,
+        // }),
+        ...referralMeta, // automatically adds correct referral info
+      };
+
+      //  Upload flood files if any
+      if (!isPreRenewal && hasFiles) {
+        const timestamp = Date.now();
+        const uniqueId = Math.random().toString(36).substring(2);
+
+        const uploadPromises = floodFiles.map(async (file) => {
+          try {
+            const storageRef = ref(storage, `flood_quotes/${timestamp}_${uniqueId}_${file.name}`);
+            await uploadBytes(storageRef, file);
+            return getDownloadURL(storageRef);
+          } catch (err) {
+            console.error("Flood file upload failed:", file.name, err);
+            return null;
+          }
+        });
+
+        const fileUrls = (await Promise.all(uploadPromises)).filter(Boolean);
+        floodDataToSave.files = fileUrls.map((url) => ({ file: url }));
+        floodDataToSave.status = "completed";
+      }
+
+      await addDoc(collection(db, "flood_quotes"), {
+        ...floodDataToSave,
+        inuser: floodDataToSave.persons?.[0] || { name: "Unknown" },
+      });
+
+      //  Email notifications
+      if (hasFiles) {
+        ClientQuoteReqMail(
+          formData.persons.map((p) => p.name).join(", "),
+          adminEmail,
+          "Flood",
+          currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          currentUser?.data?.name || "Unknown"
+        );
+      } else {
+        ClientQuoteWithoutInspection(
+          formData.persons.map((p) => p.name).join(", "),
+          adminEmail,
+          "Flood",
+          currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          currentUser?.data?.name || "Unknown"
+        );
+      }
+
+      toast.success("Flood quote submitted successfully.");
+      setFloodInspectionFiles([]); // Clear flood file state
+    } catch (error) {
+      console.error("Error submitting flood quote:", error);
+      toast.error("Error submitting flood quote.");
+    }
+  };
+
   const addFormToDb = async () => {
     try {
       setConfirmDialogOpen(false);
+
+      //  Prevent double submit
+      if (buttonstate !== "Submit") return;
       setbuttonstate("Submitting...");
 
-      const isCondo = formData.isCondo === "yes";
-      const isHomeBuild = formData.ishomebuild === "yes";
-      let status = "completed"; // Default status is "completed"
-      let status_step = "1"; // Default status_step
-
-      // If isHomeBuild is "yes" and no files are uploaded, set status to "pending"
-      if (isHomeBuild && files.length === 0) {
-        status = "pending"; // Set status to "pending" when isHomeBuild is "yes" and no files
+      //  Validate persons
+      if (!Array.isArray(formData?.persons) || formData.persons.length === 0) {
+        toast.error("At least one person’s information is required.");
+        setbuttonstate("Submit");
+        return;
       }
 
-      if (isCondo) {
-        // If isCondo is "yes", ignore file uploads and set status to "completed"
-        status = "completed";
-      }
+      const referralMeta = await getReferralMeta(currentUser);
+
+      const isCondo = formData?.isCondo === "yes";
+      const isHomeBuild = formData?.ishomebuild === "yes";
+      const hasFiles = Array.isArray(files) && files.length > 0;
+      const isPreRenewal = Boolean(PreRenwalQuote); // 👈 add this line
+
+
+      let status = "completed";
+      let status_step = "1";
+
+      if (isHomeBuild && !hasFiles && !isPreRenewal) status = "pending";
+      if (isCondo || isPreRenewal) status = "completed"; // 👈 treat pre-renewal same as condo
 
       let formDataToSave = {
         ...formData,
-        status: status,
-        status_step: status_step,
+        status,
+        status_step,
       };
 
-      // Handle form data submission without file uploads for isCondo = "yes"
-      if (isCondo || files.length === 0) {
+      //  For condo or no files — simple submission
+      if (isCondo || isPreRenewal || !hasFiles) {
         formDataToSave = {
           ...formDataToSave,
-          files: [], // Ensure files are cleared
+          files: [],
         };
 
-        // Also clear files in formData state
         setFormData((prevData) => ({
           ...prevData,
-          files: [], // Clear files when isCondo is "yes" or no files
+          files: [],
         }));
-
 
         await addDoc(collection(db, "home_quotes"), {
           ...formDataToSave,
-          inuser: formDataToSave.persons[0],
+          inuser: formDataToSave.persons?.[0] || { name: "Unknown" },
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           ...(PreRenwalQuote && { PreRenwalQuote }),
-          ...(currentUser.data.signupType === "Referral" && {
-            byReferral: true,
-            ReferralId: currentUser?.uid,
-            Referral: currentUser?.data,
-          }),
+          //This was for the case ,quptes only submitted by referral
+          // ...(currentUser?.data?.signupType === "Referral" && {
+          //   byReferral: true,
+          //   ReferralId: currentUser?.uid,
+          //   Referral: currentUser?.data,
+          // }),
+          //CASE quotes submitted by client but has refrral attached and both
+          ...referralMeta, // 👈 automatically adds correct referral info
         });
 
-        // ✅ Send email based on files
-        if (files.length > 0) {
+        //  Send email
+        if (hasFiles) {
           ClientQuoteReqMail(
             formData.persons.map((driver) => driver.name).join(", "),
             adminEmail,
             "Home",
-            currentUser.data.signupType === "Referral"
-              ? currentUser.data.name
-              : "None",
-            currentUser.data.name
+            currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+            currentUser?.data?.name || "Unknown"
           );
         } else {
           ClientQuoteWithoutInspection(
             formData.persons.map((driver) => driver.name).join(", "),
             adminEmail,
             "Home",
-            currentUser.data.signupType === "Referral"
-              ? currentUser.data.name
-              : "None",
-            currentUser.data.name
+            currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+            currentUser?.data?.name || "Unknown"
           );
+        }
+
+        //  Flood submission if included
+        if (includeFlood) {
+          await submitFloodQuote(formData);
         }
 
         toast.success("Application submitted successfully.");
         setbuttonstate("Submit");
-        if (!selectedUser) {
-          redirectFunc("/user_portal");
-        }
+        if (!selectedUser) redirectFunc("/user_portal");
         return;
       }
 
-      // If files need to be uploaded (isCondo = "no" and files exist)
+      //  Upload files for non-condo
       const timestamp = Date.now();
       const uniqueId = Math.random().toString(36).substring(2);
-      const promises = files.map(async (file) => {
-        const storageRef = ref(
-          storage,
-          `home_quotes/${timestamp}_${uniqueId}_${file.name}`
-        );
-        await uploadBytes(storageRef, file);
-        return getDownloadURL(storageRef);
+
+      const uploadPromises = files.map(async (file) => {
+        try {
+          const storageRef = ref(storage, `home_quotes/${timestamp}_${uniqueId}_${file.name}`);
+          await uploadBytes(storageRef, file);
+          return getDownloadURL(storageRef);
+        } catch (err) {
+          console.error("Home file upload failed:", file.name, err);
+          return null;
+        }
       });
 
-      const fileUrls = await Promise.all(promises);
+      const fileUrls = (await Promise.all(uploadPromises)).filter(Boolean);
 
       let formDataWithUrls = {
         ...formData,
         files: fileUrls.map((url) => ({ file: url })),
-        status: "completed", // Ensure status is "completed" when files are uploaded
+        status: "completed",
         status_step: "1",
       };
 
       await addDoc(collection(db, "home_quotes"), {
         ...formDataWithUrls,
-        inuser: formDataWithUrls.persons[0],
+        inuser: formDataWithUrls.persons?.[0] || { name: "Unknown" },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         ...(PreRenwalQuote && { PreRenwalQuote }),
-        ...(currentUser.data.signupType === "Referral" && {
-          byReferral: true,
-          ReferralId: currentUser?.uid,
-          Referral: currentUser?.data,
-        }),
+        // ...(currentUser?.data?.signupType === "Referral" && {
+        //   byReferral: true,
+        //   ReferralId: currentUser?.uid,
+        //   Referral: currentUser?.data,
+        // }),
+        ...referralMeta, // 👈 automatically adds correct referral info
       });
 
-      // ✅ Send email based on files
-      if (files.length > 0) {
+      //  Email notification
+      if (fileUrls.length > 0) {
         ClientQuoteReqMail(
           formData.persons.map((driver) => driver.name).join(", "),
           adminEmail,
           "Home",
-          currentUser.data.signupType === "Referral"
-            ? currentUser.data.name
-            : "None",
-          currentUser.data.name
+          currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          currentUser?.data?.name || "Unknown"
         );
       } else {
         ClientQuoteWithoutInspection(
           formData.persons.map((driver) => driver.name).join(", "),
           adminEmail,
           "Home",
-          currentUser.data.signupType === "Referral"
-            ? currentUser.data.name
-            : "None",
-          currentUser.data.name
+          currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          currentUser?.data?.name || "Unknown"
         );
       }
 
+      //  Submit flood if selected
+      if (includeFlood) {
+        try {
+          await submitFloodQuote(formData);
+        } catch (err) {
+          toast.error("Home submitted but flood quote failed. Please retry flood submission.");
+          setbuttonstate("Submit");
+          return;
+        }
+      }
+
+      //  Reset state safely
       setFormData({
         policyType: "Home",
         address: "",
@@ -313,23 +454,19 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         currentInsurance: "",
         expiryDate: "",
         mailingAddress: "",
-        persons: [
-          { name: "", dob: "", email: "", phoneNumber: "", zipCode: "" },
-        ],
+        persons: [{ name: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
         files: [],
-        user: { ...currentUser.data, id: currentUser.uid },
+        user: { ...(currentUser?.data || {}), id: currentUser?.uid || "" },
         occupancy: "Primary",
       });
       setFiles([]);
 
       toast.success("Application submitted successfully.");
       setbuttonstate("Submit");
-      if (!selectedUser) {
-        redirectFunc("/user_portal");
-      }
+      if (!selectedUser) redirectFunc("/user_portal");
     } catch (error) {
       console.error("Error submitting application:", error);
-      toast.error("Error submitting application.");
+      toast.error("Error submitting application. Please try again.");
       setbuttonstate("Submit");
     }
   };
@@ -529,19 +666,6 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
               </Select>
             </FormControl>
           </div>
-
-          {/* <div className="flex w-full flex-row pt-5 gap-2 justify-start items-center">
-            <input
-              value={formData.mailing}
-              checked={formData.mailing}
-              name="mailing"
-              onChange={handleChange}
-              className="w-[20px] h-[20px]"
-              type="checkbox"
-              id="mailing"
-            />
-            <InputLabel htmlFor="mailing">Same as Mailing Address</InputLabel>
-          </div> */}
         </div>
         <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
           <div className="flex w-full flex-col justify-center items-start gap-2">
@@ -582,8 +706,8 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           </div>
         </div>
 
-        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6 mb-6 ">
-          {/* ✅ Is Condo Select Dropdown */}
+        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6 mb-6">
+          {/* Is Condo Select Dropdown */}
           <div className="flex flex-col gap-2">
             <InputLabel htmlFor="isCondo-select" className="text-gray-700">
               Is this home a condo?
@@ -594,9 +718,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
                 labelId="isCondo-select-label"
                 id="isCondo-select"
                 value={formData.isCondo || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, isCondo: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, isCondo: e.target.value })}
                 label="Yes / No"
                 name="isCondo"
               >
@@ -606,25 +728,24 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
             </FormControl>
           </div>
 
-          {/* ✅ Upload Inspection Button (Hidden if isCondo is "yes") */}
-          {/* {formData.isCondo !== "yes" && ( */}
-          <div className="flex flex-col items-center justify-center gap-3 p-4 ">
-            <h3 className="text-center text-sm font-semibold text-gray-700">
-              Upload 4 Point / Wind Mitigation Inspections
-              {(formData?.ishomebuild === "no" ||
-                formData?.isCondo === "yes") &&
-                " (Optional)"}
-            </h3>
-            <button
-              onClick={() => setfileModal(true)}
-              className="bg-white md:w-[45%] border-[1px] border-black text-black font-extralight w-full py-2 px-4 rounded"
-            >
-              + Upload Inspections
-            </button>
-          </div>
-          {/* )} */}
+          {/* Upload Inspection Button */}
+          {!PreRenwalQuote && (
+            <div className="flex flex-col items-center justify-center gap-3">
+              <h3 className="text-center text-sm font-semibold text-gray-700">
+                Upload 4 Point / Wind Mitigation Inspections
+                {(formData?.ishomebuild === "no" || formData?.isCondo === "yes") &&
+                  " (Optional)"}
+              </h3>
+              <button
+                onClick={() => setfileModal(true)}
+                className="bg-white md:w-[45%] border border-black text-black font-extralight w-full py-2 px-4 rounded hover:bg-gray-100 transition"
+              >
+                + Upload
+              </button>
+            </div>
+          )}
 
-          {/* ✅ Closing Date Field (Consistent Layout) */}
+          {/* Closing Date Field */}
           {formData.newPurchase === "yes" && (
             <div className="flex flex-col gap-2">
               <InputLabel htmlFor="closing-date" className="text-gray-700">
@@ -635,13 +756,13 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
                 id="closingDate"
                 type="date"
                 value={formData.closingDate}
-                onChange={(e) => handleChange(e)}
+                onChange={handleChange}
                 name="closingDate"
               />
             </div>
           )}
 
-          {/* ✅ Insurance Selection (Consistent Layout) */}
+          {/* Insurance Selection */}
           {formData.newPurchase === "no" && (
             <div className="flex flex-col gap-2">
               <InputLabel htmlFor="binary-select3" className="text-gray-700">
@@ -652,7 +773,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
                   labelId="binary-select-label"
                   id="binary-select3"
                   value={formData.currentInsurance}
-                  onChange={(e) => handleChange(e)}
+                  onChange={handleChange}
                   name="currentInsurance"
                 >
                   <MenuItem value="yes">Yes</MenuItem>
@@ -662,22 +783,101 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
             </div>
           )}
         </div>
-        {formData.newPurchase === "no" &&
-          formData.currentInsurance === "yes" && (
-            <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
-              <div className="flex w-full flex-col justify-center items-start gap-2">
-                <InputLabel htmlFor={`exp-date`}>Expiration Date</InputLabel>
-                <TextField
-                  className="w-full"
-                  id="expiryDate"
-                  type="date"
-                  value={formData.expiryDate}
-                  onChange={(e) => handleChange(e)}
-                  name="expiryDate"
+
+        {/* Expiration Date */}
+        {formData.newPurchase === "no" && formData.currentInsurance === "yes" && (
+          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6 mb-6">
+            <div className="flex w-full flex-col justify-center items-start gap-2">
+              <InputLabel htmlFor="exp-date">Expiration Date</InputLabel>
+              <TextField
+                className="w-full"
+                id="expiryDate"
+                type="date"
+                value={formData.expiryDate}
+                onChange={handleChange}
+                name="expiryDate"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Flood Insurance Quote */}
+        <div className="flex flex-col gap-6 mt-6 w-full">
+          {/* Checkbox on the top-left */}
+          <div className="flex items-start">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={includeFlood}
+                  onChange={(e) => setIncludeFlood(e.target.checked)}
+                  color="primary"
                 />
+              }
+              label="Also submit Flood Insurance Quote"
+            />
+          </div>
+
+          {/* Flood Section (appears when checkbox checked) */}
+          {includeFlood && (
+            <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5 justify-center items-center mt-[20px] mb-[20px]">
+              {/* Select for elevation certificate */}
+              <div className="flex flex-col w-full ">
+                <InputLabel htmlFor="binary-select1">
+                  Do you have an elevation certificate?
+                </InputLabel>
+
+                <FormControl variant="outlined" fullWidth>
+                  <InputLabel id="binary-select1">Yes / No</InputLabel>
+                  <Select
+                    labelId="binary-select1"
+                    id="binary-select1"
+                    value={formData.floodData?.cert_elevation || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        floodData: {
+                          ...prev.floodData,
+                          cert_elevation: e.target.value,
+                        },
+                      }))
+                    }
+                    label="Yes / No"
+                    name="cert_elevation"
+                  >
+                    <MenuItem value="yes">Yes</MenuItem>
+                    <MenuItem value="no">No</MenuItem>
+                  </Select>
+                </FormControl>
               </div>
+
+              {/* Upload Button if 'Yes' */}
+
+              {formData.floodData?.cert_elevation === "yes" && !PreRenwalQuote && (
+                <div className="flex flex-col items-center justify-center gap-3">
+                  <h3 className="text-center text-sm font-semibold text-gray-700">
+                    Upload Flood Inspection
+                  </h3>
+                  <button
+                    onClick={() => setFloodFileModal(true)}
+                    className="bg-white md:w-[45%] border border-black text-black font-extralight w-full py-2 px-4 rounded hover:bg-gray-100 transition"
+                  >
+                    + Upload
+                  </button>
+                </div>
+              )}
             </div>
           )}
+
+          {/* Flood Inspection Modal */}
+          <InspectionModalFlood
+            open={floodFileModal}
+            onClose={() => setFloodFileModal(false)}
+            files={floodInspectionFiles}
+            setFiles={setFloodInspectionFiles}
+          />
+        </div>
+
+
         <div className="w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-end items-center">
           <button
             onClick={checkInspections}

@@ -34,6 +34,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment, Tooltip } from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
+import { getReferralMeta } from "../../../utils/referralUtils";
 
 const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
@@ -110,6 +111,11 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
   };
 
   const checkInspections = () => {
+    // 👇 Skip inspection checks for pre-renewal
+    if (PreRenwalQuote) {
+      addFormToDb();
+      return;
+    }
     if (formData.files.length === 0) {
       setConfirmDialogOpen(true);
     } else {
@@ -121,22 +127,28 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
     try {
       setConfirmDialogOpen(false);
       setbuttonstate("Submitting...");
-      if (files.length === 0) {
+      const referralMeta = await getReferralMeta(currentUser);
+      const isPreRenewal = Boolean(PreRenwalQuote); // 👈 new flag
+
+
+      if (isPreRenewal || files.length === 0) {
         let nofilesformData = {
           ...formData,
           status: "completed",
           status_step: "1",
         };
+
         await addDoc(collection(db, "auto_quotes"), {
           ...nofilesformData, // Include the existing form data
           createdAt: serverTimestamp(), // Automatically add the creation timestamp
           updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
           ...(PreRenwalQuote && { PreRenwalQuote }),
-          ...(currentUser?.data?.signupType === "Referral" && {
-            byReferral: true,
-            ReferralId: currentUser?.uid,
-            Referral: currentUser?.data,
-          }),
+          // ...(currentUser?.data?.signupType === "Referral" && {
+          //   byReferral: true,
+          //   ReferralId: currentUser?.uid,
+          //   Referral: currentUser?.data,
+          // }),
+          ...referralMeta, // 👈 automatically adds correct referral info
         });
         // ✅ Send "Without Inspection" mail
         ClientQuoteWithoutInspection(
@@ -188,11 +200,12 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
         createdAt: serverTimestamp(), // Automatically add the current timestamp
         updatedAt: serverTimestamp(), // Set initial updatedAt to the same timestamp
         ...(PreRenwalQuote && { PreRenwalQuote }),
-        ...(currentUser?.data?.signupType === "Referral" && {
-          byReferral: true,
-          ReferralId: currentUser?.uid,
-          Referral: currentUser?.data,
-        }),
+        // ...(currentUser?.data?.signupType === "Referral" && {
+        //   byReferral: true,
+        //   ReferralId: currentUser?.uid,
+        //   Referral: currentUser?.data,
+        // }),
+        ...referralMeta, // 👈 automatically adds correct referral info
       });
 
       // ✅ Send "With Inspection" mail
@@ -857,21 +870,22 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
             </FormControl>
           </div>
         </div>
-
-        <div className="w-full flex flex-col gap-10 mt-[20px] mb-[20px] justify-center items-center">
-          <h2 className="font-bold text-center md:text-[24px] text-black">
-            Upload Current Declarations Page{" "}
-            <span className="font-light">(Optional)</span>
-          </h2>
-          <div className="flex w-full flex-col justify-center items-center gap-2">
-            <button
-              onClick={() => setfileModal(true)}
-              className="bg-white md:w-[45%] border-[1px] border-black text-black font-extralight w-full py-2 px-4 rounded"
-            >
-              + Upload Inspections
-            </button>
+        {!PreRenwalQuote && (
+          <div className="w-full flex flex-col gap-10 mt-[20px] mb-[20px] justify-center items-center">
+            <h2 className="font-bold text-center md:text-[24px] text-black">
+              Upload Current Declarations Page{" "}
+              <span className="font-light">(Optional)</span>
+            </h2>
+            <div className="flex w-full flex-col justify-center items-center gap-2">
+              <button
+                onClick={() => setfileModal(true)}
+                className="bg-white md:w-[45%] border-[1px] border-black text-black font-extralight w-full py-2 px-4 rounded"
+              >
+                + Upload Inspections
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-end items-center">
           <button

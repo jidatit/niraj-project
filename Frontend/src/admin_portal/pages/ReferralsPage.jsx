@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db, storage } from "../../../db";
 import papericon from "../../assets/dash/quotes/paper.png";
@@ -13,30 +13,30 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import StandardTemplateModal from "../components/StandartTempModal";
-
 import CustomTemplateModal from "../components/CustomTempModal";
-// import StandardTemplateModal from "../components/StandardTemplateModal";
 import AddPersonnelModal from "../components/PersonnelModal";
 import EditTemplateModal from "../components/EditTemplateModal";
 import { Box, Chip } from "@mui/material";
 import RenewalQuoteTemplateModal from "../components/RenewalQuoteModel";
+import { AttachReferralModal } from "../components/AttachReferral";
 
 const ReferralsPage = () => {
   const [selectedTab, setSelectedTab] = useState("referralPartners");
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  //fpr the renewal template model
-  const [openRenewalModal, setOpenRenewalModal] = useState(false);
-
-  // State for personnel data
+  const [referralPartnersData, setReferralPartnersData] = useState([]);
+  const [clientReferralsData, setClientReferralsData] = useState([]);
   const [personnelData, setPersonnelData] = useState([]);
+  const [loadingReferralPartners, setLoadingReferralPartners] = useState(true);
+  const [loadingClientReferrals, setLoadingClientReferrals] = useState(true);
   const [isPersonnelLoading, setIsPersonnelLoading] = useState(true);
-
+  const [openRenewalModal, setOpenRenewalModal] = useState(false);
   const [openEditTemplateModal, setOpenEditTemplateModal] = useState(false);
-  // State for the "Add Personnel" modal
   const [openAddPersonnelModal, setOpenAddPersonnelModal] = useState(false);
-  const [personnelType, setPersonnelType] = useState(""); // "AC Repair" or "Roof Repair"
+  const [personnelType, setPersonnelType] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [openCustomModal, setOpenCustomModal] = useState(false);
+  const [selectedReferral, setSelectedReferral] = useState(null);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [openAttachModal, setOpenAttachModal] = useState(false);
 
   const handleOpenAddPersonnelModal = (type) => {
     setPersonnelType(type);
@@ -46,10 +46,6 @@ const ReferralsPage = () => {
   const handleCloseAddPersonnelModal = () => {
     setOpenAddPersonnelModal(false);
   };
-
-  const [openModal, setOpenModal] = useState(false);
-  const [openCustomModal, setOpenCustomModal] = useState(false);
-  const [selectedReferral, setSelectedReferral] = useState(null);
 
   const handleOpenStandardTemplate = (referral) => {
     setSelectedReferral(referral);
@@ -68,38 +64,61 @@ const ReferralsPage = () => {
   const handleCloseCustomModal = () => {
     setOpenCustomModal(false);
   };
-  const fetchPersonnelData = async () => {
+
+  // Fetch client referrals data
+  const fetchClientReferralsData = useCallback(async () => {
+    setLoadingClientReferrals(true);
+    try {
+      const clientQuery = query(collection(db, "users"), where("signupType", "==", "Client"));
+      const clientSnapshot = await getDocs(clientQuery);
+      setClientReferralsData(clientSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    } catch (error) {
+      console.error("Error fetching client referrals:", error);
+    } finally {
+      setLoadingClientReferrals(false);
+    }
+  }, []);
+
+  // Fetch personnel data
+  const fetchPersonnelData = useCallback(async () => {
     setIsPersonnelLoading(true);
     try {
-      const q = query(collection(db, "Personnels"));
-      const snapshot = await getDocs(q);
-      setPersonnelData(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      );
+      const personnelQuery = query(collection(db, "Personnels"));
+      const personnelSnapshot = await getDocs(personnelQuery);
+      setPersonnelData(personnelSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     } catch (error) {
       console.error("Error fetching personnel data:", error);
     } finally {
       setIsPersonnelLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch all data on component mount
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const collectionName =
-        selectedTab === "referralPartners" ? "users" : "Personnels";
-      const q = query(
-        collection(db, collectionName),
-        where("signupType", "==", "Referral")
-      );
-      const snapshot = await getDocs(q);
-      setData(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
+    const fetchAllData = async () => {
+      try {
+        // Fetch Referral Partners
+        setLoadingReferralPartners(true);
+        const referralQuery = query(collection(db, "users"), where("signupType", "==", "Referral"));
+        const referralSnapshot = await getDocs(referralQuery);
+        setReferralPartnersData(referralSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        setLoadingReferralPartners(false);
+
+        // Fetch Client Referrals
+        await fetchClientReferralsData();
+
+        // Fetch Personnel
+        await fetchPersonnelData();
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoadingReferralPartners(false);
+        setLoadingClientReferrals(false);
+        setIsPersonnelLoading(false);
+      }
     };
 
-    fetchData();
-
-    fetchPersonnelData();
-  }, []);
+    fetchAllData();
+  }, [fetchClientReferralsData, fetchPersonnelData]);
 
   const columns = [
     { accessorKey: "name", header: "Name", size: 150 },
@@ -113,13 +132,8 @@ const ReferralsPage = () => {
         <div>
           <Button
             variant="contained"
-            // color="primary"
             size="small"
-            style={{
-              marginRight: "8px",
-              backgroundColor: "#003049",
-              color: "white",
-            }}
+            style={{ marginRight: "8px", backgroundColor: "#003049", color: "white" }}
             onClick={() => handleOpenStandardTemplate(row.original)}
           >
             Standard Template
@@ -136,38 +150,58 @@ const ReferralsPage = () => {
       ),
     },
   ];
+
   const personnelColumns = [
-    {
-      accessorKey: "name",
-      header: "Name",
-    },
-    {
-      accessorKey: "address",
-      header: "Address",
-    },
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "address", header: "Address" },
     {
       accessorKey: "zipCodes",
       header: "Zip Codes",
-      // Custom rendering for zipCodes
       Cell: ({ cell }) => (
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
           {cell.getValue().map((zip, index) => (
-            <Chip
-              key={index}
-              label={zip}
-              sx={{ backgroundColor: "#003049", color: "white" }}
-            />
+            <Chip key={index} label={zip} sx={{ backgroundColor: "#003049", color: "white" }} />
           ))}
         </Box>
       ),
     },
+    { accessorKey: "contactInfo", header: "Contact Info" },
+    { accessorKey: "type", header: "Repair Type" },
+  ];
+
+  const clientReferralColumns = [
+    { accessorKey: "name", header: "Name", size: 150 },
+    { accessorKey: "email", header: "Email", size: 200 },
     {
-      accessorKey: "contactInfo",
-      header: "Contact Info",
+      accessorKey: "referralId",
+      header: "Referral Attached",
+      Cell: ({ row }) => {
+        const referralName = row?.original?.referralData?.name;
+        return referralName ? (
+          <span>{referralName}</span>
+        ) : (
+          <span style={{ color: "#999" }}>No referral attached</span>
+        );
+      },
     },
     {
-      accessorKey: "type",
-      header: "Repair Type",
+      accessorKey: "actions",
+      header: "Actions",
+      size: 200,
+      Cell: ({ row }) => (
+        <Button
+          variant="contained"
+          size="small"
+          style={{ backgroundColor: "#003049", color: "white" }}
+          onClick={() => {
+            setSelectedClient(row.original);
+            setSelectedReferral(row.original.referralData || null);
+            setOpenAttachModal(true);
+          }}
+        >
+          {row.original.referralId ? "Edit Referral" : "Attach Referral"}
+        </Button>
+      ),
     },
   ];
 
@@ -177,35 +211,19 @@ const ReferralsPage = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
-                <Skeleton variant="text" />
-              </TableCell>
-              <TableCell>
-                <Skeleton variant="text" />
-              </TableCell>
-              <TableCell>
-                <Skeleton variant="text" />
-              </TableCell>
-              <TableCell>
-                <Skeleton variant="text" />
-              </TableCell>
+              <TableCell><Skeleton variant="text" /></TableCell>
+              <TableCell><Skeleton variant="text" /></TableCell>
+              <TableCell><Skeleton variant="text" /></TableCell>
+              <TableCell><Skeleton variant="text" /></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {[1, 2, 3].map((row) => (
               <TableRow key={row}>
-                <TableCell>
-                  <Skeleton variant="text" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton variant="text" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton variant="text" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton variant="text" />
-                </TableCell>
+                <TableCell><Skeleton variant="text" /></TableCell>
+                <TableCell><Skeleton variant="text" /></TableCell>
+                <TableCell><Skeleton variant="text" /></TableCell>
+                <TableCell><Skeleton variant="text" /></TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -220,11 +238,8 @@ const ReferralsPage = () => {
         <div className="w-[90%] grid md:grid-cols-2 gap-5 grid-cols-1 lg:grid-cols-3 justify-center items-center">
           {/* Referral Partners Tab */}
           <div
-            className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
-              selectedTab === "referralPartners"
-                ? "bg-[#003049] text-white"
-                : ""
-            }`}
+            className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${selectedTab === "referralPartners" ? "bg-[#003049] text-white" : ""
+              }`}
             onClick={() => setSelectedTab("referralPartners")}
           >
             <div className="flex w-[60%] flex-col justify-center items-center lg:items-start gap-1">
@@ -232,7 +247,7 @@ const ReferralsPage = () => {
                 Referral Partners
               </p>
               <p className="lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white">
-                You have {data?.length} Referral Partners
+                You have {referralPartnersData?.length} Referral Partners
               </p>
             </div>
             <img src={papericon} alt="" />
@@ -240,9 +255,8 @@ const ReferralsPage = () => {
 
           {/* Personnel Tab */}
           <div
-            className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${
-              selectedTab === "personnel" ? "bg-[#003049] text-white" : ""
-            }`}
+            className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${selectedTab === "personnel" ? "bg-[#003049] text-white" : ""
+              }`}
             onClick={() => setSelectedTab("personnel")}
           >
             <div className="flex w-[60%] flex-col justify-center items-center lg:items-start gap-1">
@@ -255,6 +269,23 @@ const ReferralsPage = () => {
             </div>
             <img src={papericon} alt="" />
           </div>
+
+          {/* Client Referrals Tab */}
+          <div
+            className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${selectedTab === "clientReferrals" ? "bg-[#003049] text-white" : ""
+              }`}
+            onClick={() => setSelectedTab("clientReferrals")}
+          >
+            <div className="flex w-[60%] flex-col justify-center items-center lg:items-start gap-1">
+              <p className="lg:text-[18px] lg:text-start text-center font-bold group-hover:text-white">
+                Client Referrals
+              </p>
+              <p className="lg:text-[14px] lg:w-[80%] lg:text-start text-center font-light group-hover:text-white">
+                Manage client-referral relationships
+              </p>
+            </div>
+            <img src={papericon} alt="" />
+          </div>
         </div>
 
         {selectedTab === "personnel" && (
@@ -262,19 +293,20 @@ const ReferralsPage = () => {
             <Button
               variant="contained"
               style={{ backgroundColor: "#003049", color: "white" }}
-              onClick={() => handleOpenAddPersonnelModal("AC Repair")} // Default to AC Repair
+              onClick={() => handleOpenAddPersonnelModal("AC Repair")}
             >
               Add New Personnel
             </Button>
             <Button
               variant="contained"
               style={{ backgroundColor: "#003049", color: "white" }}
-              onClick={() => setOpenEditTemplateModal(true)} // Open the edit template modal
+              onClick={() => setOpenEditTemplateModal(true)}
             >
               Edit Email Template
             </Button>
           </div>
         )}
+
         <div className="w-full flex justify-end mt-4 gap-4">
           <Button
             variant="contained"
@@ -284,21 +316,36 @@ const ReferralsPage = () => {
             Edit Renewal Template
           </Button>
         </div>
+
         {/* Table */}
         <div className="w-full flex flex-col justify-center items-center mt-[30px]">
           {selectedTab === "referralPartners" ? (
-            loading ? (
+            loadingReferralPartners ? (
               renderSkeleton()
-            ) : data.length > 0 ? (
+            ) : referralPartnersData.length > 0 ? (
               <div className="table w-full">
                 <MaterialReactTable
                   columns={columns}
-                  data={data}
+                  data={referralPartnersData}
                   initialState={{ density: "compact" }}
                 />
               </div>
             ) : (
               <p className="text-center mt-5">No Referral Partners Found....</p>
+            )
+          ) : selectedTab === "clientReferrals" ? (
+            loadingClientReferrals ? (
+              renderSkeleton()
+            ) : clientReferralsData.length > 0 ? (
+              <div className="table w-full">
+                <MaterialReactTable
+                  columns={clientReferralColumns}
+                  data={clientReferralsData}
+                  initialState={{ density: "compact" }}
+                />
+              </div>
+            ) : (
+              <p className="text-center mt-5">No Clients Found....</p>
             )
           ) : isPersonnelLoading ? (
             renderSkeleton()
@@ -333,6 +380,7 @@ const ReferralsPage = () => {
         handleClose={() => setOpenRenewalModal(false)}
         db={db}
       />
+
       <StandardTemplateModal
         open={openModal}
         handleClose={handleCloseModal}
@@ -347,6 +395,14 @@ const ReferralsPage = () => {
         referral={selectedReferral}
         db={db}
         storage={storage}
+      />
+
+      <AttachReferralModal
+        open={openAttachModal}
+        onClose={() => setOpenAttachModal(false)}
+        client={selectedClient}
+        selectedReferral={selectedReferral}
+        fetchClientReferralsData={fetchClientReferralsData} // Pass refetch function
       />
     </>
   );

@@ -39,6 +39,9 @@ export const fetchQuotesByEmail = async (email) => {
         carrier: quote.Carrier || "",
         premium: parseFloat(quote.ReturnAmount) || 0,
         isProcessed: quote?.processed,
+        boundPolicyId: quote?.boundPolicyId || "",
+        boundPolicyCarrier: quote?.boundPolicyCarrier || "",
+        boundPolicyEffectiveDate: quote?.boundPolicyEffectiveDate || "",
       }))
       .sort((a, b) => (b.premium > 0 ? 1 : -1))
       .filter(

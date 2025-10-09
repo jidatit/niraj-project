@@ -34,6 +34,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment, Tooltip } from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
+import { getReferralMeta } from "../../../utils/referralUtils";
 
 const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
@@ -108,31 +109,41 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
       return updatedFiles;
     });
   };
-
   const checkInspections = () => {
     if (formData.cert_elevation === "") {
       toast.warn("Do you have an elevation certificate?");
       return;
     }
-    if (formData.cert_elevation === "yes" && formData.files.length === 0) {
+
+    // ✅ Skip showing inspection dialog if it's a pre-renewal quote
+    if (
+      !PreRenwalQuote &&
+      formData.cert_elevation === "yes" &&
+      formData.files.length === 0
+    ) {
       setConfirmDialogOpen(true);
     } else {
       addFormToDb();
     }
   };
 
+
   const addFormToDb = async () => {
     try {
       setConfirmDialogOpen(false);
       setbuttonstate("Submitting...");
+      const referralMeta = await getReferralMeta(currentUser);
+
       if (files.length === 0) {
         let nofilesformData = {
           ...formData,
-          status: formData.cert_elevation === "yes" ? "pending" : "completed",
+          status: PreRenwalQuote
+            ? "completed"
+            : formData.cert_elevation === "yes"
+              ? "pending"
+              : "completed",
           status_step: "1",
         };
-
-
 
         await addDoc(collection(db, "flood_quotes"), {
           ...nofilesformData,
@@ -140,11 +151,14 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
           createdAt: serverTimestamp(), // Automatically add the creation timestamp
           updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
           ...(PreRenwalQuote && { PreRenwalQuote }),
-          ...(currentUser?.data?.signupType === "Referral" && {
-            byReferral: true,
-            ReferralId: currentUser?.uid,
-            Referral: currentUser?.data,
-          }),
+          //This was for the case ,quptes only submitted by referral
+          // ...(currentUser?.data?.signupType === "Referral" && {
+          //   byReferral: true,
+          //   ReferralId: currentUser?.uid,
+          //   Referral: currentUser?.data,
+          // }),
+          //CASE quotes submitted by client but has refrral attached and both
+          ...referralMeta, // 👈 automatically adds correct referral info
         });
         // 🔹 Send WITHOUT inspection mail
         if (currentUser.data.signupType === "Referral") {
@@ -202,11 +216,12 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
         createdAt: serverTimestamp(), // Automatically add the creation timestamp
         updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
         ...(PreRenwalQuote && { PreRenwalQuote }),
-        ...(currentUser?.data?.signupType === "Referral" && {
-          byReferral: true,
-          ReferralId: currentUser?.uid,
-          Referral: currentUser?.data,
-        }),
+        // ...(currentUser?.data?.signupType === "Referral" && {
+        //   byReferral: true,
+        //   ReferralId: currentUser?.uid,
+        //   Referral: currentUser?.data,
+        // }),
+        ...referralMeta, // 👈 automatically adds correct referral info
       });
 
       setFormData({
@@ -541,7 +556,8 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
         </div>
 
         <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
-          {formData.cert_elevation === "yes" && (
+
+          {formData.cert_elevation === "yes" && !PreRenwalQuote && (
             <div className="flex w-full flex-col justify-center items-start gap-2">
               <button
                 onClick={() => setfileModal(true)}

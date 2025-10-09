@@ -49,6 +49,7 @@ const RenewalPrepare = () => {
   const [IsDelivered, setIsDelivered] = useState(false);
   const [IsLoading, setIsLoading] = useState(true);
   const [renewalQuote, setRenewalQuote] = useState([]);
+  const [error, setError] = useState("")
   const checkAlreadyDeliveredQuote = async (isProcessed) => {
     try {
       if (isProcessed === true) {
@@ -62,7 +63,6 @@ const RenewalPrepare = () => {
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
     if (renewalQuote?.[0]) {
       checkAlreadyDeliveredQuote(renewalQuote[0]?.isProcessed);
@@ -135,126 +135,225 @@ const RenewalPrepare = () => {
       console.log("error getting document: ", error);
     }
   };
+
+  // const getQuoteDetailsByEmail = async (renewalQuote) => {
+  //   const email = renewalQuote?.email?.toLowerCase();
+  //   if (!email) {
+  //     console.warn("No email provided for getQuoteDetailsByEmail");
+  //     return null;
+  //   }
+
+  //   try {
+  //     // --- 1️⃣ Check if client exists in "users" collection
+  //     const clientQuery = query(collection(db, "users"), where("email", "==", email));
+  //     const clientSnapshot = await getDocs(clientQuery);
+
+  //     let clientDoc = null;
+  //     if (!clientSnapshot.empty) {
+  //       clientDoc = clientSnapshot.docs[0];
+  //     }
+
+  //     let userData = null;
+  //     let byReferral = false;
+  //     let ReferralId = "";
+  //     let Referral = "";
+
+  //     // --- 2️⃣ If client has a referral, attach it
+  //     if (clientDoc) {
+  //       const clientData = clientDoc.data();
+
+  //       if (clientData?.hasReferral && clientData?.referralId) {
+  //         const refDoc = await getDoc(doc(db, "users", clientData.referralId));
+  //         if (refDoc.exists()) {
+  //           const refData = refDoc.data();
+  //           ReferralId = clientData.referralId;
+  //           Referral = refData.name || "";
+  //           byReferral = true;
+  //         }
+  //       }
+
+  //       // Attach base user data
+  //       userData = {
+  //         email: clientData.email,
+  //         name: clientData.name || "",
+  //         address: clientData.address || "",
+  //         zipCode: clientData.zipCode || "",
+  //         phoneNumber: clientData.phoneNumber || "",
+  //         mailingAddress: clientData.mailingAddress || "",
+  //       };
+  //     }
+
+  //     // --- 3️⃣ If no client found, check "prep_quotes"
+  //     if (!userData) {
+  //       const previousQuotesQuery = query(collection(db, "prep_quotes"), where("user.email", "==", email));
+  //       const previousQuotesSnapshot = await getDocs(previousQuotesQuery);
+  //       const previousQuotes = previousQuotesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+  //       const mostRecentQuote = previousQuotes.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+  //       if (mostRecentQuote) {
+  //         userData = mostRecentQuote.user;
+  //         byReferral = mostRecentQuote.user?.byReferral || false;
+  //         ReferralId = mostRecentQuote.user?.ReferralId || "";
+  //         Referral = mostRecentQuote.user?.Referral || "";
+  //       }
+  //     }
+
+  //     // --- 4️⃣ Final fallback: check "bound_policies"
+  //     if (!userData) {
+  //       const boundPoliciesQuery = query(collection(db, "bound_policies"), where("user.email", "==", email), limit(1));
+  //       const boundPoliciesSnapshot = await getDocs(boundPoliciesQuery);
+
+  //       if (!boundPoliciesSnapshot.empty) {
+  //         const latestPolicy = boundPoliciesSnapshot.docs[0].data();
+  //         userData = latestPolicy.user;
+  //         byReferral = latestPolicy.user?.byReferral || false;
+  //         ReferralId = latestPolicy.user?.ReferralId || "";
+  //         Referral = latestPolicy.user?.Referral || "";
+  //       } else {
+  //         // --- 5️⃣ Final fallback: from renewalQuote itself
+  //         userData = {
+  //           email: renewalQuote.email,
+  //           name: "",
+  //           address: renewalQuote.address || "",
+  //           zipCode: renewalQuote.zipCode || "",
+  //           phoneNumber: "",
+  //           mailingAddress: renewalQuote.Address || "",
+  //         };
+  //       }
+  //     }
+
+  //     return {
+  //       ...userData,
+  //       label: userData?.email,
+  //       value: userData?.email,
+  //       address: userData?.address || userData?.garaging_address || "",
+  //       mailingAddress: userData?.mailingAddress || "",
+  //       byReferral,
+  //       ReferralId,
+  //       Referral,
+  //     };
+  //   } catch (error) {
+  //     console.error("Error getting quote details by email:", error);
+  //     return null;
+  //   }
+  // };
+
+
+
   const getQuoteDetailsByEmail = async (renewalQuote) => {
     const email = renewalQuote?.email?.toLowerCase();
+
     if (!email) {
       console.warn("No email provided for getQuoteDetailsByEmail");
       return null;
     }
 
     try {
-      // 1. Try to fetch most recent quote from prep_quotes
-      const previousQuotesQuery = query(
-        collection(db, "prep_quotes"),
-        where("user.email", "==", email)
-      );
-
-      const previousQuotesSnapshot = await getDocs(previousQuotesQuery);
-      const previousQuotes = previousQuotesSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      const mostRecentQuote = previousQuotes.sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
-      )[0];
-
-      let userData = null;
-
       let byReferral = false;
       let ReferralId = "";
-      let Referral = "";
+      let Referral = null; //now will store full referral object
 
-      if (!mostRecentQuote) {
-        // 2. Fallback: check bound_policies
-        const boundPoliciesQuery = query(
-          collection(db, "bound_policies"),
-          where("user.email", "==", email),
-          limit(1)
-        );
 
-        const boundPoliciesSnapshot = await getDocs(boundPoliciesQuery);
-
-        if (!boundPoliciesSnapshot.empty) {
-          const latestPolicy = boundPoliciesSnapshot.docs[0].data();
-          userData = latestPolicy.user;
-          byReferral = latestPolicy.user?.byReferral || false;
-          ReferralId = latestPolicy.user?.ReferralId || "";
-          Referral = latestPolicy.user?.Referral || "";
-        } else {
-          // 3. Final fallback: use minimal info from renewalQuote
-          userData = {
-            email: renewalQuote.email,
-            name: "",
-            address: renewalQuote.address || "",
-            zipCode: renewalQuote.zipCode || "",
-            phoneNumber: "",
-            mailingAddress: renewalQuote.Address || "",
-            label: renewalQuote.email,
-            value: renewalQuote.email,
-          };
-        }
-      } else {
-        // Use data from existing prep quote
-        userData = mostRecentQuote.user;
-        byReferral = mostRecentQuote.user?.byReferral || false;
-        ReferralId = mostRecentQuote.user?.ReferralId || "";
-        Referral = mostRecentQuote.user?.Referral || "";
+      // 1️ Always require a bound policy
+      if (!renewalQuote.boundPolicyId) {
+        return { error: "No bound policy exists for this quote" };
       }
 
+      const boundPolicyRef = doc(db, "bound_policies", renewalQuote.boundPolicyId);
+      const boundSnap = await getDoc(boundPolicyRef);
+
+      if (!boundSnap.exists()) {
+        return { error: "No bound policy exists for this quote" };
+      }
+
+      const boundData = boundSnap.data();
+      let userData = boundData.user || {};
+
+      // 2️ Check if client exists (for referral info only)
+      const clientQuery = query(collection(db, "users"), where("email", "==", email));
+      const clientSnapshot = await getDocs(clientQuery);
+      if (!clientSnapshot.empty) {
+        const clientData = clientSnapshot.docs[0].data();
+
+        if (clientData.signupType === "Client" && clientData?.hasReferral && clientData?.referralId) {
+          const refDoc = await getDoc(doc(db, "users", clientData.referralId));
+          if (refDoc.exists()) {
+            const refData = refDoc.data();
+            ReferralId = clientData.referralId;
+            Referral = refData; //full referral user object now
+            byReferral = true;
+          }
+        }
+      }
+
+      // 3️ Return full combined data
       return {
         ...userData,
-        label: userData?.email,
-        value: userData?.email,
-        address: userData?.address || userData?.garaging_address || "",
-        mailingAddress: userData?.mailingAddress || "",
+        email: userData.email || email,
+        label: userData.email || email,
+        value: userData.email || email,
+        address: userData.address || userData.garaging_address || "",
+        mailingAddress: userData.mailingAddress || "",
         byReferral,
         ReferralId,
-        Referral,
+        Referral, //now contains full user info
       };
     } catch (error) {
       console.error("Error getting quote details by email:", error);
       return null;
     }
   };
+
   useEffect(() => {
     const fetchData = async () => {
-      const searchParams = new URLSearchParams(location.search);
-      const qsrTypeParam = searchParams.get("qsr_type");
-      const q_id = generateQid();
-      const email = searchParams.get("email");
+      try {
+        const searchParams = new URLSearchParams(location.search);
+        const qsrTypeParam = searchParams.get("qsr_type");
+        const q_id = generateQid();
+        const email = searchParams.get("email");
 
-      setQ_id(q_id);
-      setUserEmail(email);
-      setQSR_Type(qsrTypeParam);
-      const results = await fetchQuotesByEmail(email);
-      setRenewalQuote(results);
-      setFormData((prevData) => {
-        const updated = {
+        setQ_id(q_id);
+        setUserEmail(email);
+        setQSR_Type(qsrTypeParam);
+
+        const results = await fetchQuotesByEmail(email);
+        setRenewalQuote(results);
+
+        setFormData((prevData) => ({
           ...prevData,
           qsr_type: qsrTypeParam,
           q_id: q_id,
-        };
-        return updated;
-      });
+        }));
 
-      const inuser = await getQuoteDetailsByEmail(results[0]);
+        // Get quote details
+        const inuser = await getQuoteDetailsByEmail(results[0]);
+        console.log("inuser", inuser);
 
-      setFormData((prevData) => {
-        const updated = {
+        // 🛑 Handle missing bound policy
+        if (inuser?.error === "No bound policy exists for this quote") {
+          setError("No bound policy exists for this quote.");
+          return;
+        }
+
+        // ✅ Continue normal flow
+        setFormData((prevData) => ({
           ...prevData,
           insured_address: inuser?.address,
           user: inuser,
           byReferral: inuser?.byReferral || false,
           ReferralId: inuser?.ReferralId || "",
           Referral: inuser?.Referral || "",
-        };
-        return updated;
-      });
+        }));
+      } catch (err) {
+        console.error("Error fetching quote details:", err);
+        setError("An unexpected error occurred while fetching quote details.");
+      }
     };
 
     fetchData();
   }, [location.search]);
+
 
   const getDatafromTable = (dataFromTable, tableNumber) => {
     if (tableNumber === 1) {
@@ -345,6 +444,58 @@ const RenewalPrepare = () => {
       toast.error("Error updating status!");
     }
   };
+  if (error) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+        bgcolor="#FAFAFA"
+        px={2}
+      >
+        <Box
+          sx={{
+            backgroundColor: "#FFECEC",
+            border: "1px solid #FFB3B3",
+            borderRadius: "12px",
+            padding: "24px 32px",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+            maxWidth: "600px",
+            textAlign: "center",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              boxShadow: "0 6px 14px rgba(0,0,0,0.15)",
+            },
+          }}
+        >
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            sx={{ color: "#B00020", mb: 1 }}
+          >
+            ⚠️ Bound Policy Missing
+          </Typography>
+
+          <Typography
+            variant="body1"
+            sx={{ color: "#333", lineHeight: 1.6 }}
+          >
+            {error}
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{ color: "#555", mt: 2, fontStyle: "italic" }}
+          >
+            Please verify the user’s bound policy in the system or contact the
+            administrator.
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <>

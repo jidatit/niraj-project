@@ -17,10 +17,12 @@ import {
   Typography,
 } from "@mui/material";
 
-export function AttachReferralModal({ open, onClose, policy }) {
+export function AttachReferralModal({ open, onClose, client, selectedReferral, fetchClientReferralsData }) {
   const [options, setOptions] = useState([]);
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState(selectedReferral || null);
+  const [loading, setLoading] = useState(false);
 
+  // 🔹 Fetch referral partners
   useEffect(() => {
     if (open) {
       (async () => {
@@ -34,18 +36,62 @@ export function AttachReferralModal({ open, onClose, policy }) {
     }
   }, [open]);
 
+  // 🔹 Reset / preload selected referral when client changes
+  useEffect(() => {
+    if (selectedReferral) {
+      setValue(selectedReferral);
+    } else {
+      setValue(null);
+    }
+  }, [selectedReferral]);
+
+  // 🔹 Attach or update referral
   const handleAttach = async () => {
-    if (policy && value) {
-      const bpRef = doc(db, "bound_policies", policy?.id);
-      await updateDoc(bpRef, {
-        byReferral: true,
-        ReferralId: value.id,
-        Referral: value,
-        "user.byReferral": true,
-        "user.ReferralId": value.id,
-        "user.Referral": value,
+    if (!client || !value) return;
+    setLoading(true);
+
+    try {
+      const { id: referralId, name, email } = value;
+      const referralData = { name, email };
+
+      const clientRef = doc(db, "users", client.id);
+      await updateDoc(clientRef, {
+        hasReferral: true,
+        referralId,
+        referralData,
+        updatedAt: new Date(),
       });
+
+      await fetchClientReferralsData();
+
       onClose();
+    } catch (error) {
+      console.error("Error attaching referral:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 Optional: remove referral if needed
+  const handleRemove = async () => {
+    if (!client) return;
+    setLoading(true);
+
+    try {
+      const clientRef = doc(db, "users", client.id);
+      await updateDoc(clientRef, {
+        hasReferral: false,
+        referralId: null,
+        referralData: null,
+        updatedAt: new Date(),
+      });
+
+      await fetchClientReferralsData();
+      onClose();
+    } catch (error) {
+      console.error("Error removing referral:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,8 +110,10 @@ export function AttachReferralModal({ open, onClose, policy }) {
         }}
       >
         <Typography variant="h6" gutterBottom>
-          Attach Referral to {policy?.user?.name}
+          {client?.referralId ? "Edit Referral" : "Attach Referral"}{" "}
+          to {client?.name || "Client"}
         </Typography>
+
         <Autocomplete
           options={options}
           getOptionLabel={(opt) => opt.name || ""}
@@ -75,10 +123,27 @@ export function AttachReferralModal({ open, onClose, policy }) {
             <TextField {...params} label="Referral Partner" />
           )}
         />
+
         <Box display="flex" justifyContent="flex-end" mt={2} gap={1}>
+          {client?.referralId && (
+            <Button color="error" onClick={handleRemove} disabled={loading}>
+              Remove
+            </Button>
+          )}
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleAttach} disabled={!value} variant="contained">
-            Attach
+          <Button
+            onClick={handleAttach}
+            disabled={!value || loading}
+            variant="contained"
+            sx={{ backgroundColor: "#003049", color: "white" }}
+          >
+            {loading
+              ? client?.referralId
+                ? "Updating..."
+                : "Attaching..."
+              : client?.referralId
+                ? "Update"
+                : "Attach"}
           </Button>
         </Box>
       </Box>
