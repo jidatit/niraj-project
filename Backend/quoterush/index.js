@@ -48,7 +48,6 @@ router.post("/submit", async (req, res) => {
   try {
     // Build payload
     payload = buildPayload(quoteType, quoteData);
-    console.log("Payload built for QuoteRush:", payload);
 
     // Submit to QuoteRush
     const { status, data, leadId } = await submitToQuoteRush(payload);
