@@ -35,6 +35,7 @@ import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment, Tooltip } from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
 import { getReferralMeta } from "../../../utils/referralUtils";
+import { submitQuoteToQuoteRush } from "../../../utils/submitQuoteToQuoteRush";
 
 const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
@@ -145,7 +146,7 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
           status_step: "1",
         };
 
-        await addDoc(collection(db, "flood_quotes"), {
+        const docRef = await addDoc(collection(db, "flood_quotes"), {
           ...nofilesformData,
           inuser: nofilesformData.persons[0],
           createdAt: serverTimestamp(), // Automatically add the creation timestamp
@@ -160,6 +161,12 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
           //CASE quotes submitted by client but has refrral attached and both
           ...referralMeta, // 👈 automatically adds correct referral info
         });
+        // Submit to QuoteRush
+        try {
+          await submitQuoteToQuoteRush(docRef.id, 'Flood', formDataWithUrls);
+        } catch (error) {
+          toast.error(error.message);
+        }
         // 🔹 Send WITHOUT inspection mail
         if (currentUser.data.signupType === "Referral") {
           ClientQuoteWithoutInspection(
@@ -210,7 +217,8 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
         status: "completed",
         status_step: "1",
       };
-      await addDoc(collection(db, "flood_quotes"), {
+
+      const docRef = await addDoc(collection(db, "flood_quotes"), {
         ...statusformData,
         inuser: formDataWithUrls.persons[0],
         createdAt: serverTimestamp(), // Automatically add the creation timestamp
@@ -223,6 +231,13 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
         // }),
         ...referralMeta, // 👈 automatically adds correct referral info
       });
+      // Submit to QuoteRush
+      try {
+        await submitQuoteToQuoteRush(docRef.id, 'Flood', formDataWithUrls);
+      } catch (error) {
+        toast.error(error.message);
+      }
+
 
       setFormData({
         policyType: "Flood",

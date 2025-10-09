@@ -434,7 +434,7 @@ const PolicyCreationModal = ({
                         const node = e.currentTarget;
                         if (
                           node.scrollTop + node.clientHeight >=
-                            node.scrollHeight - 4 &&
+                          node.scrollHeight - 4 &&
                           lastUserDoc
                         ) {
                           loadCollection("Client", inputValue, lastUserDoc);
@@ -466,7 +466,7 @@ const PolicyCreationModal = ({
                   />
                 </Box>
 
-                <Box mb={2}>
+                {/* <Box mb={2}>
                   <Typography variant="h6" fontWeight="semibold" gutterBottom>
                     Attach Referral (optional)
                   </Typography>
@@ -534,7 +534,7 @@ const PolicyCreationModal = ({
                       option?.id === value?.id
                     }
                   />
-                </Box>
+                </Box> */}
                 {/* Policy Number */}
                 <Box sx={{ mt: 3, mb: 3 }}>
                   <Typography variant="h6" fontWeight="semibold" gutterBottom>
@@ -890,8 +890,8 @@ const PolicyCreationModal = ({
                         {loading
                           ? "Submitting..."
                           : isEditMode
-                          ? "Update Policy"
-                          : "Submit"}
+                            ? "Update Policy"
+                            : "Submit"}
                       </Button>
                     </Box>
                   </>

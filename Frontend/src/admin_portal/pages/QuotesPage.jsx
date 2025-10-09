@@ -1012,34 +1012,34 @@ const QuotesPage = () => {
         size: 100,
         Cell: ({ cell }) => <Box>{formatDate(cell.getValue())}</Box>,
       },
-      {
-        accessorKey: "Refe",
-        header: "Referral",
-        size: 120,
-        Cell: ({ row }) => {
-          const data = row?.original;
-          return data?.byReferral ? (
-            <Box>{data?.Referral?.name}</Box>
-          ) : (
-            <Button
-              size="small"
-              onClick={() => {
-                setSelectedPolicyReferral(data);
-                setRefModalOpen(true);
-              }}
-              variant="contained"
-              sx={{
-                bgcolor: "#005270",
-                "&:hover": { bgcolor: "#003049" },
-                borderRadius: "8px",
-                textTransform: "none",
-              }}
-            >
-              Attach
-            </Button>
-          );
-        },
-      },
+      // {
+      //   accessorKey: "Refe",
+      //   header: "Referral",
+      //   size: 120,
+      //   Cell: ({ row }) => {
+      //     const data = row?.original;
+      //     return data?.byReferral ? (
+      //       <Box>{data?.Referral?.name}</Box>
+      //     ) : (
+      //       <Button
+      //         size="small"
+      //         onClick={() => {
+      //           setSelectedPolicyReferral(data);
+      //           setRefModalOpen(true);
+      //         }}
+      //         variant="contained"
+      //         sx={{
+      //           bgcolor: "#005270",
+      //           "&:hover": { bgcolor: "#003049" },
+      //           borderRadius: "8px",
+      //           textTransform: "none",
+      //         }}
+      //       >
+      //         Attach
+      //       </Button>
+      //     );
+      //   },
+      // },
       {
         id: "actions",
         header: "Actions",

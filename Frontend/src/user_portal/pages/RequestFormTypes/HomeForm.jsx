@@ -43,6 +43,7 @@ import { CiCircleRemove } from "react-icons/ci";
 import { data } from "autoprefixer";
 import InspectionModalFlood from "../../components/InspectionModalFlood";
 import { getReferralMeta } from "../../../utils/referralUtils";
+import { submitQuoteToQuoteRush } from "../../../utils/submitQuoteToQuoteRush";
 
 //submit for the Flood inspections:
 
@@ -254,6 +255,12 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         inuser: floodDataToSave.persons?.[0] || { name: "Unknown" },
       });
 
+      try {
+        await submitQuoteToQuoteRush(docRef.id, 'Flood', floodDataToSave);
+      } catch (error) {
+        toast.error(error.message);
+      }
+
       //  Email notifications
       if (hasFiles) {
         ClientQuoteReqMail(
@@ -328,7 +335,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           files: [],
         }));
 
-        await addDoc(collection(db, "home_quotes"), {
+        const docRef = await addDoc(collection(db, "home_quotes"), {
           ...formDataToSave,
           inuser: formDataToSave.persons?.[0] || { name: "Unknown" },
           createdAt: serverTimestamp(),
@@ -343,7 +350,12 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           //CASE quotes submitted by client but has refrral attached and both
           ...referralMeta, // 👈 automatically adds correct referral info
         });
-
+        // Submit to QuoteRush
+        try {
+          await submitQuoteToQuoteRush(docRef.id, 'Home', formDataToSave);
+        } catch (error) {
+          toast.error(error.message);
+        }
         //  Send email
         if (hasFiles) {
           ClientQuoteReqMail(
@@ -398,7 +410,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         status_step: "1",
       };
 
-      await addDoc(collection(db, "home_quotes"), {
+      const docRef = await addDoc(collection(db, "home_quotes"), {
         ...formDataWithUrls,
         inuser: formDataWithUrls.persons?.[0] || { name: "Unknown" },
         createdAt: serverTimestamp(),
@@ -411,6 +423,14 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         // }),
         ...referralMeta, // 👈 automatically adds correct referral info
       });
+
+
+      // Submit to QuoteRush
+      try {
+        await submitQuoteToQuoteRush(docRef.id, 'Home', formDataWithUrls);
+      } catch (error) {
+        toast.error(error.message);
+      }
 
       //  Email notification
       if (fileUrls.length > 0) {

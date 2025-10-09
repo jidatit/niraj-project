@@ -35,6 +35,7 @@ import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment, Tooltip } from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
 import { getReferralMeta } from "../../../utils/referralUtils";
+import { submitQuoteToQuoteRush } from "../../../utils/submitQuoteToQuoteRush";
 
 const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
@@ -138,7 +139,7 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
           status_step: "1",
         };
 
-        await addDoc(collection(db, "auto_quotes"), {
+        const docRef = await addDoc(collection(db, "auto_quotes"), {
           ...nofilesformData, // Include the existing form data
           createdAt: serverTimestamp(), // Automatically add the creation timestamp
           updatedAt: serverTimestamp(), // Set the initial update timestamp to the same as createdAt
@@ -150,6 +151,12 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
           // }),
           ...referralMeta, // 👈 automatically adds correct referral info
         });
+        // Submit to QuoteRush
+        try {
+          await submitQuoteToQuoteRush(docRef.id, 'Auto', formDataWithUrls);
+        } catch (error) {
+          toast.error(error.message);
+        }
         // ✅ Send "Without Inspection" mail
         ClientQuoteWithoutInspection(
           formData.drivers.map((driver) => driver.name).join(", "),
@@ -194,7 +201,7 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
         status: "completed",
         status_step: "1",
       };
-      await addDoc(collection(db, "auto_quotes"), {
+      const docRef = await addDoc(collection(db, "auto_quotes"), {
         ...statusformData,
         inuser: formDataWithUrls.drivers[0],
         createdAt: serverTimestamp(), // Automatically add the current timestamp
@@ -207,6 +214,14 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
         // }),
         ...referralMeta, // 👈 automatically adds correct referral info
       });
+
+      // Submit to QuoteRush
+      try {
+        await submitQuoteToQuoteRush(docRef.id, 'Auto', formDataWithUrls);
+      } catch (error) {
+        toast.error(error.message);
+      }
+
 
       // ✅ Send "With Inspection" mail
       ClientQuoteReqMail(

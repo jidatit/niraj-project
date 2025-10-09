@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "node ./index.js",
     "dev": "nodemon ./index.js"
   },
@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@emailjs/nodejs": "^5.0.2",
+    "axios": "^1.12.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "emailjs-com": "^3.2.0",
@@ -23,6 +24,9 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "@jest/globals": "^30.2.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.9",
+    "uuid": "^13.0.0"
   }
 }

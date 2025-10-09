@@ -17,7 +17,8 @@ const {
   checkForActivePolicy,
   getBoundPolicy,
 } = require("./utils/checkActivePolicies.js");
-
+//Quote Rush Routes
+const quoterushRouter = require("./quoterush");
 require("./cronJobs");
 
 app.use(CORS());
@@ -75,7 +76,6 @@ app.post("/webhook", async (req, res) => {
     });
   }
 });
-
 app.post("/renewal", async (req, res) => {
   try {
     console.log("renewal request comes");
@@ -219,6 +219,9 @@ app.post("/policy_info", async (req, res) => {
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", timestamp: Date.now() });
 });
+
+app.use("/api/quoterush", quoterushRouter);
+
 app.listen(PORT, () => {
   console.log(`Server is live @ ${HOSTURL}`);
 });
