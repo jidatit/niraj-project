@@ -16,6 +16,7 @@ const fetch = require("node-fetch");
 const {
   checkForActivePolicy,
   getBoundPolicy,
+  runTests,
 } = require("./utils/checkActivePolicies.js");
 //Quote Rush Routes
 const quoterushRouter = require("./quoterush");
@@ -222,6 +223,11 @@ app.get("/health", (req, res) => {
 
 app.use("/api/quoterush", quoterushRouter);
 
+// Run tests
+// runTests().catch((error) => {
+//   console.error("Test execution failed:", error);
+//   process.exit(1);
+// });
 app.listen(PORT, () => {
   console.log(`Server is live @ ${HOSTURL}`);
 });

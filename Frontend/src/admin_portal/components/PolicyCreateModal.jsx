@@ -47,6 +47,7 @@ const initialFormData = {
   referral: null,
   policy_number: "",
   insured_address: "",
+  zipCode: "", // ← new
   carrier: "",
   effective_date: "",
   exp_date: "",
@@ -66,7 +67,6 @@ const PolicyCreationModal = ({
   isEditMode,
 }) => {
   const [loading, setLoading] = useState(false);
-  // const [isOpen, setIsOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [lastUserDoc, setLastUserDoc] = useState(null);
@@ -74,19 +74,19 @@ const PolicyCreationModal = ({
   const [formData, setFormData] = useState({
     user: null,
     referral: null,
+    policy_number: "",
+    insured_address: "",
+    zipCode: "", // ← new
     carrier: "",
     effective_date: "",
+    exp_date: "",
+    purchase_date: "",
+    qsr_type: "",
     isMortgageOrLienholder: "no",
     company_name: "",
-    qsr_type: "",
-    // acc_loan_number: "",
-    policy_number: "", // ← new
-    insured_address: "", // ← new
     responsible_payment: "Insured",
     ac_age: "",
     roof_age: "",
-    purchase_date: "",
-    exp_date: "",
   });
   const resetForm = () => {
     setFormData(initialFormData);
@@ -157,6 +157,7 @@ const PolicyCreationModal = ({
         referral: editData.Referral || null,
         policy_number: editData.policy_number || "",
         insured_address: editData.insured_address || "",
+        zipCode: editData.zipCode || "", // ← new
         carrier: editData.carrier || "",
         effective_date: editData.effective_date || "",
         exp_date: editData.exp_date || "",
@@ -169,7 +170,6 @@ const PolicyCreationModal = ({
         roof_age: editData.roof_age || "",
       });
 
-      // *** ADD THESE TWO LINES ***
       setInputValue(editData.user?.name ?? "");
       setInputRef(editData.Referral?.name ?? "");
     } else {
@@ -178,6 +178,7 @@ const PolicyCreationModal = ({
         referral: null,
         policy_number: "",
         insured_address: "",
+        zipCode: "", // ← new
         carrier: "",
         effective_date: "",
         exp_date: "",
@@ -189,7 +190,6 @@ const PolicyCreationModal = ({
         ac_age: "",
         roof_age: "",
       });
-      // reset your inputs too
       setInputValue("");
       setInputRef("");
     }
@@ -234,6 +234,10 @@ const PolicyCreationModal = ({
     if (!formData.insured_address) {
       newErrors.insured_address = "Insured address is required";
       errorMessages.push("Insured address is required");
+    }
+    if (!formData.zipCode) {
+      newErrors.zipCode = "Zip code is required";
+      errorMessages.push("Zip code is required");
     }
     if (!formData.qsr_type) {
       newErrors.qsr_type = "Policy type is required";
@@ -283,7 +287,7 @@ const PolicyCreationModal = ({
           </ul>
         </div>,
         {
-          autoClose: 5000, // Stay open longer for multiple errors
+          autoClose: 5000,
           style: { maxWidth: "400px" },
         }
       );
@@ -343,7 +347,6 @@ const PolicyCreationModal = ({
   };
 
   const getDialogSize = () => {
-    // if (!formData.user) return "sm";
     if (
       formData.qsr_type === "Home" &&
       formData.isMortgageOrLienholder === "yes"
@@ -411,7 +414,7 @@ const PolicyCreationModal = ({
                   </Typography>
                   <Autocomplete
                     options={users}
-                    getOptionLabel={(option) => option?.name || ""} // Safely get name
+                    getOptionLabel={(option) => option?.name || ""}
                     renderOption={(props, option) => (
                       <li {...props}>
                         <Box>
@@ -452,7 +455,6 @@ const PolicyCreationModal = ({
                     )}
                     onChange={(_, v) => {
                       setFormData((f) => ({ ...f, user: v }));
-                      // Update input value when selection changes
                       if (v) {
                         setInputValue(v.name);
                       }
@@ -466,75 +468,6 @@ const PolicyCreationModal = ({
                   />
                 </Box>
 
-                {/* <Box mb={2}>
-                  <Typography variant="h6" fontWeight="semibold" gutterBottom>
-                    Attach Referral (optional)
-                  </Typography>
-                  <Autocomplete
-                    options={referrals}
-                    getOptionLabel={(option) => option?.name || ""} // Safely get name
-                    renderOption={(props, option) => (
-                      <li {...props}>
-                        <Box>
-                          <Typography>{option.name}</Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {option.email}
-                          </Typography>
-                        </Box>
-                      </li>
-                    )}
-                    loading={loadingRefs}
-                    inputValue={inputRef}
-                    onInputChange={(e, v, r) => {
-                      if (r === "input") {
-                        setInputRef(v);
-                      }
-                    }}
-                    ListboxProps={{
-                      onScroll: (e) => {
-                        const node = e.currentTarget;
-                        if (
-                          node.scrollTop + node.clientHeight >=
-                            node.scrollHeight - 4 &&
-                          lastRefDoc
-                        ) {
-                          loadCollection("Referral", inputRef, lastRefDoc);
-                        }
-                      },
-                      style: { maxHeight: 200, overflow: "auto" },
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Search referrals..."
-                        InputProps={{
-                          ...params.InputProps,
-                          endAdornment: (
-                            <>
-                              {loadingRefs && (
-                                <CircularProgress color="inherit" size={20} />
-                              )}
-                              {params.InputProps.endAdornment}
-                            </>
-                          ),
-                        }}
-                      />
-                    )}
-                    onChange={(_, v) => {
-                      setFormData((f) => ({ ...f, referral: v }));
-                      // Update input value when selection changes
-                      if (v) {
-                        setInputRef(v.name);
-                      }
-                    }}
-                    value={formData.referral}
-                    fullWidth
-                    // disabled={isEditMode}
-                    isOptionEqualToValue={(option, value) =>
-                      option?.id === value?.id
-                    }
-                  />
-                </Box> */}
                 {/* Policy Number */}
                 <Box sx={{ mt: 3, mb: 3 }}>
                   <Typography variant="h6" fontWeight="semibold" gutterBottom>
@@ -562,6 +495,21 @@ const PolicyCreationModal = ({
                     onChange={handleChange}
                     error={!!errors.insured_address}
                     helperText={errors.insured_address}
+                  />
+                </Box>
+
+                {/* Zip Code */}
+                <Box sx={{ mt: 3, mb: 3 }}>
+                  <Typography variant="h6" fontWeight="semibold" gutterBottom>
+                    Zip Code
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    name="zipCode"
+                    value={formData.zipCode}
+                    onChange={handleChange}
+                    error={!!errors.zipCode}
+                    helperText={errors.zipCode}
                   />
                 </Box>
 
@@ -648,7 +596,7 @@ const PolicyCreationModal = ({
                             InputLabelProps={{ shrink: true }}
                           />
                         )}
-                        sx={{ width: "100%" }} // Add this line
+                        sx={{ width: "100%" }}
                       />
                     </Box>
 
@@ -685,7 +633,7 @@ const PolicyCreationModal = ({
                             InputLabelProps={{ shrink: true }}
                           />
                         )}
-                        sx={{ width: "100%" }} // Add this line
+                        sx={{ width: "100%" }}
                       />
                     </Box>
 
@@ -816,26 +764,6 @@ const PolicyCreationModal = ({
                               helperText={errors.company_name}
                             />
                           </Box>
-                          {/*acc_loan_number*/}
-
-                          {/* <Box sx={{ mt: 3, mb: 3 }}>
-                          <Typography
-                            variant="h6"
-                            fontWeight="semibold"
-                            gutterBottom
-                          >
-                            Account / Loan number
-                          </Typography>
-                          <TextField
-                            fullWidth
-                            type="text"
-                            value={formData.acc_loan_number}
-                            onChange={handleChange}
-                            name="acc_loan_number"
-                            error={!!errors.acc_loan_number}
-                            helperText={errors.acc_loan_number}
-                          />
-                        </Box> */}
 
                           <Box sx={{ mt: 3, mb: 3 }}>
                             <Typography

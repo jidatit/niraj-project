@@ -331,7 +331,6 @@ const QuotesPage = () => {
         // Sort by the most recent date
         return dateB - dateA;
       });
-
       setpolicy_bound_data(sortedPBData);
       setpolicy_history(sortedhistoryData);
     } catch (error) {
