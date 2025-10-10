@@ -426,19 +426,41 @@ const QuotesPage = () => {
           );
         },
       },
+      // {
+      //   accessorKey: "referral",
+      //   header: "Referral",
+      //   size: 200,
+      //   Cell: ({ row }) => {
+      //     const isReferral = row?.original?.user?.signupType === "Referral";
+      //     return (
+      //       <Box>
+      //         {isReferral ? row?.original?.user?.name || "N/A" : "None"}
+      //       </Box>
+      //     );
+      //   },
+      // },
       {
         accessorKey: "referral",
         header: "Referral",
         size: 200,
         Cell: ({ row }) => {
-          const isReferral = row?.original?.user?.signupType === "Referral";
-          return (
-            <Box>
-              {isReferral ? row?.original?.user?.name || "N/A" : "None"}
-            </Box>
-          );
+          const user = row?.original?.user;
+          if (!user) return <Box>None</Box>;
+
+          const isReferralSignup = user.signupType === "Referral";
+          const isClientWithReferral =
+            user.signupType === "Client" && (user.hasReferral || user.byReferral);
+
+          const referralName = isReferralSignup
+            ? user.name || "N/A"
+            : isClientWithReferral
+              ? user.referralData?.name || "N/A"
+              : "None";
+
+          return <Box>{referralName}</Box>;
         },
       },
+
       {
         accessorKey: "inuser.email",
         header: "Client Email",
