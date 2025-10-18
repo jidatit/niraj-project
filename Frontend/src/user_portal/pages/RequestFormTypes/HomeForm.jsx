@@ -67,7 +67,19 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
   const isClient = currentUser?.data?.signupType === "Client";
   const [includeFlood, setIncludeFlood] = useState(false);
 
+  // Extract referral info
+  let referralName = "None";
+  let referralEmail = "";
 
+  if (currentUser?.data?.signupType === "Referral") {
+    // Case 1: user is a referral partner
+    referralName = currentUser?.data?.name || "Unknown";
+    referralEmail = currentUser?.data?.email || "";
+  } else if (currentUser?.data?.hasReferral && currentUser?.data?.referralData) {
+    // Case 2: client referred by a referral partner
+    referralName = currentUser?.data?.referralData?.name || "Unknown";
+    referralEmail = currentUser?.data?.referralData?.email || "";
+  }
 
 
   //for flood inspection modal
@@ -267,7 +279,8 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           formData.persons.map((p) => p.name).join(", "),
           adminEmail,
           "Flood",
-          currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          referralName,
           currentUser?.data?.name || "Unknown"
         );
       } else {
@@ -275,7 +288,8 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           formData.persons.map((p) => p.name).join(", "),
           adminEmail,
           "Flood",
-          currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          referralName,
           currentUser?.data?.name || "Unknown"
         );
       }
@@ -362,7 +376,8 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
             formData.persons.map((driver) => driver.name).join(", "),
             adminEmail,
             "Home",
-            currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+            // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+            referralName,
             currentUser?.data?.name || "Unknown"
           );
         } else {
@@ -370,7 +385,8 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
             formData.persons.map((driver) => driver.name).join(", "),
             adminEmail,
             "Home",
-            currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+            // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+            referralName,
             currentUser?.data?.name || "Unknown"
           );
         }
@@ -438,7 +454,8 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           formData.persons.map((driver) => driver.name).join(", "),
           adminEmail,
           "Home",
-          currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          referralName,
           currentUser?.data?.name || "Unknown"
         );
       } else {
@@ -446,7 +463,8 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           formData.persons.map((driver) => driver.name).join(", "),
           adminEmail,
           "Home",
-          currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
+          referralName,
           currentUser?.data?.name || "Unknown"
         );
       }

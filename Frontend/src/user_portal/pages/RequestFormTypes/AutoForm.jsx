@@ -52,6 +52,20 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
     ? { uid: selectedUser?.id, data: selectedUser }
     : currentUser;
   const isClient = currentUser?.data?.signupType === "Client";
+
+  // Extract referral info
+  let referralName = "None";
+  let referralEmail = "";
+
+  if (currentUser?.data?.signupType === "Referral") {
+    // Case 1: user is a referral partner
+    referralName = currentUser?.data?.name || "Unknown";
+    referralEmail = currentUser?.data?.email || "";
+  } else if (currentUser?.data?.hasReferral && currentUser?.data?.referralData) {
+    // Case 2: client referred by a referral partner
+    referralName = currentUser?.data?.referralData?.name || "Unknown";
+    referralEmail = currentUser?.data?.referralData?.email || "";
+  }
   const [buttonstate, setbuttonstate] = useState("Submit");
   const [fileModal, setfileModal] = useState(false);
   const [files, setFiles] = useState([]);
@@ -162,9 +176,7 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
           formData.drivers.map((driver) => driver.name).join(", "),
           adminEmail,
           "Auto",
-          currentUser.data.signupType === "Referral"
-            ? currentUser.data.name
-            : "None",
+          referralName,
           currentUser.data.name
         );
 
@@ -228,9 +240,7 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
         formData.drivers.map((driver) => driver.name).join(", "),
         adminEmail,
         "Auto",
-        currentUser.data.signupType === "Referral"
-          ? currentUser.data.name
-          : "None",
+        referralName,
         currentUser.data.name
       );
 

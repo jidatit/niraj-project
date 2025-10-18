@@ -61,6 +61,20 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
     ? { uid: selectedUser?.id, data: selectedUser }
     : currentUser;
   const isClient = currentUser?.data?.signupType === "Client";
+
+  // Extract referral info
+  let referralName = "None";
+  let referralEmail = "";
+
+  if (currentUser?.data?.signupType === "Referral") {
+    // Case 1: user is a referral partner
+    referralName = currentUser?.data?.name || "Unknown";
+    referralEmail = currentUser?.data?.email || "";
+  } else if (currentUser?.data?.hasReferral && currentUser?.data?.referralData) {
+    // Case 2: client referred by a referral partner
+    referralName = currentUser?.data?.referralData?.name || "Unknown";
+    referralEmail = currentUser?.data?.referralData?.email || "";
+  }
   const [formData, setFormData] = useState({
     policyType: "Liability",
     application_policy: "",
@@ -137,23 +151,13 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
         occupancy: "Primary",
       });
 
-      if (currentUser.data.signupType === "Referral") {
-        ClientQuoteWithoutInspection(
-          formData.persons.map((p) => p.name).join(", "),
-          adminEmail,
-          "Liability",
-          currentUser.data.name,
-          currentUser.data.name
-        );
-      } else {
-        ClientQuoteWithoutInspection(
-          formData.persons.map((p) => p.name).join(", "),
-          adminEmail,
-          "Liability",
-          "None",
-          currentUser.data.name
-        );
-      }
+      ClientQuoteWithoutInspection(
+        formData.persons.map((p) => p.name).join(", "),
+        adminEmail,
+        "Liability",
+        referralName,
+        currentUser?.data?.name || "Unknown"
+      );
       // ClientQuoteReqMail(currentUser.data.name, adminEmail, "Liability");
 
       toast.success("Application submitted with success.");
