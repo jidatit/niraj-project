@@ -327,9 +327,8 @@ const AdminUserSelectDialog = ({
                 letterSpacing: "1px",
               }}
             >
-              {`Submit ${
-                PreRenwalQuote ? "Pre-Renwal" : ""
-              } Quote For Client/Referral`}{" "}
+              {`Submit ${PreRenwalQuote ? "Manual Renewal" : ""
+                } Quote For Client/Referral`}{" "}
             </Typography>
             <Stack direction="row" spacing={1}>
               <IconButton onClick={toggleFullScreen} sx={{ color: "#005270" }}>

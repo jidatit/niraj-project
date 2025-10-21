@@ -1668,7 +1668,7 @@ const QuotesPage = () => {
               },
               {
                 key: "preRenewalQuotes",
-                label: "Pre-Renewal Requested",
+                label: "Manual Renewals Requested",
                 count: preRenewalQuotes?.length || 0,
                 icon: papericon,
               },
@@ -1748,7 +1748,7 @@ const QuotesPage = () => {
                 },
                 {
                   key: "preRenewalQuotes",
-                  label: "Pre-Renewal Quotes",
+                  label: "Manual Renewals Quotes",
                   count: preRenewalQuotes?.length || 0,
                 },
                 {
