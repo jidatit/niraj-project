@@ -25,6 +25,7 @@ import { AdminPrepareQuoteMail } from "../../utils/mailingFuncs";
 import { useNavigate } from "react-router-dom";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import NotesSection from "../components/NotesSection";
+import { sendPreRenewalQuoteNotifications } from "../../utils/EmailNotification";
 
 const EditorPage = () => {
   const navigate = useNavigate();
@@ -114,6 +115,7 @@ const EditorPage = () => {
             ? docSnap.data().address
             : docSnap.data().garaging_address,
           mailingAddress: docSnap.data().mailingAddress,
+          PreRenwalQuote: docSnap.data()?.PreRenwalQuote,
           byReferral: docSnap?.data()?.byReferral || false,
           ReferralId: docSnap?.data()?.ReferralId || "",
           Referral: docSnap?.data()?.Referral || "",
@@ -202,11 +204,18 @@ const EditorPage = () => {
 
       await updateStatusStep(QSR_Type, Q_id);
 
-      AdminPrepareQuoteMail(
-        formData?.user?.name,
-        formData?.user?.email,
-        QSR_Type
-      );
+      // ✅ Conditional email logic
+      if (formData?.user?.PreRenwalQuote) {
+        await sendPreRenewalQuoteNotifications(formData);
+        console.log("📧 Sent Pre-Renewal Quote email");
+      } else {
+        AdminPrepareQuoteMail(
+          formData?.user?.name,
+          formData?.user?.email,
+          QSR_Type
+        );
+        console.log("📧 Sent Admin Prepare Quote email");
+      }
       toast.success("Quote prepared successfully!");
       setButtonText("Submit Quote");
       setTimeout(() => {

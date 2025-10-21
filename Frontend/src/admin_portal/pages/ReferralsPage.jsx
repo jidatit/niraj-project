@@ -33,11 +33,24 @@ const ReferralsPage = () => {
   const [openAddPersonnelModal, setOpenAddPersonnelModal] = useState(false);
   const [personnelType, setPersonnelType] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [templateType, setTemplateType] = useState("AC");
   const [openCustomModal, setOpenCustomModal] = useState(false);
   const [selectedReferral, setSelectedReferral] = useState(null);
   const [selectedClient, setSelectedClient] = useState(null);
   const [openAttachModal, setOpenAttachModal] = useState(false);
 
+  //handlers for standard template:
+  const [modalMode, setModalMode] = useState("template");
+
+  const handleOpenStandardTemplate = (mode, referral = null) => {
+    setModalMode(mode);
+    setSelectedReferral(referral);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
   const handleOpenAddPersonnelModal = (type) => {
     setPersonnelType(type);
     setOpenAddPersonnelModal(true);
@@ -47,14 +60,6 @@ const ReferralsPage = () => {
     setOpenAddPersonnelModal(false);
   };
 
-  const handleOpenStandardTemplate = (referral) => {
-    setSelectedReferral(referral);
-    setOpenModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
 
   const handleOpenCustomTemplate = (referral) => {
     setSelectedReferral(referral);
@@ -63,6 +68,11 @@ const ReferralsPage = () => {
 
   const handleCloseCustomModal = () => {
     setOpenCustomModal(false);
+  };
+
+  const openPersonnelModal = (type) => {
+    setTemplateType(type);
+    setOpenEditTemplateModal(true);
   };
 
   // Fetch client referrals data
@@ -134,9 +144,9 @@ const ReferralsPage = () => {
             variant="contained"
             size="small"
             style={{ marginRight: "8px", backgroundColor: "#003049", color: "white" }}
-            onClick={() => handleOpenStandardTemplate(row.original)}
+            onClick={() => handleOpenStandardTemplate("logo", row.original)}
           >
-            Standard Template
+            Edit Logo
           </Button>
           <Button
             onClick={() => handleOpenCustomTemplate(row.original)}
@@ -300,10 +310,16 @@ const ReferralsPage = () => {
             <Button
               variant="contained"
               style={{ backgroundColor: "#003049", color: "white" }}
-              onClick={() => setOpenEditTemplateModal(true)}
+              onClick={() => openPersonnelModal("Roof")}
             >
-              Edit Email Template
+              Edit Roof Template
             </Button>
+            <Button
+              variant="contained"
+              style={{ backgroundColor: "#003049", color: "white" }}
+              onClick={() => openPersonnelModal("AC")}
+            >
+              Edit AC Template            </Button>
           </div>
         )}
 
@@ -314,6 +330,13 @@ const ReferralsPage = () => {
             style={{ backgroundColor: "#003049", color: "white" }}
           >
             Edit Renewal Template
+          </Button>
+          <Button
+            variant="contained"
+            style={{ backgroundColor: "#003049", color: "white" }}
+            onClick={() => handleOpenStandardTemplate("template")}
+          >
+            Edit Standard Template
           </Button>
         </div>
 
@@ -366,6 +389,7 @@ const ReferralsPage = () => {
       <EditTemplateModal
         open={openEditTemplateModal}
         handleClose={() => setOpenEditTemplateModal(false)}
+        templateType={templateType}
       />
 
       <AddPersonnelModal
@@ -386,6 +410,7 @@ const ReferralsPage = () => {
         handleClose={handleCloseModal}
         referral={selectedReferral}
         db={db}
+        mode={modalMode}
         storage={storage}
       />
 

@@ -4,14 +4,12 @@ const { getPolicies } = require("./getPolicies");
 
 const processPolicies = async () => {
   try {
-    console.log("fetcing");
-    // Fetch all policies
+    console.log("Fetching policies...");
     const policies = await getPolicies();
 
     for (const policy of policies) {
       const { roof_age, ac_age, user } = policy;
 
-      // Check AC Age condition
       if (ac_age >= 4) {
         console.log(
           `Policy ${policy.id} has AC Age ${ac_age}. Sending AC Repair personnel details.`
@@ -19,7 +17,6 @@ const processPolicies = async () => {
         await sendPersonnelDetails(policy, "AC Repair");
       }
 
-      // Check Roof Age condition
       if (roof_age >= 7) {
         console.log(
           `Policy ${policy.id} has Roof Age ${roof_age}. Sending Roof Repair personnel details.`
@@ -32,7 +29,6 @@ const processPolicies = async () => {
   }
 };
 
-// Helper function to send personnel details
 const sendPersonnelDetails = async (policy, type) => {
   try {
     let personnelDetails = "";
@@ -43,9 +39,7 @@ const sendPersonnelDetails = async (policy, type) => {
       type
     );
 
-    // Check if the policy is created through a referral
     if (policy.byReferral && policy.Referral?.occupation === type) {
-      // Include the referral's information
       const referral = policy.Referral;
       personnelDetails = formatPersonnelDetails([
         {
@@ -56,47 +50,51 @@ const sendPersonnelDetails = async (policy, type) => {
         },
       ]);
     } else {
-      // Fetch matching personnels from the Personnels collection
       const personnels = await getMatchingPersonnels(policy.user.zipCode, type);
 
       if (personnels.length > 0) {
-        // Format personnel details
         personnelDetails = formatPersonnelDetails(personnels);
       } else {
-        console.log(`No matching personnels found for policy ${policy.id}`);
-        return; // Exit if no matching personnels are found
+        console.log(
+          `No matching personnels found for policy ${policy.id} (type: ${type})`
+        );
+        return;
       }
     }
 
-    // If no personnel details are found, skip sending the email
     if (!personnelDetails) {
       console.log(
-        `No personnel details found for policy ${policy.id}. Skipping email.`
+        `No personnel details found for policy ${policy.id} (type: ${type}). Skipping email.`
       );
       return;
     }
 
-    // Fetch email template
-    const template = await getEmailTemplate();
+    const template = await getEmailTemplate(type);
+    if (!template) {
+      console.error(
+        `No template available for ${type}. Skipping email for policy ${policy.id}.`
+      );
+      return;
+    }
 
-    // Replace placeholders in the template
     const emailBody = template.body.replace(
       /{personnelDetails}/g,
       personnelDetails
     );
     const emailSubject = template.subject;
 
-    // Send email
     await sendEmail(policy.user.email, emailSubject, emailBody);
-    console.log(`Email sent to ${policy.user.email}`);
+    console.log(
+      `Email sent to ${policy.user.email} for ${type} (Policy ${policy.id})`
+    );
   } catch (error) {
     console.error(
-      `Error sending personnel details for policy ${policy.id}:`,
+      `Error sending personnel details for policy ${policy.id} (type: ${type}):`,
       error
     );
   }
 };
-// Format personnel details as HTML
+
 const formatPersonnelDetails = (personnels) => {
   return `
     <div style="font-family: Arial, sans-serif; padding: 15px; background-color: #f9f9f9;">

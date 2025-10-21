@@ -80,3 +80,72 @@ export async function sendRenewalQuoteNotifications(
     );
   }
 }
+
+export async function sendPreRenewalQuoteNotifications(formData) {
+  try {
+    const { user, Referral, ReferralId } = formData;
+
+    // 1. Get referral quote email template
+    const tplRef = doc(db, "emailTemplates", "renewalQuote");
+    const tplSnap = await getDoc(tplRef);
+    if (!tplSnap.exists())
+      throw new Error("Referral quote email template not found");
+
+    const { subject, body: referralBody } = tplSnap.data();
+    let finalBody = referralBody;
+
+    // 2. If referral exists, include referral info in the same email
+    if (user?.byReferral) {
+      const referral = {
+        id: ReferralId,
+        name: Referral?.name,
+        email: Referral?.email,
+      };
+
+      const templateRef = doc(db, "emailTemplates", "standard");
+      const templateSnap = await getDoc(templateRef);
+      if (!templateSnap.exists())
+        throw new Error("Standard email template not found");
+
+      const template = templateSnap.data();
+
+      const logoRef = doc(db, "referralLogos", referral?.id);
+      const logoSnap = await getDoc(logoRef);
+      const logoUrl = logoSnap.exists() ? logoSnap.data()?.logoUrl : null;
+
+      let referralSection = template?.body?.replace(
+        /{referralName}/g,
+        referral?.name || ""
+      );
+      referralSection = formatEmailBody(
+        referralSection,
+        logoUrl,
+        template?.logoPosition
+      );
+
+      // Append referral section to the main email
+      finalBody += `<hr><br/><strong>Referral Partner Info:</strong><br/>${referralSection}`;
+    }
+    // 3. Send a single email with the merged content
+    const clientParams = {
+      from_name: "FL Insurance Hub",
+      name: "FL Insurance Hub",
+      to_email: user?.email,
+      // for testing:
+      // to_email: "zubairzahid228@gmail.com",
+      subject,
+      body: finalBody,
+    };
+
+    await emailjs.send(
+      import.meta.env.VITE_EMAILJS_SERVICE_ID,
+      import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+      clientParams,
+      import.meta.env.VITE_EMAILJS_KEY
+    );
+
+    console.log(`✅ Referral quote email sent to: ${user?.email}`);
+  } catch (error) {
+    console.error("❌ Error sending referral quote notification:", error);
+  }
+}

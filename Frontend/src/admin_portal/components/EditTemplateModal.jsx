@@ -12,52 +12,69 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../../../db";
 import { toast } from "react-toastify";
 
-const EditTemplateModal = ({ open, handleClose }) => {
+const EditTemplateModal = ({ open, handleClose, templateType }) => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // Fetch the template when the modal opens
+  const templateId = templateType === "AC" ? "acPersonnelTemplate" : "roofPersonnelTemplate";
+
   useEffect(() => {
     const fetchTemplate = async () => {
       try {
-        const templateRef = doc(db, "emailTemplates", "personnelTemplate");
+        const templateRef = doc(db, "emailTemplates", templateId);
         const templateDoc = await getDoc(templateRef);
         if (templateDoc.exists()) {
           setSubject(templateDoc.data().subject);
           setBody(templateDoc.data().body);
         } else {
-          // Set default template if it doesn't exist
-          setSubject("Personnel Contact Information");
-          setBody(
-            "Dear Client,\n\nHere are the contact details for the personnel related to your expiring product:\n\n{personnelDetails}\n\nBest regards,\nYour Company"
-          );
+          // Set type-specific default template
+          const defaults = {
+            AC: {
+              subject: "AC Repair Contacts",
+              body: "Dear Client,\n\nYour AC unit is approaching its expiration age. Here are our recommended AC repair personnel:\n\n{personnelDetails}\n\nBest regards,\nYour Company"
+            },
+            Roof: {
+              subject: "Roof Maintenance Alert",
+              body: "Dear Client,\n\nYour roof is nearing its expiration age. Here are our trusted roofing professionals:\n\n{personnelDetails}\n\nBest regards,\nYour Company"
+            }
+          };
+          setSubject(defaults[templateType].subject);
+          setBody(defaults[templateType].body);
         }
       } catch (error) {
-        console.error("Error fetching template:", error);
+        console.error(`Error fetching ${templateType} template:`, error);
+        toast.error(`Error fetching ${templateType} template`);
       }
     };
 
     if (open) {
       fetchTemplate();
     }
-  }, [open]);
+  }, [open, templateType]);
 
-  // Save the template
   const handleSave = async () => {
+    // Validate that {personnelDetails} is in the body
+    if (!body.includes("{personnelDetails}")) {
+      setError("Body must include {personnelDetails} placeholder.");
+      return;
+    }
+
     setIsLoading(true);
+    setError("");
     try {
-      await setDoc(doc(db, "emailTemplates", "personnelTemplate"), {
+      await setDoc(doc(db, "emailTemplates", templateId), {
         subject,
         body,
         updatedAt: new Date(),
       });
-      console.log("Template saved successfully");
-      toast.success("Template saved successfully");
+      console.log(`${templateType} template saved successfully`);
+      toast.success(`${templateType} template saved successfully`);
       handleClose();
     } catch (error) {
-      toast.error(`Error saving template : ${error?.message}`);
-      console.error("Error saving template:", error);
+      toast.error(`Error saving ${templateType} template: ${error?.message}`);
+      console.error(`Error saving ${templateType} template:`, error);
     } finally {
       setIsLoading(false);
     }
@@ -90,14 +107,13 @@ const EditTemplateModal = ({ open, handleClose }) => {
           mb={2}
         >
           <Typography variant="h5" component="h2">
-            Edit Email Template
+            Edit {templateType} Email Template
           </Typography>
           <IconButton onClick={handleClose}>
             <CloseIcon />
           </IconButton>
         </Box>
 
-        {/* Subject Field */}
         <TextField
           fullWidth
           label="Subject"
@@ -106,7 +122,6 @@ const EditTemplateModal = ({ open, handleClose }) => {
           margin="normal"
         />
 
-        {/* Body Field */}
         <TextField
           fullWidth
           label="Body"
@@ -115,10 +130,12 @@ const EditTemplateModal = ({ open, handleClose }) => {
           margin="normal"
           multiline
           rows={8}
-          helperText="Use {personnelDetails} to dynamically insert the top 3 matching personnel details."
+          error={!!error}
+          helperText={
+            error || `Use {personnelDetails} to dynamically insert the top 3 matching ${templateType.toLowerCase()} repair personnel details.`
+          }
         />
 
-        {/* Save Button */}
         <Box
           sx={{ mt: 3, display: "flex", justifyContent: "flex-end", gap: 2 }}
         >

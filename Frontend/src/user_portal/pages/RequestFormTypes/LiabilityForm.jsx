@@ -156,7 +156,8 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
         adminEmail,
         "Liability",
         referralName,
-        currentUser?.data?.name || "Unknown"
+        currentUser?.data?.name || "Unknown",
+        formData
       );
       // ClientQuoteReqMail(currentUser.data.name, adminEmail, "Liability");
 

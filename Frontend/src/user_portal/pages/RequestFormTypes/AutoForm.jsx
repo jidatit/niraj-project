@@ -177,7 +177,8 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
           adminEmail,
           "Auto",
           referralName,
-          currentUser.data.name
+          currentUser.data.name,
+          formData
         );
 
         // ClientQuoteWithoutInspection(currentUser.data.name, adminEmail, "Auto");
@@ -241,7 +242,8 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
         adminEmail,
         "Auto",
         referralName,
-        currentUser.data.name
+        currentUser.data.name,
+        formData
       );
 
       setFormData({
