@@ -19,7 +19,8 @@ import EditTemplateModal from "../components/EditTemplateModal";
 import { Box, Chip } from "@mui/material";
 import RenewalQuoteTemplateModal from "../components/RenewalQuoteModel";
 import { AttachReferralModal } from "../components/AttachReferral";
-
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
 const ReferralsPage = () => {
   const [selectedTab, setSelectedTab] = useState("referralPartners");
   const [referralPartnersData, setReferralPartnersData] = useState([]);
@@ -245,7 +246,7 @@ const ReferralsPage = () => {
   return (
     <>
       <div className="w-full flex flex-col bg-[#FAFAFA] justify-center items-center">
-        <div className="w-[90%] grid md:grid-cols-2 gap-5 grid-cols-1 lg:grid-cols-3 justify-center items-center">
+        <div className="w-[90%] grid md:grid-cols-2 gap-5 grid-cols-1 lg:grid-cols-3 justify-center items-center mb-4">
           {/* Referral Partners Tab */}
           <div
             className={`group hover:bg-[#003049] px-2 py-4 transition-all delay-75 cursor-pointer rounded-md shadow-md flex lg:flex-row gap-2 flex-col justify-center items-center ${selectedTab === "referralPartners" ? "bg-[#003049] text-white" : ""
@@ -298,11 +299,37 @@ const ReferralsPage = () => {
           </div>
         </div>
 
-        {selectedTab === "personnel" && (
-          <div className="w-full flex justify-end mt-4 gap-4">
+        {selectedTab === "referralPartners" && (
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mb: 2, width: "90%" }}>
             <Button
               variant="contained"
               style={{ backgroundColor: "#003049", color: "white" }}
+
+              size="medium"
+              startIcon={<EditIcon />}
+              onClick={() => handleOpenStandardTemplate("template")}
+            >
+              Edit Standard Template
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              size="medium"
+              startIcon={<EditIcon />}
+              onClick={() => setOpenRenewalModal(true)}
+            >
+              Edit Renewal Template
+            </Button>
+          </Box>
+        )}
+
+        {selectedTab === "personnel" && (
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mb: 2, width: "90%" }}>
+            <Button
+              variant="contained"
+              color="success"
+              size="medium"
+              startIcon={<AddIcon />}
               onClick={() => handleOpenAddPersonnelModal("AC Repair")}
             >
               Add New Personnel
@@ -310,35 +337,23 @@ const ReferralsPage = () => {
             <Button
               variant="contained"
               style={{ backgroundColor: "#003049", color: "white" }}
+              size="medium"
+              startIcon={<EditIcon />}
               onClick={() => openPersonnelModal("Roof")}
             >
               Edit Roof Template
             </Button>
             <Button
               variant="contained"
-              style={{ backgroundColor: "#003049", color: "white" }}
+              color="secondary"
+              size="medium"
+              startIcon={<EditIcon />}
               onClick={() => openPersonnelModal("AC")}
             >
-              Edit AC Template            </Button>
-          </div>
+              Edit AC Template
+            </Button>
+          </Box>
         )}
-
-        <div className="w-full flex justify-end mt-4 gap-4">
-          <Button
-            variant="contained"
-            onClick={() => setOpenRenewalModal(true)}
-            style={{ backgroundColor: "#003049", color: "white" }}
-          >
-            Edit Renewal Template
-          </Button>
-          <Button
-            variant="contained"
-            style={{ backgroundColor: "#003049", color: "white" }}
-            onClick={() => handleOpenStandardTemplate("template")}
-          >
-            Edit Standard Template
-          </Button>
-        </div>
 
         {/* Table */}
         <div className="w-full flex flex-col justify-center items-center mt-[30px]">
