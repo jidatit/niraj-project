@@ -328,9 +328,8 @@ const RenewalPrepare = () => {
 
         // Get quote details
         const inuser = await getQuoteDetailsByEmail(results[0]);
-        console.log("inuser", inuser);
 
-        // 🛑 Handle missing bound policy
+        //  Handle missing bound policy
         if (inuser?.error === "No bound policy exists for this quote") {
           setError("No bound policy exists for this quote.");
           return;

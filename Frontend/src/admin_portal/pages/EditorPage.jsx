@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import NotesSection from "../components/NotesSection";
 import { sendPreRenewalQuoteNotifications } from "../../utils/EmailNotification";
+import { batchGetReferralMetaByEmails } from "../../utils/userUtils";
 
 const EditorPage = () => {
   const navigate = useNavigate();
@@ -104,28 +105,48 @@ const EditorPage = () => {
   const getQuoteDetails = async (type, q_id) => {
     try {
       const collectionRef = getType(type);
+      if (!collectionRef) {
+        console.warn(`Invalid quote type: ${type}`);
+        return null;
+      }
+
+      // Fetch quote document
       const docRef = doc(db, collectionRef, q_id);
       const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        return {
-          ...docSnap.data().inuser,
-          value: docSnap.data().inuser?.email,
-          label: docSnap.data().inuser?.email,
-          address: docSnap.data().address
-            ? docSnap.data().address
-            : docSnap.data().garaging_address,
-          mailingAddress: docSnap.data().mailingAddress,
-          PreRenwalQuote: docSnap.data()?.PreRenwalQuote,
-          byReferral: docSnap?.data()?.byReferral || false,
-          ReferralId: docSnap?.data()?.ReferralId || "",
-          Referral: docSnap?.data()?.Referral || "",
-        };
+      if (!docSnap.exists()) {
+        console.warn(`Quote not found: ${q_id} in ${collectionRef}`);
+        return null;
       }
+
+      const quoteData = docSnap.data();
+      const email = quoteData?.inuser?.email?.toLowerCase() || quoteData?.email?.toLowerCase();
+
+      // Fetch referral info from users collection
+      let referralInfo = { hasReferral: false, name: "", email: "", id: "" };
+      if (email) {
+        const referralMap = await batchGetReferralMetaByEmails([email]);
+        referralInfo = referralMap[email] || { hasReferral: false, name: "", email: "", id: "" };
+      } else {
+        console.warn(`No email found for quote: ${q_id}`);
+      }
+
+      // Return data in expected format
+      return {
+        ...quoteData.inuser,
+        value: quoteData.inuser?.email || quoteData.email || "",
+        label: quoteData.inuser?.email || quoteData.email || "",
+        address: quoteData.address || quoteData.garaging_address || "",
+        mailingAddress: quoteData.mailingAddress || "",
+        PreRenwalQuote: quoteData?.PreRenwalQuote || null, // Typo retained for compatibility
+        byReferral: referralInfo?.hasReferral || false,
+        ReferralId: referralInfo?.id || "",
+        Referral: { name: referralInfo?.name, email: referralInfo?.email } || "", // Match expected structure
+      };
     } catch (error) {
-      console.log("error getting document: ", error);
+      console.error("Error getting quote details:", error);
+      return null;
     }
   };
-
   useEffect(() => {
     const fetchData = async () => {
       const searchParams = new URLSearchParams(location.search);
@@ -143,6 +164,7 @@ const EditorPage = () => {
         };
         return updated;
       });
+
 
       const inuser = await getQuoteDetails(qsrTypeParam, q_id);
 
@@ -200,11 +222,16 @@ const EditorPage = () => {
         return;
       }
       setButtonText("Submitting Quote");
-      await addDoc(collection(db, "prep_quotes"), formData);
+      // 🔹 Deep-clean object before saving to Firestore
+      const cleanData = JSON.parse(
+        JSON.stringify(formData, (key, value) => (value === undefined ? null : value))
+      );
+
+      await addDoc(collection(db, "prep_quotes"), cleanData);
 
       await updateStatusStep(QSR_Type, Q_id);
 
-      // ✅ Conditional email logic
+      //  Conditional email logic
       if (formData?.user?.PreRenwalQuote) {
         await sendPreRenewalQuoteNotifications(formData);
         console.log("📧 Sent Pre-Renewal Quote email");
@@ -222,6 +249,7 @@ const EditorPage = () => {
         navigate("/admin_portal");
       }, 2000);
     } catch (error) {
+      console.error("Error preparing quote:", error);
       toast.error("Error preparing quote!");
     } finally {
       setSubBtnDisabler(false);

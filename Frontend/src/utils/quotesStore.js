@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { fetchAllQuotesFromFirebase } from "./fetchQuotes";
+import { batchGetReferralMetaByEmails } from "../utils/userUtils"; // From previous
 
 export const useQuotesStore = create(
   persist(
@@ -14,7 +15,10 @@ export const useQuotesStore = create(
 
         try {
           const snapshot = await fetchAllQuotesFromFirebase();
-          const allQuotes = snapshot.docs.map((doc) => doc.data());
+          const allQuotes = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
 
           // Deduplicate by Email (keep latest by receivedAt)
           const emailMap = new Map();
@@ -27,7 +31,20 @@ export const useQuotesStore = create(
               emailMap.set(quote.Email, quote);
             }
           });
-          const dedupedQuotes = Array.from(emailMap.values()).map((quote) => {
+
+          const dedupedQuotes = Array.from(emailMap.values());
+
+          // Batch fetch referral meta
+          const emails = dedupedQuotes.map(
+            (quote) =>
+              quote?.Email?.toLowerCase() || quote?.email?.toLowerCase()
+          );
+          const referralMap = await batchGetReferralMetaByEmails(emails);
+
+          // Enrich quotes with referralInfo
+          const enrichedQuotes = dedupedQuotes.map((quote) => {
+            const email =
+              quote.Email?.toLowerCase() || quote.email?.toLowerCase();
             const date = new Date(quote.receivedAt);
             const mm = (date.getMonth() + 1).toString().padStart(2, "0");
             const dd = date.getDate().toString().padStart(2, "0");
@@ -35,11 +52,12 @@ export const useQuotesStore = create(
 
             return {
               ...quote,
-              receivedAtFormatted: `${mm}/${dd}/${yyyy}`,
+              receivedAtFormatted: `${mm}-${dd}-${yyyy}`,
+              referralInfo: referralMap[email] || {}, // Add referralInfo
             };
           });
 
-          set({ quotes: dedupedQuotes, loading: false });
+          set({ quotes: enrichedQuotes, loading: false });
         } catch (err) {
           console.error(err);
           set({ error: err.message || "Fetch failed", loading: false });
@@ -49,8 +67,8 @@ export const useQuotesStore = create(
       clearQuotes: () => set({ quotes: [] }),
     }),
     {
-      name: "quotes-storage", // localStorage key
-      partialize: (state) => ({ quotes: state.quotes }), // Only persist quotes array
+      name: "quotes-storage",
+      partialize: (state) => ({ quotes: state.quotes }),
     }
   )
 );

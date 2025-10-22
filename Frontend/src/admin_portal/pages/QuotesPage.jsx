@@ -71,6 +71,7 @@ import AdminUserSelectDialog from "../components/AdminUserSelectDialog";
 import EmptyState from "../../components/EmptyState";
 import { AttachReferralModal } from "../components/AttachReferral";
 import { useQuotesStore } from "../../utils/quotesStore";
+import { batchGetReferralMetaByEmails } from "../../utils/userUtils";
 
 const QuotesPage = () => {
   const {
@@ -202,13 +203,43 @@ const QuotesPage = () => {
         ...floodQuotesData,
       ];
 
-      // Split into pre-renewal and non-pre-renewal
+
+      // Helper to extract email per quote type
+      const getEmail = (quote, policyType) => {
+        const type = policyType?.toLowerCase();
+        if (type === "home" || type === "flood" || type === "liability") {
+          return quote?.inuser?.email?.toLowerCase() || quote?.email?.toLowerCase();
+        }
+        if (type === "auto") {
+          return quote?.user?.email?.toLowerCase() || quote?.email?.toLowerCase();
+        }
+        return quote?.email?.toLowerCase(); // Fallback
+      };
+
+      // Collect unique emails
+      const emails = [
+        ...new Set(
+          allQuotes
+            .map((quote) => getEmail(quote, quote.policyType))
+            .filter(Boolean)
+        ),
+      ];
+
+      // Batch fetch referral meta
+      const referralMap = await batchGetReferralMetaByEmails(emails);
+
+      // Enrich quotes
+      const enrichedQuotes = allQuotes.map((quote) => {
+        const email = getEmail(quote, quote.policyType);
+        return { ...quote, referralInfo: referralMap[email] || {} };
+      });
+
+      // Split into pre-renewal and non-pre-renewal (use enriched)
       const reqQuotes = [];
       const preRenewalQuotes = [];
-
-      allQuotes.forEach((quote) => {
+      enrichedQuotes.forEach((quote) => {
         if (quote.status_step === "1") {
-          if (quote?.PreRenwalQuote === true) {
+          if (quote?.PreRenwalQuote === true) { // Typo? Assume PreRenewalQuote
             preRenewalQuotes.push(quote);
           } else {
             reqQuotes.push(quote);
@@ -439,25 +470,35 @@ const QuotesPage = () => {
       //     );
       //   },
       // },
+      // {
+      //   accessorKey: "referral",
+      //   header: "Referral",
+      //   size: 200,
+      //   Cell: ({ row }) => {
+      //     const user = row?.original?.user;
+      //     if (!user) return <Box>None</Box>;
+
+      //     const isReferralSignup = user.signupType === "Referral";
+      //     const isClientWithReferral =
+      //       user.signupType === "Client" && (user.hasReferral || user.byReferral);
+
+      //     const referralName = isReferralSignup
+      //       ? user.name || "N/A"
+      //       : isClientWithReferral
+      //         ? user.referralData?.name || "N/A"
+      //         : "None";
+
+      //     return <Box>{referralName}</Box>;
+      //   },
+      // },
+
       {
         accessorKey: "referral",
         header: "Referral",
         size: 200,
         Cell: ({ row }) => {
-          const user = row?.original?.user;
-          if (!user) return <Box>None</Box>;
-
-          const isReferralSignup = user.signupType === "Referral";
-          const isClientWithReferral =
-            user.signupType === "Client" && (user.hasReferral || user.byReferral);
-
-          const referralName = isReferralSignup
-            ? user.name || "N/A"
-            : isClientWithReferral
-              ? user.referralData?.name || "N/A"
-              : "None";
-
-          return <Box>{referralName}</Box>;
+          const referralInfo = row?.original?.referralInfo || {};
+          return <Box>{referralInfo.name || "No Referral	"}</Box>;
         },
       },
 
@@ -1320,12 +1361,17 @@ const QuotesPage = () => {
       header: "Client Email",
       size: 200,
     },
+    // {
+    //   // show referral name or “No Referral”
+    //   accessorFn: (row) =>
+    //     row.byReferral
+    //       ? (row.Referral && row.Referral.name) || "—"
+    //       : "No Referral",
+    //   id: "referral",
+    //   header: "Referral",
+    // },
     {
-      // show referral name or “No Referral”
-      accessorFn: (row) =>
-        row.byReferral
-          ? (row.Referral && row.Referral.name) || "—"
-          : "No Referral",
+      accessorFn: (row) => row.referralInfo?.name || "No Referral",
       id: "referral",
       header: "Referral",
     },
@@ -1362,7 +1408,6 @@ const QuotesPage = () => {
     try {
       setLoading(true);
 
-      // Create query to fetch all documents, ordered by date
       const q = query(
         collection(db, "prep_quotes"),
         where("isRenewal", "==", true),
@@ -1371,13 +1416,24 @@ const QuotesPage = () => {
 
       const querySnapshot = await getDocs(q);
 
-      // Map documents to data objects
       const quotes = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      setRenewalQuotes(quotes);
+      // Collect emails
+      const emails = quotes.map(quote => quote?.user?.email?.toLowerCase() || quote?.email?.toLowerCase());
+
+      // Batch fetch
+      const referralMap = await batchGetReferralMetaByEmails(emails);
+
+      // Enrich
+      const enrichedQuotes = quotes.map(quote => {
+        const email = quote?.user?.email?.toLowerCase() || quote?.email?.toLowerCase();
+        return { ...quote, referralInfo: referralMap[email] || {} };
+      });
+
+      setRenewalQuotes(enrichedQuotes);
     } catch (error) {
       console.error("Error fetching renewal quotes:", error);
     } finally {
@@ -1466,10 +1522,16 @@ const QuotesPage = () => {
       size: 180,
     },
     {
-      accessorKey: "zipCode",
-      header: "Zip Code",
-      size: 100,
+      accessorFn: (row) => row.referralInfo?.name || "No Referral",
+      id: "referral",
+      header: "Referral",
+      size: 180,
     },
+    // {
+    //   accessorKey: "zipCode",
+    //   header: "Zip Code",
+    //   size: 100,
+    // },
     {
       accessorKey: "receivedAtFormatted",
       header: "Received At",
