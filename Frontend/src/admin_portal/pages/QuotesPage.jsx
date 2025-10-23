@@ -124,6 +124,8 @@ const QuotesPage = () => {
   const [req_quotes, setReqQuotes] = useState([]);
   //this is for the pre rennewal quotes
   const [preRenewalQuotes, setPreRenewalQuotes] = useState([]);
+  const [isQuotesLoading, setIsQuotesLoading] = useState(true); // New loading state
+
   const [del_quotes, setDelQuotes] = useState([]);
   const [binder_req_quotes, setBinderReqQuotes] = useState([]);
   const [policy_bound_data, setpolicy_bound_data] = useState([]);
@@ -165,6 +167,8 @@ const QuotesPage = () => {
   };
 
   const getAllReqQuoteTypes = async () => {
+    setIsQuotesLoading(true); // Start loading
+
     try {
       const homeQuotesCollection = collection(db, "home_quotes");
       const autoQuotesCollection = collection(db, "auto_quotes");
@@ -258,6 +262,8 @@ const QuotesPage = () => {
     } catch (error) {
       toast.error("Error Fetching Requested Quotes!");
       console.error("getAllReqQuoteTypes error:", error);
+    } finally {
+      setIsQuotesLoading(false); // End loading
     }
   };
 
@@ -1880,7 +1886,7 @@ const QuotesPage = () => {
                 textTransform: "none",
               }}
             >
-              Pre-Renewal Quote
+              Manual Renewal Quote
             </Button>
           </Tooltip>
 
@@ -1922,7 +1928,9 @@ const QuotesPage = () => {
 
         {selectedButton === "requestedQuotes" && (
           <div className="w-full flex flex-col justify-center items-center mt-[30px]">
-            {req_quotes && req_quotes.length > 0 ? (
+            {isQuotesLoading ? (
+              renderSkeleton()
+            ) : req_quotes && req_quotes.length > 0 ? (
               <div className="table w-full">
                 <MaterialReactTable
                   columns={req_columns}
@@ -1937,7 +1945,9 @@ const QuotesPage = () => {
         )}
         {selectedButton === "preRenewalQuotes" && (
           <div className="w-full flex flex-col justify-center items-center mt-[30px]">
-            {preRenewalQuotes && preRenewalQuotes.length > 0 ? (
+            {isQuotesLoading ? (
+              renderSkeleton()
+            ) : preRenewalQuotes && preRenewalQuotes.length > 0 ? (
               <div className="table w-full">
                 <MaterialReactTable
                   columns={req_columns}
@@ -2098,7 +2108,7 @@ const QuotesPage = () => {
               <div className="flex flex-col items-center gap-6 mt-16">
                 <div className="text-center">
                   <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                    No Pre-Renewal Quotes Yet
+                    No Manual Renewal Quotes Yet
                   </h3>
                   <p className="text-gray-500">
                     Click the button below to fetch the latest renewal quotes.

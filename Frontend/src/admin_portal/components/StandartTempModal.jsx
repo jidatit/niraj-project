@@ -22,8 +22,7 @@ import { toast } from "react-toastify";
 const StandardTemplateModal = ({
   open,
   handleClose,
-  mode, // "template" or "logo"
-  referral, // Required for "logo" mode
+  referral, // Required for all operations
   db,
   storage,
 }) => {
@@ -39,13 +38,15 @@ const StandardTemplateModal = ({
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch shared standard template (always, for preview or editing)
+  // Fetch referral-specific template and logo
   useEffect(() => {
-    const fetchStandardTemplate = async () => {
+    const fetchData = async () => {
+      if (!referral?.id) return;
       setIsDataLoading(true);
       setError(null);
       try {
-        const templateDoc = await getDoc(doc(db, "emailTemplates", "standard"));
+        // Fetch template
+        const templateDoc = await getDoc(doc(db, "emailTemplates", referral.id));
         if (templateDoc.exists()) {
           setStandardTemplate(templateDoc.data());
         } else {
@@ -56,41 +57,26 @@ const StandardTemplateModal = ({
             logoPosition: "top",
           });
         }
+
+        // Fetch logo
+        const referralLogoDoc = await getDoc(doc(db, "referralLogos", referral.id));
+        if (referralLogoDoc.exists()) {
+          setLogoUrl(referralLogoDoc.data().logoUrl);
+        } else {
+          setLogoUrl("");
+        }
       } catch (err) {
-        console.error("Error fetching standard template:", err);
-        setError("Failed to fetch template data. Please try again.");
+        console.error("Error fetching data:", err);
+        setError("Failed to fetch data. Please try again.");
       } finally {
         setIsDataLoading(false);
       }
     };
 
-    // Fetch referral logo if in "logo" mode
-    const fetchReferralLogo = async () => {
-      if (mode === "logo" && referral?.id) {
-        setIsDataLoading(true);
-        try {
-          const referralLogoDoc = await getDoc(doc(db, "referralLogos", referral.id));
-          if (referralLogoDoc.exists()) {
-            setLogoUrl(referralLogoDoc.data().logoUrl);
-          } else {
-            setLogoUrl("");
-          }
-        } catch (err) {
-          console.error("Error fetching referral logo:", err);
-          setError("Failed to fetch logo. Please try again.");
-        } finally {
-          setIsDataLoading(false);
-        }
-      }
-    };
-
-    if (open) {
-      fetchStandardTemplate();
-      if (mode === "logo") {
-        fetchReferralLogo();
-      }
+    if (open && referral?.id) {
+      fetchData();
     }
-  }, [open, mode, referral, db]);
+  }, [open, referral, db]);
 
   const handleLogoChange = (e) => {
     if (e.target.files[0]) {
@@ -99,35 +85,42 @@ const StandardTemplateModal = ({
   };
 
   const handleSave = async () => {
+    if (!referral?.id) {
+      setError("No referral selected.");
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
-      if (mode === "template" && isAdmin) {
-        // Validate placeholder
+      // Save template (if admin)
+      if (isAdmin) {
         if (!standardTemplate.subject.includes("{referralName}") || !standardTemplate.body.includes("{referralName}")) {
           setError("Subject and body must include {referralName} placeholder.");
           setIsLoading(false);
           return;
         }
-        await setDoc(doc(db, "emailTemplates", "standard"), {
+        await setDoc(doc(db, "emailTemplates", referral.id), {
           ...standardTemplate,
           updatedAt: new Date(),
         });
-        toast.success("Standard template saved successfully");
-      } else if (mode === "logo" && referral?.id) {
-        if (referralLogo) {
-          const logoRef = ref(storage, `referral-logos/${referral.id}`);
-          await uploadBytes(logoRef, referralLogo);
-          const newLogoUrl = await getDownloadURL(logoRef);
-          await setDoc(doc(db, "referralLogos", referral.id), {
-            logoUrl: newLogoUrl,
-            updatedAt: new Date(),
-          });
-          toast.success("Logo saved successfully");
-        } else {
-          toast.info("No changes to save.");
-        }
+        toast.success(`Standard template for ${referral.name} saved successfully`);
       }
+
+      // Save logo (if changed)
+      if (referralLogo) {
+        const logoRef = ref(storage, `referral-logos/${referral.id}`);
+        await uploadBytes(logoRef, referralLogo);
+        const newLogoUrl = await getDownloadURL(logoRef);
+        await setDoc(doc(db, "referralLogos", referral.id), {
+          logoUrl: newLogoUrl,
+          updatedAt: new Date(),
+        });
+        toast.success(`Logo for ${referral.name} saved successfully`);
+      } else if (!isAdmin && !referralLogo) {
+        toast.info("No changes to save.");
+      }
+
       setIsLoading(false);
       handleClose();
     } catch (err) {
@@ -138,7 +131,7 @@ const StandardTemplateModal = ({
   };
 
   // Preview helpers
-  const previewName = mode === "logo" ? referral?.name || "Referral" : "Referral Partner";
+  const previewName = referral?.name || "Referral";
   const previewSubject = standardTemplate.subject.replace(/{referralName}/g, previewName);
   const previewBody = standardTemplate.body.replace(/{referralName}/g, previewName);
 
@@ -177,7 +170,7 @@ const StandardTemplateModal = ({
           justifyContent: "center",
         }}
       >
-        <Typography variant="caption">No logo (per-referral)</Typography>
+        <Typography variant="caption">No logo</Typography>
       </Box>
     );
 
@@ -230,7 +223,7 @@ const StandardTemplateModal = ({
         handleClose();
         setLogoUrl("");
       }}
-      aria-labelledby="email-template-modal"
+      aria-labelledby="standard-template-modal"
     >
       <Box
         sx={{
@@ -248,7 +241,7 @@ const StandardTemplateModal = ({
       >
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h5" component="h2">
-            {mode === "template" ? "Edit Standard Template" : `Edit Logo for ${referral?.name || "Referral"}`}
+            Edit Standard Template and Logo for {referral?.name || "Referral"}
           </Typography>
           <IconButton onClick={handleClose}>
             <CloseIcon />
@@ -262,42 +255,42 @@ const StandardTemplateModal = ({
           renderSkeleton()
         ) : (
           <>
-            {mode === "logo" && (
-              <Box mb={3}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Logo for {referral?.name}
-                </Typography>
-                <Box display="flex" alignItems="center" gap={2}>
-                  {(logoUrl || referralLogo) && (
-                    <Box
-                      component="img"
-                      src={referralLogo ? URL.createObjectURL(referralLogo) : logoUrl}
-                      alt="Referral Logo"
-                      sx={{ height: 80, maxWidth: 200, objectFit: "contain" }}
-                    />
-                  )}
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    startIcon={<AddPhotoAlternateIcon />}
-                  >
-                    {logoUrl ? "Change Logo" : "Add Logo"}
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={handleLogoChange}
-                    />
-                  </Button>
-                </Box>
+            {/* Logo Section */}
+            <Box mb={3}>
+              <Typography variant="subtitle1" gutterBottom>
+                Logo for {referral?.name}
+              </Typography>
+              <Box display="flex" alignItems="center" gap={2}>
+                {(logoUrl || referralLogo) && (
+                  <Box
+                    component="img"
+                    src={referralLogo ? URL.createObjectURL(referralLogo) : logoUrl}
+                    alt="Referral Logo"
+                    sx={{ height: 80, maxWidth: 200, objectFit: "contain" }}
+                  />
+                )}
+                <Button
+                  variant="outlined"
+                  component="label"
+                  startIcon={<AddPhotoAlternateIcon />}
+                >
+                  {logoUrl ? "Change Logo" : "Add Logo"}
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                  />
+                </Button>
               </Box>
-            )}
+            </Box>
 
-            {mode === "template" && isAdmin && (
+            {/* Template Section (admin-only) */}
+            {isAdmin && (
               <>
                 <Divider sx={{ my: 3 }} />
                 <Typography variant="subtitle1" gutterBottom>
-                  Edit Standard Template Content
+                  Edit Standard Template Content for {referral?.name}
                 </Typography>
                 <Typography variant="caption" display="block" gutterBottom>
                   Use {"{referralName}"} placeholder to insert the referral partner's name
@@ -346,7 +339,7 @@ const StandardTemplateModal = ({
             <Divider sx={{ my: 3 }} />
             <Box mt={2}>
               <Typography variant="subtitle1" gutterBottom>
-                Preview {mode === "template" ? "(Generic)" : `(for ${referral?.name})`}
+                Preview for {referral?.name || "Referral"}
               </Typography>
               <Box sx={{ p: 3, bgcolor: "#f5f5f5", borderRadius: 1 }}>
                 <Typography variant="subtitle2" gutterBottom>
@@ -365,7 +358,7 @@ const StandardTemplateModal = ({
                 onClick={handleSave}
                 variant="contained"
                 disabled={isLoading}
-                style={{ backgroundColor: "#003049", color: "white" }}
+                sx={{ backgroundColor: "#003049", color: "white" }}
               >
                 {isLoading ? "Saving..." : "Save"}
               </Button>

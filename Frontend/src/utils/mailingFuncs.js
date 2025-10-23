@@ -40,37 +40,41 @@ export function ClientQuoteReqMail(
 ) {
   // ✅ Generate table with inline styles
   const generateHTMLFromObject = (obj) => {
+    if (!obj || typeof obj !== "object") {
+      return `<p>${obj ?? "-"}</p>`;
+    }
+
     let html = `
-      <table style="width:100%; border-collapse:collapse; border:1px solid #ddd; font-family:Arial, sans-serif; font-size:14px;">
-    `;
+    <table style="width:100%; border-collapse:collapse; border:1px solid #ddd; font-family:Arial, sans-serif; font-size:14px;">
+  `;
     for (const [key, value] of Object.entries(obj)) {
-      if (typeof value === "object" && !Array.isArray(value)) {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
         html += `
-          <tr><td colspan="2" style="background:#f5f5f5; padding:6px; font-weight:bold; border:1px solid #ddd;">${key}</td></tr>
-          <tr><td colspan="2" style="padding-left:12px;">${generateHTMLFromObject(
-            value
-          )}</td></tr>
-        `;
+        <tr><td colspan="2" style="background:#f5f5f5; padding:6px; font-weight:bold; border:1px solid #ddd;">${key}</td></tr>
+        <tr><td colspan="2" style="padding-left:12px;">${generateHTMLFromObject(
+          value
+        )}</td></tr>
+      `;
       } else if (Array.isArray(value)) {
         html += `
-          <tr><td colspan="2" style="background:#f5f5f5; padding:6px; font-weight:bold; border:1px solid #ddd;">${key}</td></tr>
-          <tr><td colspan="2" style="padding-left:12px;">
-            ${value
-              .map((v) =>
-                typeof v === "object"
-                  ? generateHTMLFromObject(v)
-                  : `<p style="margin:4px 0;">${v}</p>`
-              )
-              .join("")}
-          </td></tr>
-        `;
+        <tr><td colspan="2" style="background:#f5f5f5; padding:6px; font-weight:bold; border:1px solid #ddd;">${key}</td></tr>
+        <tr><td colspan="2" style="padding-left:12px;">
+          ${value
+            .map((v) =>
+              typeof v === "object"
+                ? generateHTMLFromObject(v)
+                : `<p style="margin:4px 0;">${v}</p>`
+            )
+            .join("")}
+        </td></tr>
+      `;
       } else {
         html += `
-          <tr>
-            <td style="border:1px solid #ddd; padding:6px; width:35%; background:#fafafa; font-weight:bold;">${key}</td>
-            <td style="border:1px solid #ddd; padding:6px;">${value || "-"}</td>
-          </tr>
-        `;
+        <tr>
+          <td style="border:1px solid #ddd; padding:6px; width:35%; background:#fafafa; font-weight:bold;">${key}</td>
+          <td style="border:1px solid #ddd; padding:6px;">${value ?? "-"}</td>
+        </tr>
+      `;
       }
     }
     html += "</table>";
@@ -117,37 +121,41 @@ export function ClientQuoteWithoutInspection(
 ) {
   // ✅ Generate table with inline styles
   const generateHTMLFromObject = (obj) => {
+    if (!obj || typeof obj !== "object") {
+      return `<p>${obj ?? "-"}</p>`;
+    }
+
     let html = `
-      <table style="width:100%; border-collapse:collapse; border:1px solid #ddd; font-family:Arial, sans-serif; font-size:14px;">
-    `;
+    <table style="width:100%; border-collapse:collapse; border:1px solid #ddd; font-family:Arial, sans-serif; font-size:14px;">
+  `;
     for (const [key, value] of Object.entries(obj)) {
-      if (typeof value === "object" && !Array.isArray(value)) {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
         html += `
-          <tr><td colspan="2" style="background:#f5f5f5; padding:6px; font-weight:bold; border:1px solid #ddd;">${key}</td></tr>
-          <tr><td colspan="2" style="padding-left:12px;">${generateHTMLFromObject(
-            value
-          )}</td></tr>
-        `;
+        <tr><td colspan="2" style="background:#f5f5f5; padding:6px; font-weight:bold; border:1px solid #ddd;">${key}</td></tr>
+        <tr><td colspan="2" style="padding-left:12px;">${generateHTMLFromObject(
+          value
+        )}</td></tr>
+      `;
       } else if (Array.isArray(value)) {
         html += `
-          <tr><td colspan="2" style="background:#f5f5f5; padding:6px; font-weight:bold; border:1px solid #ddd;">${key}</td></tr>
-          <tr><td colspan="2" style="padding-left:12px;">
-            ${value
-              .map((v) =>
-                typeof v === "object"
-                  ? generateHTMLFromObject(v)
-                  : `<p style="margin:4px 0;">${v}</p>`
-              )
-              .join("")}
-          </td></tr>
-        `;
+        <tr><td colspan="2" style="background:#f5f5f5; padding:6px; font-weight:bold; border:1px solid #ddd;">${key}</td></tr>
+        <tr><td colspan="2" style="padding-left:12px;">
+          ${value
+            .map((v) =>
+              typeof v === "object"
+                ? generateHTMLFromObject(v)
+                : `<p style="margin:4px 0;">${v}</p>`
+            )
+            .join("")}
+        </td></tr>
+      `;
       } else {
         html += `
-          <tr>
-            <td style="border:1px solid #ddd; padding:6px; width:35%; background:#fafafa; font-weight:bold;">${key}</td>
-            <td style="border:1px solid #ddd; padding:6px;">${value || "-"}</td>
-          </tr>
-        `;
+        <tr>
+          <td style="border:1px solid #ddd; padding:6px; width:35%; background:#fafafa; font-weight:bold;">${key}</td>
+          <td style="border:1px solid #ddd; padding:6px;">${value ?? "-"}</td>
+        </tr>
+      `;
       }
     }
     html += "</table>";

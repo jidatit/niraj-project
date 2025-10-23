@@ -43,8 +43,7 @@ const ReferralsPage = () => {
   //handlers for standard template:
   const [modalMode, setModalMode] = useState("template");
 
-  const handleOpenStandardTemplate = (mode, referral = null) => {
-    setModalMode(mode);
+  const handleOpenStandardTemplate = (referral) => {
     setSelectedReferral(referral);
     setOpenModal(true);
   };
@@ -145,10 +144,19 @@ const ReferralsPage = () => {
             variant="contained"
             size="small"
             style={{ marginRight: "8px", backgroundColor: "#003049", color: "white" }}
-            onClick={() => handleOpenStandardTemplate("logo", row.original)}
+            onClick={() => handleOpenStandardTemplate(row.original)}
           >
-            Edit Logo
+            Standard Template
           </Button>
+          {/* <Button
+            variant="contained"
+            size="small"
+            color="tableAction"
+            startIcon={<EditIcon />}
+            onClick={() => handleOpenStandardTemplate("template", row.original)}
+          >
+            Standard Template
+          </Button> */}
           <Button
             onClick={() => handleOpenCustomTemplate(row.original)}
             variant="contained"
@@ -303,16 +311,6 @@ const ReferralsPage = () => {
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mb: 2, width: "90%" }}>
             <Button
               variant="contained"
-              style={{ backgroundColor: "#003049", color: "white" }}
-
-              size="medium"
-              startIcon={<EditIcon />}
-              onClick={() => handleOpenStandardTemplate("template")}
-            >
-              Edit Standard Template
-            </Button>
-            <Button
-              variant="contained"
               color="primary"
               size="medium"
               startIcon={<EditIcon />}
@@ -425,7 +423,6 @@ const ReferralsPage = () => {
         handleClose={handleCloseModal}
         referral={selectedReferral}
         db={db}
-        mode={modalMode}
         storage={storage}
       />
 

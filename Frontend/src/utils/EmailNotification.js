@@ -1,6 +1,5 @@
 import emailjs from "@emailjs/browser";
 import { doc, getDoc } from "firebase/firestore";
-
 import { db } from "../../db";
 import { formatEmailBody } from "./formatEmailBody";
 
@@ -13,7 +12,7 @@ export async function sendRenewalQuoteNotifications(
     const tplRef = doc(db, "emailTemplates", "renewalQuote");
     const tplSnap = await getDoc(tplRef);
     if (!tplSnap.exists())
-      throw new Error("Renewal‐quote email template not found");
+      throw new Error("Renewal-quote email template not found");
 
     const { subject, body: renewalBody } = tplSnap.data();
 
@@ -22,17 +21,24 @@ export async function sendRenewalQuoteNotifications(
     // 2. If referral exists, include referral info in the same email
     if (newPrepQuote.byReferral) {
       const referral = {
-        id: newPrepQuote.ReferralId,
-        name: newPrepQuote.Referral?.name,
-        email: newPrepQuote.Referral?.email,
+        id: newPrepQuote?.ReferralId,
+        name: newPrepQuote?.Referral?.name,
+        email: newPrepQuote?.Referral?.email,
       };
 
-      const templateRef = doc(db, "emailTemplates", "standard");
-      const templateSnap = await getDoc(templateRef);
-      if (!templateSnap.exists())
-        throw new Error("Standard email template not found");
-
-      const template = templateSnap.data();
+      // Try referral-specific template first, fall back to global standard
+      let template;
+      const referralTemplateRef = doc(db, "emailTemplates", referral?.id);
+      const referralTemplateSnap = await getDoc(referralTemplateRef);
+      if (referralTemplateSnap.exists()) {
+        template = referralTemplateSnap.data();
+      } else {
+        const globalTemplateRef = doc(db, "emailTemplates", "standard");
+        const globalTemplateSnap = await getDoc(globalTemplateRef);
+        if (!globalTemplateSnap.exists())
+          throw new Error("Standard email template not found");
+        template = globalTemplateSnap.data();
+      }
 
       const logoRef = doc(db, "referralLogos", referral?.id);
       const logoSnap = await getDoc(logoRef);
@@ -57,7 +63,7 @@ export async function sendRenewalQuoteNotifications(
       from_name: "FL Insurance Hub",
       name: "FL Insurance Hub",
       to_email: renewalQuote?.[0]?.email,
-      //for testing purposes
+      // for testing purposes
       // to_email: "zubair-zahid@jidatit.uk",
       subject,
       body: finalBody,
@@ -70,14 +76,9 @@ export async function sendRenewalQuoteNotifications(
       import.meta.env.VITE_EMAILJS_KEY
     );
 
-    console.log(
-      `✅ Combined renewal email sent to: ${renewalQuote?.[0]?.email}`
-    );
+    console.log(` Combined renewal email sent to: ${renewalQuote?.[0]?.email}`);
   } catch (error) {
-    console.error(
-      "❌ Error sending combined renewal quote notification:",
-      error
-    );
+    console.error(" Error sending combined renewal quote notification:", error);
   }
 }
 
@@ -102,12 +103,19 @@ export async function sendPreRenewalQuoteNotifications(formData) {
         email: Referral?.email,
       };
 
-      const templateRef = doc(db, "emailTemplates", "standard");
-      const templateSnap = await getDoc(templateRef);
-      if (!templateSnap.exists())
-        throw new Error("Standard email template not found");
-
-      const template = templateSnap.data();
+      // Try referral-specific template first, fall back to global standard
+      let template;
+      const referralTemplateRef = doc(db, "emailTemplates", referral.id);
+      const referralTemplateSnap = await getDoc(referralTemplateRef);
+      if (referralTemplateSnap.exists()) {
+        template = referralTemplateSnap.data();
+      } else {
+        const globalTemplateRef = doc(db, "emailTemplates", "standard");
+        const globalTemplateSnap = await getDoc(globalTemplateRef);
+        if (!globalTemplateSnap.exists())
+          throw new Error("Standard email template not found");
+        template = globalTemplateSnap.data();
+      }
 
       const logoRef = doc(db, "referralLogos", referral?.id);
       const logoSnap = await getDoc(logoRef);
@@ -126,6 +134,7 @@ export async function sendPreRenewalQuoteNotifications(formData) {
       // Append referral section to the main email
       finalBody += `<hr><br/><strong>Referral Partner Info:</strong><br/>${referralSection}`;
     }
+
     // 3. Send a single email with the merged content
     const clientParams = {
       from_name: "FL Insurance Hub",
@@ -144,8 +153,8 @@ export async function sendPreRenewalQuoteNotifications(formData) {
       import.meta.env.VITE_EMAILJS_KEY
     );
 
-    console.log(`✅ Referral quote email sent to: ${user?.email}`);
+    console.log(` Referral quote email sent to: ${user?.email}`);
   } catch (error) {
-    console.error("❌ Error sending referral quote notification:", error);
+    console.error(" Error sending referral quote notification:", error);
   }
 }
