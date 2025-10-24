@@ -168,6 +168,7 @@ const EditorPage = () => {
 
       const inuser = await getQuoteDetails(qsrTypeParam, q_id);
 
+
       setFormData((prevData) => {
         const updated = {
           ...prevData,
