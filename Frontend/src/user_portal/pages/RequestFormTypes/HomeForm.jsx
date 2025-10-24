@@ -44,6 +44,7 @@ import { data } from "autoprefixer";
 import InspectionModalFlood from "../../components/InspectionModalFlood";
 import { getReferralMeta } from "../../../utils/referralUtils";
 import { submitQuoteToQuoteRush } from "../../../utils/submitQuoteToQuoteRush";
+import { usStates } from "../../../utils/statesUtil";
 
 //submit for the Flood inspections:
 
@@ -98,6 +99,10 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
     expiryDate: "",
     isCondo: "",
     mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
+    mailingCity: isClient ? currentUser?.data?.mailingCity || "" : "", // Add if available, else ""
+    mailingState: isClient ? currentUser?.data?.mailingState || "" : "", // Add if available, else ""
+    city: "", // For insured address
+    state: "", // For insured address
     persons: isClient
       ? [
         {
@@ -222,7 +227,11 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         policyType: "Flood",
         persons: formData.persons || [],
         mailingAddress: formData.mailingAddress || "",
+        mailingCity: formData.mailingCity || "",
+        mailingState: formData.mailingState || "",
         address: formData.address || "",
+        city: formData.city || "",
+        state: formData.state || "",
         mailing: formData.mailing || false,
         user: formData.user || {},
         occupancy: formData.occupancy || "Primary",
@@ -499,6 +508,10 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         currentInsurance: "",
         expiryDate: "",
         mailingAddress: "",
+        mailingCity: "",
+        mailingState: "",
+        city: "",
+        state: "",
         persons: [{ name: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
         files: [],
         user: { ...(currentUser?.data || {}), id: currentUser?.uid || "" },
@@ -666,6 +679,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
             </span>
           </button>
         </div>
+
         <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
           <div className="flex w-full flex-col justify-center items-start gap-2">
             <InputLabel htmlFor="mailingAddress">Mailing Address</InputLabel>
@@ -679,10 +693,51 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
               variant="outlined"
             />
           </div>
+          <div className="flex w-full flex-col justify-center items-start gap-2">
+            <InputLabel htmlFor="mailingCity">Mailing City</InputLabel>
+            <TextField
+              value={formData.mailingCity}
+              onChange={(e) => handleChange(e)}
+              name="mailingCity"
+              className="w-full"
+              id="mailingCity"
+              label="Type your Mailing City here......"
+              variant="outlined"
+            />
+          </div>
         </div>
         <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
           <div className="flex w-full flex-col justify-center items-start gap-2">
-            <InputLabel htmlFor="address">Address to be insured</InputLabel>
+            <InputLabel htmlFor="mailingState-select">Mailing State</InputLabel>
+            <FormControl className="w-full" variant="outlined">
+              <Select
+                labelId="mailingState-select-label"
+                id="mailingState-select"
+                value={formData.mailingState}
+                onChange={(e) => handleChange(e)}
+                name="mailingState"
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 224, // Fixed height with scroll for long list
+                      width: 250,
+                    },
+                  },
+                }}
+              >
+                {usStates.map((state) => (
+                  <MenuItem key={state.value} value={state.value}>
+                    {state.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+        </div>
+
+        <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
+          <div className="flex w-full flex-col justify-center items-start gap-2">
+            <InputLabel htmlFor="address">Address to be Insured</InputLabel>
             <TextField
               value={formData.address}
               onChange={(e) => handleChange(e)}
@@ -692,6 +747,46 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
               label="Type your Address here......"
               variant="outlined"
             />
+          </div>
+          <div className="flex w-full flex-col justify-center items-start gap-2">
+            <InputLabel htmlFor="city">City</InputLabel>
+            <TextField
+              value={formData.city}
+              onChange={(e) => handleChange(e)}
+              name="city"
+              className="w-full"
+              id="city"
+              label="Type your City here......"
+              variant="outlined"
+            />
+          </div>
+        </div>
+        <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
+          <div className="flex w-full flex-col justify-center items-start gap-2">
+            <InputLabel htmlFor="state-select">State</InputLabel>
+            <FormControl className="w-full" variant="outlined">
+              <Select
+                labelId="state-select-label"
+                id="state-select"
+                value={formData.state}
+                onChange={(e) => handleChange(e)}
+                name="state"
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 224, // Fixed height with scroll for long list
+                      width: 250,
+                    },
+                  },
+                }}
+              >
+                {usStates.map((state) => (
+                  <MenuItem key={state.value} value={state.value}>
+                    {state.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </div>
           <div className="flex w-full flex-col justify-center items-start gap-2">
             <InputLabel htmlFor="occupancy-select">Occupancy</InputLabel>
@@ -705,13 +800,13 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
               >
                 <MenuItem value="Primary">Primary</MenuItem>
                 <MenuItem value="Rental">Rental</MenuItem>
-                <MenuItem value="Seasonal/Secondary">
-                  Seasonal/Secondary
-                </MenuItem>
+                <MenuItem value="Seasonal/Secondary">Seasonal/Secondary</MenuItem>
               </Select>
             </FormControl>
           </div>
         </div>
+
+
         <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
           <div className="flex w-full flex-col justify-center items-start gap-2">
             <InputLabel htmlFor="binary-select1">

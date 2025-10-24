@@ -207,6 +207,8 @@ const EditorPage = () => {
   const [subBtnDisabler, setSubBtnDisabler] = useState(false);
 
   const handlePrepQuote = async () => {
+    console.log("Preparing quote with data:", formData);
+
     try {
       setSubBtnDisabler(true);
       if (Object.keys(formData?.user).length === 0) {

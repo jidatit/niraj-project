@@ -36,6 +36,7 @@ import { IconButton, InputAdornment, Tooltip } from "@mui/material";
 import { CiCircleRemove } from "react-icons/ci";
 import { getReferralMeta } from "../../../utils/referralUtils";
 import { submitQuoteToQuoteRush } from "../../../utils/submitQuoteToQuoteRush";
+import { usStates } from "../../../utils/statesUtil";
 
 const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
@@ -249,6 +250,8 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
       setFormData({
         policyType: "Auto",
         mailingAddress: "",
+        mailingCity: "",
+        mailingState: "",
         drivers: [
           {
             name: "",
@@ -300,6 +303,8 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
   const [formData, setFormData] = useState({
     policyType: "Auto",
     mailingAddress: isClient ? currentUser?.data?.mailingAddress || "" : "",
+    mailingCity: isClient ? currentUser?.data?.mailingCity || "" : "",
+    mailingState: isClient ? currentUser?.data?.mailingState || "" : "",
     drivers: isClient
       ? [
         {
@@ -553,6 +558,46 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
             />
           </div>
           <div className="flex w-full flex-col justify-center items-start gap-2">
+            <InputLabel htmlFor="mailingCity">Mailing City</InputLabel>
+            <TextField
+              value={formData.mailingCity}
+              onChange={(e) => handleChange(e)}
+              name="mailingCity"
+              className="w-full"
+              id="mailingCity"
+              label="Type your Mailing City here......"
+              variant="outlined"
+            />
+          </div>
+        </div>
+        <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
+          <div className="flex w-full flex-col justify-center items-start gap-2">
+            <InputLabel htmlFor="mailingState-select">Mailing State</InputLabel>
+            <FormControl className="w-full" variant="outlined">
+              <Select
+                labelId="mailingState-select-label"
+                id="mailingState-select"
+                value={formData.mailingState}
+                onChange={(e) => handleChange(e)}
+                name="mailingState"
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 224, // Fixed height with scroll for long list
+                      width: 250,
+                    },
+                  },
+                }}
+              >
+                {usStates.map((state) => (
+                  <MenuItem key={state.value} value={state.value}>
+                    {state.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+          <div className="flex w-full flex-col justify-center items-start gap-2">
             <InputLabel htmlFor="occupancy-select">Occupancy</InputLabel>
             <FormControl className="w-full" variant="outlined">
               <Select
@@ -564,13 +609,13 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
               >
                 <MenuItem value="Primary">Primary</MenuItem>
                 <MenuItem value="Rental">Rental</MenuItem>
-                <MenuItem value="Seasonal/Secondary">
-                  Seasonal/Secondary
-                </MenuItem>
+                <MenuItem value="Seasonal/Secondary">Seasonal/Secondary</MenuItem>
               </Select>
             </FormControl>
           </div>
         </div>
+
+
 
         <div className="w-full flex lg:flex-row gap-5 lg:gap-20 flex-col justify-center lg:justify-start items-center">
           <div className="flex w-full lg:w-[50%] flex-col justify-center items-start gap-2">

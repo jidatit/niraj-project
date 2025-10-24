@@ -16,10 +16,13 @@ export async function sendRenewalQuoteNotifications(
 
     const { subject, body: renewalBody } = tplSnap.data();
 
-    let finalBody = renewalBody;
+    let finalBody = renewalBody.replace(
+      /{client_name}/g,
+      newPrepQuote?.user?.name || ""
+    );
 
     // 2. If referral exists, include referral info in the same email
-    if (newPrepQuote.byReferral) {
+    if (newPrepQuote?.byReferral) {
       const referral = {
         id: newPrepQuote?.ReferralId,
         name: newPrepQuote?.Referral?.name,
@@ -48,14 +51,18 @@ export async function sendRenewalQuoteNotifications(
         /{referralName}/g,
         referral?.name || ""
       );
+      referralBody = referralBody.replace(
+        /{client_name}/g,
+        newPrepQuote?.user?.name || ""
+      );
       referralBody = formatEmailBody(
         referralBody,
         logoUrl,
         template?.logoPosition
       );
 
-      // Append referral section to the main email
-      finalBody += `<hr><br/><strong>Referral Partner Info:</strong><br/>${referralBody}`;
+      // Append referral section seamlessly without heading or separator
+      finalBody += referralBody;
     }
 
     // 3. Send a single email with the merged content
@@ -92,8 +99,8 @@ export async function sendPreRenewalQuoteNotifications(formData) {
     if (!tplSnap.exists())
       throw new Error("Referral quote email template not found");
 
-    const { subject, body: referralBody } = tplSnap.data();
-    let finalBody = referralBody;
+    const { subject, body: renewalBody } = tplSnap.data();
+    let finalBody = renewalBody.replace(/{client_name}/g, user?.name || "");
 
     // 2. If referral exists, include referral info in the same email
     if (user?.byReferral) {
@@ -125,14 +132,18 @@ export async function sendPreRenewalQuoteNotifications(formData) {
         /{referralName}/g,
         referral?.name || ""
       );
+      referralSection = referralSection.replace(
+        /{client_name}/g,
+        user?.name || ""
+      );
       referralSection = formatEmailBody(
         referralSection,
         logoUrl,
         template?.logoPosition
       );
 
-      // Append referral section to the main email
-      finalBody += `<hr><br/><strong>Referral Partner Info:</strong><br/>${referralSection}`;
+      // Append referral section seamlessly without heading or separator
+      finalBody += referralSection;
     }
 
     // 3. Send a single email with the merged content

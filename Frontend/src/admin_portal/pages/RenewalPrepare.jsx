@@ -377,6 +377,8 @@ const RenewalPrepare = () => {
   const [subBtnDisabler, setSubBtnDisabler] = useState(false);
 
   const handlePrepQuote = async () => {
+    console.log("submitting with formData:", formData, renewalQuote);
+
     try {
       const updatedFormData = {
         ...formData,

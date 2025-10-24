@@ -18,6 +18,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import CloseIcon from "@mui/icons-material/Close";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { toast } from "react-toastify";
+import ReactQuill from "react-quill"; // Import ReactQuill
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
 
 const StandardTemplateModal = ({
   open,
@@ -26,7 +28,7 @@ const StandardTemplateModal = ({
   db,
   storage,
 }) => {
-  const [standardTemplate, setStandardTemplate] = useState({
+  const [template, setTemplate] = useState({
     subject: "",
     body: "",
     logoPosition: "top",
@@ -48,12 +50,12 @@ const StandardTemplateModal = ({
         // Fetch template
         const templateDoc = await getDoc(doc(db, "emailTemplates", referral.id));
         if (templateDoc.exists()) {
-          setStandardTemplate(templateDoc.data());
+          setTemplate(templateDoc.data());
         } else {
           // Default template
-          setStandardTemplate({
+          setTemplate({
             subject: "Policy Renewal Reminder from {referralName}",
-            body: "Dear Client,\n\nThis is a reminder that your policy with {referralName} is coming up for renewal.\n\nPlease contact us if you have any questions.\n\nBest regards,\n{referralName} Team",
+            body: `<p>Dear {client_name},</p><p>This is a reminder that your policy with {referralName} is coming up for renewal.</p><p>Please contact us if you have any questions.</p><p>Best regards,</p><p>{referralName} Team</p>`,
             logoPosition: "top",
           });
         }
@@ -95,13 +97,18 @@ const StandardTemplateModal = ({
     try {
       // Save template (if admin)
       if (isAdmin) {
-        if (!standardTemplate.subject.includes("{referralName}") || !standardTemplate.body.includes("{referralName}")) {
-          setError("Subject and body must include {referralName} placeholder.");
+        if (!template.subject.includes("{referralName}") || !template.body.includes("{referralName}")) {
+          toast.error("Subject and body must include {referralName} placeholder.");
+          setIsLoading(false);
+          return;
+        }
+        if (!template.body.includes("{client_name}")) {
+          toast.error("Template body must include {client_name} for dynamic client name insertion.");
           setIsLoading(false);
           return;
         }
         await setDoc(doc(db, "emailTemplates", referral.id), {
-          ...standardTemplate,
+          ...template,
           updatedAt: new Date(),
         });
         toast.success(`Standard template for ${referral.name} saved successfully`);
@@ -130,10 +137,23 @@ const StandardTemplateModal = ({
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (referralLogo) {
+        URL.revokeObjectURL(referralLogo);
+      }
+    };
+  }, [referralLogo]);
+
   // Preview helpers
   const previewName = referral?.name || "Referral";
-  const previewSubject = standardTemplate.subject.replace(/{referralName}/g, previewName);
-  const previewBody = standardTemplate.body.replace(/{referralName}/g, previewName);
+  const previewClientName = "John Doe"; // Sample client name for preview
+  const previewSubject = template.subject
+    .replace(/{referralName}/g, previewName)
+    .replace(/{client_name}/g, previewClientName);
+  const previewBody = template.body
+    .replace(/{referralName}/g, previewName)
+    .replace(/{client_name}/g, previewClientName);
 
   const renderSkeleton = () => (
     <Box>
@@ -145,12 +165,6 @@ const StandardTemplateModal = ({
   );
 
   const renderPreview = () => {
-    const bodyParagraphs = previewBody.split("\n").map((para, idx) => (
-      <Typography key={idx} variant="body2" paragraph>
-        {para}
-      </Typography>
-    ));
-
     const logoElement = logoUrl || referralLogo ? (
       <Box
         component="img"
@@ -174,54 +188,84 @@ const StandardTemplateModal = ({
       </Box>
     );
 
-    switch (standardTemplate.logoPosition) {
+    switch (template.logoPosition) {
       case "top":
         return (
           <>
             {logoElement}
-            {bodyParagraphs}
+            <Box
+              sx={{ mt: 2 }}
+              dangerouslySetInnerHTML={{ __html: previewBody }}
+            />
           </>
         );
       case "bottom":
         return (
           <>
-            {bodyParagraphs}
+            <Box
+              sx={{ mt: 2 }}
+              dangerouslySetInnerHTML={{ __html: previewBody }}
+            />
             {logoElement}
           </>
         );
       case "after-greeting":
         return (
           <>
-            {bodyParagraphs[0]}
+            <Box
+              sx={{ mt: 2 }}
+              dangerouslySetInnerHTML={{ __html: previewBody.split("<p>")[0] + "<p>" + previewBody.split("<p>")[1] }}
+            />
             {logoElement}
-            {bodyParagraphs.slice(1)}
+            <Box
+              sx={{ mt: 2 }}
+              dangerouslySetInnerHTML={{ __html: previewBody.split("<p>").slice(2).join("<p>") }}
+            />
           </>
         );
       case "before-signature":
-        const signatureIndex = bodyParagraphs.length - 2 >= 0 ? bodyParagraphs.length - 2 : bodyParagraphs.length - 1;
         return (
           <>
-            {bodyParagraphs.slice(0, signatureIndex)}
+            <Box
+              sx={{ mt: 2 }}
+              dangerouslySetInnerHTML={{ __html: previewBody.split("<p>").slice(0, -2).join("<p>") }}
+            />
             {logoElement}
-            {bodyParagraphs.slice(signatureIndex)}
+            <Box
+              sx={{ mt: 2 }}
+              dangerouslySetInnerHTML={{ __html: previewBody.split("<p>").slice(-2).join("<p>") }}
+            />
           </>
         );
       default:
         return (
           <>
             {logoElement}
-            {bodyParagraphs}
+            <Box
+              sx={{ mt: 2 }}
+              dangerouslySetInnerHTML={{ __html: previewBody }}
+            />
           </>
         );
     }
   };
+  useEffect(() => {
+    if (!referral?.id) {
+      setReferralLogo(null);
+      setLogoUrl("");
+      return;
+    }
+
+    setReferralLogo(null); // reset the local file
+    setLogoUrl(""); // clear old URL while new one loads
+  }, [referral?.id]);
 
   return (
     <Modal
       open={open}
       onClose={() => {
-        handleClose();
         setLogoUrl("");
+        handleClose();
       }}
       aria-labelledby="standard-template-modal"
     >
@@ -293,38 +337,46 @@ const StandardTemplateModal = ({
                   Edit Standard Template Content for {referral?.name}
                 </Typography>
                 <Typography variant="caption" display="block" gutterBottom>
-                  Use {"{referralName}"} placeholder to insert the referral partner's name
+                  Use {"{referralName}"} placeholder to insert the referral partner's name and {"{client_name}"} for the client's name
                 </Typography>
 
                 <TextField
                   fullWidth
                   label="Email Subject"
-                  value={standardTemplate.subject}
+                  value={template.subject}
                   onChange={(e) =>
-                    setStandardTemplate({ ...standardTemplate, subject: e.target.value })
+                    setTemplate({ ...template, subject: e.target.value })
                   }
                   margin="normal"
                 />
 
-                <TextField
-                  fullWidth
-                  label="Email Body"
-                  value={standardTemplate.body}
-                  onChange={(e) =>
-                    setStandardTemplate({ ...standardTemplate, body: e.target.value })
-                  }
-                  margin="normal"
-                  multiline
-                  rows={8}
-                />
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    Email Body (use formatting tools below)
+                  </Typography>
+                  <ReactQuill
+                    theme="snow"
+                    value={template.body}
+                    onChange={(value) => setTemplate({ ...template, body: value })}
+                    modules={{
+                      toolbar: [
+                        [{ header: [1, 2, false] }],
+                        ["bold", "italic", "underline", "strike", "blockquote"],
+                        [{ list: "ordered" }, { list: "bullet" }],
+                        ["link", "image"],
+                        ["clean"],
+                      ],
+                    }}
+                  />
+                </Box>
 
                 <FormControl fullWidth margin="normal">
                   <InputLabel>Logo Position</InputLabel>
                   <Select
-                    value={standardTemplate.logoPosition}
+                    value={template.logoPosition}
                     label="Logo Position"
                     onChange={(e) =>
-                      setStandardTemplate({ ...standardTemplate, logoPosition: e.target.value })
+                      setTemplate({ ...template, logoPosition: e.target.value })
                     }
                   >
                     <MenuItem value="top">Top of Email</MenuItem>

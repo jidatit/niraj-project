@@ -12,11 +12,13 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
+import ReactQuill from "react-quill"; // Import ReactQuill
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
 
 const RenewalQuoteTemplateModal = ({ open, handleClose, db }) => {
   const [template, setTemplate] = useState({
     subject: "",
-    body: "",
+    body: "", // Will store HTML content
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
@@ -34,7 +36,7 @@ const RenewalQuoteTemplateModal = ({ open, handleClose, db }) => {
         } else {
           setTemplate({
             subject: "Your renewal quote is ready",
-            body: `Dear Client,\n\nYour renewal quote is now available. Please go to your dashboard and submit a bind request.\n\nThank you,\nTeam`,
+            body: `<p>Dear {client_name},</p><p>Your renewal quote is now available. Please go to your dashboard and submit a bind request.</p><p>Thank you,</p><p>Team</p>`,
           });
         }
       } catch (err) {
@@ -49,6 +51,11 @@ const RenewalQuoteTemplateModal = ({ open, handleClose, db }) => {
   }, [open, db]);
 
   const handleSave = async () => {
+    if (!template.body.includes("{client_name}")) {
+      toast.error("Template body must include {client_name} for dynamic client name insertion.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       await setDoc(doc(db, "emailTemplates", "renewalQuote"), {
@@ -128,17 +135,28 @@ const RenewalQuoteTemplateModal = ({ open, handleClose, db }) => {
                 }
                 margin="normal"
               />
-              <TextField
-                fullWidth
-                label="Email Body"
-                value={template.body}
-                onChange={(e) =>
-                  setTemplate({ ...template, body: e.target.value })
-                }
-                margin="normal"
-                multiline
-                rows={6}
-              />
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Email Body (use formatting tools below)
+                </Typography>
+                <Typography variant="caption" display="block" gutterBottom>
+                  Use  {"{client_name}"} placeholder to insert the client's name
+                </Typography>
+                <ReactQuill
+                  theme="snow"
+                  value={template.body}
+                  onChange={(value) => setTemplate({ ...template, body: value })}
+                  modules={{
+                    toolbar: [
+                      [{ header: [1, 2, false] }],
+                      ["bold", "italic", "underline", "strike", "blockquote"],
+                      [{ list: "ordered" }, { list: "bullet" }],
+                      ["link", "image"],
+                      ["clean"],
+                    ],
+                  }}
+                />
+              </Box>
 
               <Divider sx={{ my: 3 }} />
 
@@ -151,13 +169,10 @@ const RenewalQuoteTemplateModal = ({ open, handleClose, db }) => {
                     Subject: {template.subject}
                   </Typography>
                   <Divider sx={{ my: 1 }} />
-                  <Box sx={{ mt: 2 }}>
-                    {template.body.split("\n").map((line, idx) => (
-                      <Typography key={idx} variant="body2" paragraph>
-                        {line}
-                      </Typography>
-                    ))}
-                  </Box>
+                  <Box
+                    sx={{ mt: 2 }}
+                    dangerouslySetInnerHTML={{ __html: template.body }}
+                  />
                 </Box>
               </Box>
 
