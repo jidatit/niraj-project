@@ -45,6 +45,7 @@ import InspectionModalFlood from "../../components/InspectionModalFlood";
 import { getReferralMeta } from "../../../utils/referralUtils";
 import { submitQuoteToQuoteRush } from "../../../utils/submitQuoteToQuoteRush";
 import { usStates } from "../../../utils/statesUtil";
+import { getDisplayName } from "../../../utils/namesUtil";
 
 //submit for the Flood inspections:
 
@@ -106,14 +107,16 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
     persons: isClient
       ? [
         {
-          name: currentUser?.data?.name || "",
+          firstName: currentUser?.data?.firstName || "",
+          lastName: currentUser?.data?.lastName || "",
+          name: getDisplayName(currentUser?.data || {}),
           dob: currentUser?.data?.dateOfBirth || "",
           email: currentUser?.data?.email || "",
           phoneNumber: currentUser?.data?.phoneNumber || "",
           zipCode: currentUser?.data?.zipCode || "",
         },
       ]
-      : [{ name: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
+      : [{ firstName: "", lastName: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
     files: [],// Home inspection files
     floodData: {
       cert_elevation: "",
@@ -285,7 +288,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
       //  Email notifications
       if (hasFiles) {
         ClientQuoteReqMail(
-          formData.persons.map((p) => p.name).join(", "),
+          formData.persons.map((p) => p?.firstName).join(", "),
           adminEmail,
           "Flood",
           // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
@@ -295,7 +298,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         );
       } else {
         ClientQuoteWithoutInspection(
-          formData.persons.map((p) => p.name).join(", "),
+          formData.persons.map((p) => p?.firstName).join(", "),
           adminEmail,
           "Flood",
           // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
@@ -384,7 +387,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         //  Send email
         if (hasFiles) {
           ClientQuoteReqMail(
-            formData.persons.map((driver) => driver.name).join(", "),
+            formData.persons.map((driver) => driver?.firstName).join(", "),
             adminEmail,
             "Home",
             // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
@@ -394,7 +397,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
           );
         } else {
           ClientQuoteWithoutInspection(
-            formData.persons.map((driver) => driver.name).join(", "),
+            formData.persons.map((driver) => driver?.firstName).join(", "),
             adminEmail,
             "Home",
             // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
@@ -464,7 +467,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
       //  Email notification
       if (fileUrls.length > 0) {
         ClientQuoteReqMail(
-          formData.persons.map((driver) => driver.name).join(", "),
+          formData.persons.map((driver) => driver?.firstName).join(", "),
           adminEmail,
           "Home",
           // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
@@ -475,7 +478,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         );
       } else {
         ClientQuoteWithoutInspection(
-          formData.persons.map((driver) => driver.name).join(", "),
+          formData.persons.map((driver) => driver?.firstName).join(", "),
           adminEmail,
           "Home",
           // currentUser?.data?.signupType === "Referral" ? currentUser?.data?.name : "None",
@@ -512,7 +515,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
         mailingState: "",
         city: "",
         state: "",
-        persons: [{ name: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
+        persons: [{ firstName: "", lastName: "", dob: "", email: "", phoneNumber: "", zipCode: "" }],
         files: [],
         user: { ...(currentUser?.data || {}), id: currentUser?.uid || "" },
         occupancy: "Primary",
@@ -551,7 +554,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
       ...prevData,
       persons: [
         ...prevData.persons,
-        { name: "", dob: "", email: "", phoneNumber: "", zipCode: "" },
+        { firstName: "", lastName: "", dob: "", email: "", phoneNumber: "", zipCode: "" },
       ],
     }));
   };
@@ -587,17 +590,30 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
               className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center"
             >
               <div className="flex w-full flex-col justify-center items-start gap-2">
-                <InputLabel htmlFor={`name-${index}`}>
-                  Name to be Insured
+                <InputLabel htmlFor={`firstName-${index}`}>
+                  First Name to be Insured
                 </InputLabel>
                 <TextField
                   className="w-full"
-                  id={`name-${index}`}
-                  label="Type your name here......"
+                  id={`firstName-${index}`}
                   variant="outlined"
-                  value={person.name}
+                  value={person.firstName}
                   onChange={(e) =>
-                    handlePersonChange(index, "name", e.target.value)
+                    handlePersonChange(index, "firstName", e.target.value)
+                  }
+                />
+              </div>
+              <div className="flex w-full flex-col justify-center items-start gap-2">
+                <InputLabel htmlFor={`lastName-${index}`}>
+                  Last Name to be Insured
+                </InputLabel>
+                <TextField
+                  className="w-full"
+                  id={`lastName-${index}`}
+                  variant="outlined"
+                  value={person.lastName}
+                  onChange={(e) =>
+                    handlePersonChange(index, "lastName", e.target.value)
                   }
                 />
               </div>
@@ -611,6 +627,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
                   onChange={(e) =>
                     handlePersonChange(index, "dob", e.target.value)
                   }
+                  InputLabelProps={{ shrink: true }}
                 />
               </div>
               <div className="flex w-full flex-col justify-center items-start gap-2">
@@ -632,7 +649,7 @@ const HomeForm = ({ selectedUser, PreRenwalQuote }) => {
                 <TextField
                   className="w-full"
                   id={`phoneNumber-${index}`}
-                  type="phoneNumber"
+                  type="tel"
                   value={person.phoneNumber}
                   onChange={(e) =>
                     handlePersonChange(index, "phoneNumber", e.target.value)

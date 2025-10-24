@@ -37,6 +37,7 @@ import { CiCircleRemove } from "react-icons/ci";
 import { getReferralMeta } from "../../../utils/referralUtils";
 import { submitQuoteToQuoteRush } from "../../../utils/submitQuoteToQuoteRush";
 import { usStates } from "../../../utils/statesUtil";
+import { getDisplayName } from "../../../utils/namesUtil";
 
 const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
@@ -82,7 +83,9 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
     persons: isClient
       ? [
         {
-          name: currentUser?.data?.name || "",
+          firstName: currentUser?.data?.firstName || "",
+          lastName: currentUser?.data?.lastName || "",
+          name: getDisplayName(currentUser?.data || {}),
           dob: currentUser?.data?.dateOfBirth || "",
           email: currentUser?.data?.email || "",
           phoneNumber: currentUser?.data?.phoneNumber || "",
@@ -91,7 +94,8 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
       ]
       : [
         {
-          name: "",
+          firstName: "",
+          lastName: "",
           dob: "",
           email: "",
           phoneNumber: "",
@@ -225,7 +229,7 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
         }
         // 🔹 Send WITHOUT inspection mail
         ClientQuoteWithoutInspection(
-          formData.persons.map((p) => p.name).join(", "),
+          formData.persons.map((p) => p?.firstName).join(", "),
           adminEmail,
           "Flood",
           referralName,
@@ -292,7 +296,7 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
         mailingCity: "",
         mailingState: "",
         persons: [
-          { name: "", dob: "", email: "", phoneNumber: "", zipCode: "" },
+          { firstName: "", lastName: "", dob: "", email: "", phoneNumber: "", zipCode: "" },
         ],
         address: "",
         city: "",
@@ -303,7 +307,7 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
         closingDate: "",
         haveCurrentPolicy: "",
         expiryDate: "",
-        user: { ...currentUser.data, id: currentUser.uid },
+        user: { ...currentUser?.data, id: currentUser?.uid },
         files: [],
         occupancy: "Primary",
       });
@@ -311,7 +315,7 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
 
       // 🔹 Send WITH inspection mail
       ClientQuoteReqMail(
-        formData.persons.map((p) => p.name).join(", "),
+        formData.persons.map((p) => p?.firstName).join(", "),
         adminEmail,
         "Flood",
         referralName,
@@ -353,7 +357,7 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
       ...prevData,
       persons: [
         ...prevData.persons,
-        { name: "", dob: "", email: "", phoneNumber: "", zipCode: "" },
+        { firstName: "", lastName: "", dob: "", email: "", phoneNumber: "", zipCode: "" },
       ],
     }));
   };
@@ -390,17 +394,30 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
               className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center"
             >
               <div className="flex w-full flex-col justify-center items-start gap-2">
-                <InputLabel htmlFor={`name-${index}`}>
-                  Name to be Insured
+                <InputLabel htmlFor={`firstName-${index}`}>
+                  First Name to be Insured
                 </InputLabel>
                 <TextField
                   className="w-full"
-                  id={`name-${index}`}
-                  label="Type your name here......"
+                  id={`firstName-${index}`}
                   variant="outlined"
-                  value={person.name}
+                  value={person.firstName}
                   onChange={(e) =>
-                    handlePersonChange(index, "name", e.target.value)
+                    handlePersonChange(index, "firstName", e.target.value)
+                  }
+                />
+              </div>
+              <div className="flex w-full flex-col justify-center items-start gap-2">
+                <InputLabel htmlFor={`lastName-${index}`}>
+                  Last Name to be Insured
+                </InputLabel>
+                <TextField
+                  className="w-full"
+                  id={`lastName-${index}`}
+                  variant="outlined"
+                  value={person.lastName}
+                  onChange={(e) =>
+                    handlePersonChange(index, "lastName", e.target.value)
                   }
                 />
               </div>
@@ -414,6 +431,7 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
                   onChange={(e) =>
                     handlePersonChange(index, "dob", e.target.value)
                   }
+                  InputLabelProps={{ shrink: true }}
                 />
               </div>
               <div className="flex w-full flex-col justify-center items-start gap-2">
@@ -435,7 +453,7 @@ const FloodForm = ({ selectedUser, PreRenwalQuote }) => {
                 <TextField
                   className="w-full"
                   id={`phoneNumber-${index}`}
-                  type="phoneNumber"
+                  type="tel"
                   value={person.phoneNumber}
                   onChange={(e) =>
                     handlePersonChange(index, "phoneNumber", e.target.value)

@@ -72,6 +72,7 @@ import EmptyState from "../../components/EmptyState";
 import { AttachReferralModal } from "../components/AttachReferral";
 import { useQuotesStore } from "../../utils/quotesStore";
 import { batchGetReferralMetaByEmails } from "../../utils/userUtils";
+import { getDisplayName } from "../../utils/namesUtil";
 
 const QuotesPage = () => {
   const {
@@ -441,22 +442,18 @@ const QuotesPage = () => {
         size: 100,
         Cell: ({ row }) => {
           const { policyType, inuser, drivers } = row?.original || {};
-
           const name =
             policyType === "Auto" &&
               Array.isArray(drivers) &&
               drivers.length > 0 &&
               drivers[0]?.name
-              ? drivers[0]?.name
-              : inuser?.name;
-
+              ? getDisplayName(drivers[0])
+              : getDisplayName(inuser);
           return (
             <Box display="flex" alignItems="center">
               <Tooltip title={name || "N/A"} arrow>
                 <span>
-                  {name?.length > 15
-                    ? name.slice(0, 15) + "..."
-                    : name || "N/A"}
+                  {name?.length > 15 ? name.slice(0, 15) + "..." : name || "N/A"}
                 </span>
               </Tooltip>
             </Box>
@@ -651,18 +648,17 @@ const QuotesPage = () => {
         size: 100,
         Cell: ({ cell, row }) => {
           const { persons, drivers } = row.original;
-          // Ensure persons, drivers, or cell.getValue() are valid
           const name =
             (persons &&
               Array.isArray(persons) &&
               persons.length > 0 &&
-              persons[0].name) ||
+              getDisplayName(persons[0])) ||
             (drivers &&
               Array.isArray(drivers) &&
               drivers.length > 0 &&
-              drivers[0].name) ||
-            cell.getValue() ||
-            "N/A"; // Fallback if all are undefined
+              getDisplayName(drivers[0])) ||
+            getDisplayName({ name: cell.getValue() }) ||
+            "N/A";
           return (
             <Box>{name?.length > 100 ? name.slice(0, 100) + "..." : name}</Box>
           );
@@ -852,9 +848,9 @@ const QuotesPage = () => {
         size: 100,
         Cell: ({ cell }) => (
           <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "..."
-              : cell.getValue()}
+            {getDisplayName({ name: cell.getValue() })?.length > 100
+              ? getDisplayName({ name: cell.getValue() }).slice(0, 100) + "..."
+              : getDisplayName({ name: cell.getValue() })}
           </Box>
         ),
       },
@@ -1031,7 +1027,7 @@ const QuotesPage = () => {
         header: "Client",
         size: 100,
         Cell: ({ cell }) => {
-          const v = cell.getValue();
+          const v = getDisplayName({ name: cell.getValue() });
           return <Box>{v.length > 30 ? v.slice(0, 30) + "…" : v}</Box>;
         },
       },
@@ -1235,9 +1231,9 @@ const QuotesPage = () => {
         size: 100,
         Cell: ({ cell }) => (
           <Box>
-            {cell.getValue().length > 100
-              ? cell.getValue().slice(0, 100) + "…"
-              : cell.getValue()}
+            {getDisplayName({ name: cell.getValue() })?.length > 100
+              ? getDisplayName({ name: cell.getValue() }).slice(0, 100) + "…"
+              : getDisplayName({ name: cell.getValue() })}
           </Box>
         ),
       },
@@ -1361,6 +1357,9 @@ const QuotesPage = () => {
       accessorKey: "user.name",
       header: "Client",
       size: 200,
+      Cell: ({ cell }) => (
+        <Box>{getDisplayName({ name: cell.getValue() })}</Box>
+      ),
     },
     {
       accessorKey: "user.email",
@@ -1511,6 +1510,9 @@ const QuotesPage = () => {
       accessorKey: "Name",
       header: "Client Name",
       size: 200,
+      Cell: ({ cell }) => (
+        <Box>{getDisplayName({ name: cell.getValue() })}</Box>
+      ),
     },
     {
       accessorKey: "Email",

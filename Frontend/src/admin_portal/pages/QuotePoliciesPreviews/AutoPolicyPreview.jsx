@@ -95,6 +95,7 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
     }
   };
 
+
   return (
     <>
       <Modal
@@ -148,11 +149,18 @@ const AutoPolicyPreview = ({ data, open, handleClose }) => {
                   key={index}
                   className="w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 flex-wrap gap-5 justify-center items-center"
                 >
-                  {driver.name &&
-                    renderTextField(
-                      `Name to be Insured  ${index + 1}`,
-                      driver.name
-                    )}
+                  {driver?.firstName || driver?.lastName || driver?.name
+                    ? [
+                      driver?.firstName &&
+                      renderTextField(`First Name ${index + 1}`, driver.firstName),
+                      driver?.lastName &&
+                      renderTextField(`Last Name ${index + 1}`, driver.lastName),
+                      !driver?.firstName &&
+                      !driver?.lastName &&
+                      driver?.name &&
+                      renderTextField(`Name to be Insured ${index + 1}`, driver.name),
+                    ]
+                    : renderTextField(`Name to be Insured ${index + 1}`, 'N/A')}
                   {driver.dob &&
                     renderDateField(`Date of Birth ${index + 1}`, driver.dob)}
                   {driver.LN &&

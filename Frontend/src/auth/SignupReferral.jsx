@@ -13,7 +13,8 @@ import { CircularProgress } from "@mui/material";
 const SignupReferral = () => {
   const [Loader, setLoader] = useState(false);
   const [userData, setUserData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     mailingAddress: "",
     email: "",
     phoneNumber: "",
@@ -67,14 +68,13 @@ const SignupReferral = () => {
     e.preventDefault(); // Prevent default form submission
     try {
       setLoader(true);
-      const { confirmPassword, password, ...userDataWithoutPasswords } =
-        userData;
+      const { confirmPassword, password, firstName, lastName, ...userDataWithoutPasswords } = userData;
       if (confirmPassword !== password) {
         toast.error("Password Not Matched!");
         setLoader(false);
         return;
       }
-      if (hasEmptyValue(userDataWithoutPasswords)) {
+      if (hasEmptyValue({ firstName, lastName, ...userDataWithoutPasswords })) {
         toast.error("Fill all Fields!");
         setLoader(false);
         return;
@@ -84,10 +84,14 @@ const SignupReferral = () => {
         userData.email,
         userData.password
       );
-      // Adding nameInLower field before saving for searching purposes
+      // Compute name and nameInLower for compatibility
+      const computedName = `${firstName} ${lastName}`.trim();
       const userDataToSave = {
         ...userDataWithoutPasswords,
-        nameInLower: userData?.name?.toLowerCase(),
+        firstName,
+        lastName,
+        name: computedName, // Store combined name for existing code
+        nameInLower: computedName.toLowerCase(), // For search compatibility
       };
       await setDoc(doc(db, "users", user.uid), userDataToSave);
       setLoader(false);
@@ -125,15 +129,32 @@ const SignupReferral = () => {
           onSubmit={handleSignup}
           className="w-full flex flex-col gap-4 md:w-[60%]"
         >
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            className="w-full px-4 py-4 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-            value={userData.name}
-            onChange={handleInputChange}
-            required
-          />
+          <div className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center">
+            <div className="flex w-full flex-col justify-center items-start gap-2">
+              <label htmlFor="firstName" className="text-gray-700">First Name</label>
+              <input
+                type="text"
+                name="firstName"
+                placeholder="First Name"
+                className="w-full border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500"
+                value={userData.firstName}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="flex w-full flex-col justify-center items-start gap-2">
+              <label htmlFor="lastName" className="text-gray-700">Last Name</label>
+              <input
+                type="text"
+                name="lastName"
+                placeholder="Last Name"
+                className="w-full border-gray-300 border rounded-md px-4 py-4 focus:outline-none focus:border-blue-500"
+                value={userData.lastName}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+          </div>
 
           <input
             type="text"
@@ -210,9 +231,8 @@ const SignupReferral = () => {
           <button
             type="submit"
             disabled={passwordError}
-            className={`bg-[#003049] ${
-              passwordError && "bg-gray-400"
-            } w-full text-[20px] font-bold text-white px-4 py-2 rounded-md`}
+            className={`bg-[#003049] ${passwordError && "bg-gray-400"
+              } w-full text-[20px] font-bold text-white px-4 py-2 rounded-md`}
           >
             {Loader ? (
               <CircularProgress size={20} color="inherit" />

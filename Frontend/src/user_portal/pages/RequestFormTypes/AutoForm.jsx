@@ -37,6 +37,7 @@ import { CiCircleRemove } from "react-icons/ci";
 import { getReferralMeta } from "../../../utils/referralUtils";
 import { submitQuoteToQuoteRush } from "../../../utils/submitQuoteToQuoteRush";
 import { usStates } from "../../../utils/statesUtil";
+import { getDisplayName } from "../../../utils/namesUtil";
 
 const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
@@ -174,11 +175,11 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
         }
         // ✅ Send "Without Inspection" mail
         ClientQuoteWithoutInspection(
-          formData.drivers.map((driver) => driver.name).join(", "),
+          formData.drivers.map((driver) => driver?.firstName).join(", "),
           adminEmail,
           "Auto",
           referralName,
-          currentUser.data.name,
+          currentUser?.data?.firstName,
           formData
         );
 
@@ -239,11 +240,11 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
 
       // ✅ Send "With Inspection" mail
       ClientQuoteReqMail(
-        formData.drivers.map((driver) => driver.name).join(", "),
+        formData.drivers.map((driver) => driver?.firstName).join(", "),
         adminEmail,
         "Auto",
         referralName,
-        currentUser.data.name,
+        currentUser?.data?.name,
         formData
       );
 
@@ -254,7 +255,8 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
         mailingState: "",
         drivers: [
           {
-            name: "",
+            firstName: "",
+            lastName: "",
             dob: "",
             LN: "",
             email: "",
@@ -308,7 +310,9 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
     drivers: isClient
       ? [
         {
-          name: currentUser?.data?.name || "",
+          firstName: currentUser?.data?.firstName || "",
+          lastName: currentUser?.data?.lastName || "",
+          name: getDisplayName(currentUser?.data || {}),
           dob: currentUser?.data?.dateOfBirth || "",
           email: currentUser?.data?.email || "",
           phoneNumber: currentUser?.data?.phoneNumber || "",
@@ -318,7 +322,8 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
       ]
       : [
         {
-          name: "",
+          firstName: "",
+          lastName: "",
           dob: "",
           email: "",
           phoneNumber: "",
@@ -373,7 +378,7 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
       ...prevData,
       drivers: [
         ...prevData.drivers,
-        { name: "", dob: "", LN: "", email: "", phoneNumber: "", zipCode: "" },
+        { firstName: "", lastName: "", dob: "", LN: "", email: "", phoneNumber: "", zipCode: "" },
       ],
     }));
   };
@@ -438,17 +443,30 @@ const AutoForm = ({ selectedUser, PreRenwalQuote }) => {
               className="w-full grid grid-cols-1 md:grid-cols-2 justify-center items-center gap-5"
             >
               <div className="flex w-full flex-col justify-center items-start gap-2">
-                <InputLabel htmlFor={`name-${index}`}>
-                  Name to be Insured
+                <InputLabel htmlFor={`firstName-${index}`}>
+                  First Name to be Insured
                 </InputLabel>
                 <TextField
                   className="w-full"
-                  id={`name-${index}`}
-                  label="Type your name here......"
+                  id={`firstName-${index}`}
                   variant="outlined"
-                  value={driver.name}
+                  value={driver.firstName}
                   onChange={(e) =>
-                    handleDriverChange(index, "name", e.target.value)
+                    handleDriverChange(index, "firstName", e.target.value)
+                  }
+                />
+              </div>
+              <div className="flex w-full flex-col justify-center items-start gap-2">
+                <InputLabel htmlFor={`lastName-${index}`}>
+                  Last Name to be Insured
+                </InputLabel>
+                <TextField
+                  className="w-full"
+                  id={`lastName-${index}`}
+                  variant="outlined"
+                  value={driver.lastName}
+                  onChange={(e) =>
+                    handleDriverChange(index, "lastName", e.target.value)
                   }
                 />
               </div>

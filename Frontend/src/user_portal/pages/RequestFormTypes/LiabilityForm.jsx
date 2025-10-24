@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import { IconButton, InputAdornment } from "@mui/material";
 import { getReferralMeta } from "../../../utils/referralUtils";
+import { getDisplayName } from "../../../utils/namesUtil";
 
 const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
   const navigate = useNavigate();
@@ -86,7 +87,9 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
     persons: isClient
       ? [
         {
-          name: currentUser?.data?.name || "",
+          firstName: currentUser?.data?.firstName || "",
+          lastName: currentUser?.data?.lastName || "",
+          name: getDisplayName(currentUser?.data || {}),
           dob: currentUser?.data?.dateOfBirth || "",
           email: currentUser?.data?.email || "",
           phoneNumber: currentUser?.data?.phoneNumber || "",
@@ -95,7 +98,8 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
       ]
       : [
         {
-          name: "",
+          firstName: "",
+          lastName: "",
           dob: "",
           email: "",
           phoneNumber: "",
@@ -141,7 +145,10 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
         coverageAmount: "",
         mailingAddress: "",
         persons: [
-          { name: "", dob: "", email: "", phoneNumber: "", zipCode: "" },
+          {
+            firstName: "",
+            lastName: "", dob: "", email: "", phoneNumber: "", zipCode: ""
+          },
         ],
         addresses: [{ address: "" }],
         autos: { cars: "", boats: "", motorcycles: "", golf_carts: "" },
@@ -152,7 +159,7 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
       });
 
       ClientQuoteWithoutInspection(
-        formData.persons.map((p) => p.name).join(", "),
+        formData.persons.map((p) => p?.firstName).join(", "),
         adminEmail,
         "Liability",
         referralName,
@@ -213,7 +220,10 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
       ...prevData,
       persons: [
         ...prevData.persons,
-        { name: "", dob: "", email: "", phoneNumber: "", zipCode: "" },
+        {
+          firstName: "",
+          lastName: "", dob: "", email: "", phoneNumber: "", zipCode: ""
+        },
       ],
     }));
   };
@@ -262,20 +272,34 @@ const LiabilityForm = ({ selectedUser, PreRenwalQuote }) => {
               className="w-full grid grid-cols-1 mt-[20px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center"
             >
               <div className="flex w-full flex-col justify-center items-start gap-2">
-                <InputLabel htmlFor={`name-${index}`}>
-                  Name to be Insured
+                <InputLabel htmlFor={`firstName-${index}`}>
+                  First Name to be Insured
                 </InputLabel>
                 <TextField
                   className="w-full"
-                  id={`name-${index}`}
-                  label="Type your name here......"
+                  id={`firstName-${index}`}
                   variant="outlined"
-                  value={person.name}
+                  value={person?.firstName}
                   onChange={(e) =>
-                    handlePersonChange(index, "name", e.target.value)
+                    handlePersonChange(index, "firstName", e.target.value)
                   }
                 />
               </div>
+              <div className="flex w-full flex-col justify-center items-start gap-2">
+                <InputLabel htmlFor={`lastName-${index}`}>
+                  Last Name to be Insured
+                </InputLabel>
+                <TextField
+                  className="w-full"
+                  id={`lastName-${index}`}
+                  variant="outlined"
+                  value={person?.lastName}
+                  onChange={(e) =>
+                    handlePersonChange(index, "lastName", e.target.value)
+                  }
+                />
+              </div>
+
               <div className="flex w-full flex-col justify-center items-start gap-2">
                 <InputLabel htmlFor={`date-${index}`}>Date of Birth</InputLabel>
                 <TextField

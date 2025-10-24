@@ -143,11 +143,18 @@ const HomePolicyPreview = ({ data, open, handleClose }) => {
                   key={index}
                   className="w-full grid grid-cols-1 mt-[10px] mb-[20px] lg:grid-cols-2 gap-5 justify-center items-center"
                 >
-                  {person.name &&
-                    renderTextField(
-                      `Name to be Insured  ${index + 1}`,
-                      person.name
-                    )}
+                  {person?.firstName || person?.lastName || person?.name
+                    ? [
+                      person?.firstName &&
+                      renderTextField(`First Name ${index + 1}`, person.firstName),
+                      person?.lastName &&
+                      renderTextField(`Last Name ${index + 1}`, person.lastName),
+                      !person?.firstName &&
+                      !person?.lastName &&
+                      person?.name &&
+                      renderTextField(`Name to be Insured ${index + 1}`, person.name),
+                    ]
+                    : renderTextField(`Name to be Insured ${index + 1}`, 'N/A')}
                   {person.dob &&
                     renderDateField(`Date of Birth ${index + 1}`, person.dob)}
                   {person.email &&
